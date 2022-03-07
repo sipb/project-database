@@ -49,27 +49,16 @@ class CommChannel(SQLBase):
     project_id = db.Column(db.Integer(), nullable=False)
     commchannel = db.Column(db.Text(), nullable=False)
 
-def get_or_create(session, model, **kwargs):
+def add(x):
     '''
-    Get a table, if it exists, otherwise create it
-    
-    Function taken from: https://stackoverflow.com/questions/2546207/does-sqlalchemy-have-an-equivalent-of-djangos-get-or-create
+    Add an object defined by the Schema to the database
+    and commits the change
     '''
-    instance = session.query(model).filter_by(**kwargs).first()
-    if instance:
-        return instance
-    else:
-        instance = model(**kwargs)
-        session.add(instance)
-        session.commit()
-        return instance
+    session.add(x)
+    session.commit()
 
 ## Implement schema
-#SQLBase.metadata.create_all(sqlengine)
-
-projects = get_or_create(session, Projects)
-print(projects)
-
+SQLBase.metadata.create_all(sqlengine)
 
 print("Done")
 
