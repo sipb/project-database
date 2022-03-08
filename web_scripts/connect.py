@@ -63,6 +63,15 @@ def db_add(x):
     session.add(x)
     session.commit()
 
+def dict_convert(query_res_lst):
+    '''
+    Given a list which contains query results from SQLalchemy,
+    return a list of their Python dictionary representation
+    
+    Source: https://stackoverflow.com/questions/1958219/how-to-convert-sqlalchemy-row-object-to-a-python-dict
+    '''
+    return [r.__dict__ for r in query_res_lst]
+
 def get_all_projects():
     '''Get metadata all of projects in database'''
     return session.query(Projects).all()
@@ -74,6 +83,7 @@ def get_project_info(model,project_id):
     '''
     return session.query(model).filter_by(project_id=project_id).all()
 
+## Shorthand functions to get all table entries associated with a project ID `id`
 get_project = lambda id: get_project_info(Projects,id) # Return maximum 1 result
 get_contacts = lambda id: get_project_info(ContactEmails,id)
 get_roles = lambda id: get_project_info(Roles,id)
@@ -126,9 +136,40 @@ def add_project_metadata(args):
     db_add(project)
     return get_project_id(args['name'])
     
+def add_project_contacts(project_name, args):
+    '''
+    Add a list of emails associated with a project to the database
+    
+    Requires: 
+        - args to be list of dictionaries with keys 'type','email' 
+        - key 'type' is either 'primary' or 'secondary'
+    Returns: 
+        - None if no project with that name or invalid arguments, otherwise 
+        returns list of all emails associated with project in DB
+    '''
+    try:
+        args_lst = ['type','email']
+        for dict in args:
+            assert check_object_params(dict,args_lst)
+            assert dict['type'] in ['primary','secondary']
+    except AssertionError:
+        return None
+    
+    # Get project ID
+    project_id = get_project_id(project_name)
+    if not project_id:
+        return None
+    
+    for entry in args:
+        contact = ContactEmails()
+        contact.project_id = project_id
+        contact.type = entry['type']
+        contact.email = entry['email']
+        db_add(contact)
+    return dict_convert(get_contacts(project_id))
+
 ## Test code
 # print(get_all_projects())
-
 # pj1 = {
 #     'name':'test1',
 #     'status':'active',
@@ -137,6 +178,22 @@ def add_project_metadata(args):
 # print(add_project_metadata(pj1))
 # print(get_project_id('test1'))
 # print(get_all_projects())
+
+# contacts1 =[
+#     {
+#         'type':'primary',
+#         'email':'huydai@mit.edu',
+#     },
+#     {
+#         'type':'secondary',
+#         'email':'ec-discuss@mit.edu'
+#     }
+# ]
+#print(add_project_contacts('test1',contacts1))
+
+project_id = get_project_id('test1')
+print(dict_convert(get_contacts(project_id)))
+
 
 # print("Done")
 
