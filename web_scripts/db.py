@@ -1,3 +1,4 @@
+#!/usr/bin/python
 from schema import *
 
 
@@ -217,7 +218,7 @@ def add_project_comms(project_name, args):
     for entry in args:
         comm = CommChannels()
         comm.project_id = project_id
-        comm.link = entry['commchannel']
+        comm.commchannel = entry['commchannel']
         db_add(comm)
     return get_comm(project_id)
 
@@ -255,33 +256,33 @@ def add_project_comms(project_name, args):
 # ]
 #print(add_project_contacts('test1',contacts1))
 
-project_id = get_project_id('test1')
-print(get_contacts(project_id))
+# project_id = get_project_id('test1')
+# print(get_contacts(project_id))
 
-roles1 = [
-    {
-        'role':'Support Tech',
-        'description':'get familiar with MIT\'s and SIPB\'s computing infrastructure by helping answer user questions and approve user requests.'
-        # missing prereq
-    },
-    {
-        'role':'Support Tech',
-        'description':"help design, implement, test, and review SIPB's cluster management software.",
-        'prereq':'previous programming experience in any statically typed language, knowledge of Python and Go or ability to independently learn them, 6.033-level understanding of computer systems, experience with Git, experience with Linux'
-    }
-]
-print(add_project_roles(project_id,roles1))
+# roles1 = [
+#     {
+#         'role':'Support Tech',
+#         'description':'get familiar with MIT\'s and SIPB\'s computing infrastructure by helping answer user questions and approve user requests.'
+#         # missing prereq
+#     },
+#     {
+#         'role':'Support Tech',
+#         'description':"help design, implement, test, and review SIPB's cluster management software.",
+#         'prereq':'previous programming experience in any statically typed language, knowledge of Python and Go or ability to independently learn them, 6.033-level understanding of computer systems, experience with Git, experience with Linux'
+#     }
+# ]
+# #print(add_project_roles('test1',roles1))
 
-links1 = [
-    {'link':'https://sipb.mit.edu/'},
-    {'link':'https://hwops.mit.edu/'}
-]
-print(add_project_links(project_id,links1))
+# links1 = [
+#     {'link':'https://sipb.mit.edu/'},
+#     {'link':'https://hwops.mit.edu/'}
+# ]
+# #print(add_project_links('test1',links1))
 
-comms1 = [
-    {'commchannel':'sipb-hwops@mit.edu'},
-]
-print(add_project_comms(project_id,comms1))
+# comms1 = [
+#     {'commchannel':'sipb-hwops@mit.edu'},
+# ]
+# #print(add_project_comms('test1',comms1))
 
 
 # print("Done")
