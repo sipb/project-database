@@ -60,7 +60,7 @@ class CommChannels(SQLBase):
 ## Implement schema
 SQLBase.metadata.create_all(sqlengine)
 
-print("Done")
+# print("Done")
 
 
     
