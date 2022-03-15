@@ -17,9 +17,11 @@
     {% for project in project_list %}
         <tr>
             <td>{{ project.name  }}</td><td>{{ project.description }}</td><td>{{ project.status }}</td><td>
-                {% for link in project.links %}
-                    <a href="{{ link }}">{{ link }}</a>
-                {% endfor %}
+                <ul>
+                    {% for link in project.links %}
+                        <li><a href="{{ link }}">{{ link }}</a></li>
+                    {% endfor %}
+                </ul>
             </td>
         </tr>
     {% endfor %}
