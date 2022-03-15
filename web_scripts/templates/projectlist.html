@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>SIPB Project List</title>
+    <meta charset="UTF-8">
+    <style>
+    td { padding: 5px; }
+    .header td { border: 2px solid black; }
+    .gone { border: 0; }
+    </style>
+</head>
+<body>
+    <h2>SIPB Project List</h2>
+
+    <table border="1">
+    <tr class="header"><td>Name</td><td>Description</td><td>Status</td></tr>
+    {% for project in project_list %}
+        <tr>
+            <td>project.name</td><td>project.description</td><td>project.status</td>
+        </tr>
+    {% endfor %}
+    </table>
+</body>
+</html>

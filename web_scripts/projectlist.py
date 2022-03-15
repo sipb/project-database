@@ -1,15 +1,22 @@
 #!/usr/bin/python
 
+import jinja2
+
 import db
 
 
 def render_project_list(project_list):
+    jenv = jinja2.Environment(
+        loader=jinja2.FileSystemLoader("templates"),
+        autoescape=True
+    )
+
     print('Content-type: text/html\n')
-    print('<html>\n')
-    print('Received %d project(s)\n' % len(project_list))
-    for key, value in project_list[0].items():
-        print('%s: %s\n' % (key, value))
-    print('</html>')
+    print(
+        jenv.get_template('projectlist.html').render(
+            project_list=project_list
+        ).encode('utf-8')
+    )
 
 
 def main():
