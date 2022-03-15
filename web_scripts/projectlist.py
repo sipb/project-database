@@ -7,6 +7,8 @@ def render_project_list(project_list):
     print('Content-type: text/html\n')
     print('<html>')
     print('Received %d project(s)' % len(project_list))
+    for key in project_list[0].keys():
+        print(key)
     print('</html>')
 
 
