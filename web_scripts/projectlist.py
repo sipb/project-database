@@ -19,11 +19,19 @@ def render_project_list(project_list):
     )
 
 
+def obfuscate_email(email):
+    return email.replace('@', ' [at] ').replace('.', ' [dot] ')
+
+
 def main():
     project_list = db.list_dict_convert(db.get_all_projects())
     for project in project_list:
         project['links'] = [
             link['link'] for link in db.get_links(project['project_id'])
+        ]
+        project['comm_channels'] = [
+            obfuscate_email(channel['commchannel'])
+            for channel in db.get_comm(project['project_id'])
         ]
     render_project_list(project_list)
 
