@@ -5,10 +5,10 @@ import db
 
 def render_project_list(project_list):
     print('Content-type: text/html\n')
-    print('<html>')
-    print('Received %d project(s)' % len(project_list))
-    for key in project_list[0].keys():
-        print(key)
+    print('<html>\n')
+    print('Received %d project(s)\n' % len(project_list))
+    for key, value in project_list[0].items():
+        print('%s: %s\n' % (key, value))
     print('</html>')
 
 
