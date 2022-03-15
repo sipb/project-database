@@ -13,10 +13,14 @@
     <h2>SIPB Project List</h2>
 
     <table border="1">
-    <tr class="header"><td>Name</td><td>Description</td><td>Status</td></tr>
+    <tr class="header"><td>Name</td><td>Description</td><td>Status</td><td>Link(s)</td></tr>
     {% for project in project_list %}
         <tr>
-            <td>{{ project.name  }}</td><td>{{ project.description }}</td><td>{{ project.status }}</td>
+            <td>{{ project.name  }}</td><td>{{ project.description }}</td><td>{{ project.status }}</td><td>
+                {% for link in project.links %}
+                    <a href="{{ link }}">{{ link }}</a>
+                {% endfor %}
+            </td>
         </tr>
     {% endfor %}
     </table>

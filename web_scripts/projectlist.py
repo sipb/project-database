@@ -21,6 +21,10 @@ def render_project_list(project_list):
 
 def main():
     project_list = db.list_dict_convert(db.get_all_projects())
+    for project in project_list:
+        project['links'] = [
+            link['link'] for link in db.get_links(project['project_id'])
+        ]
     render_project_list(project_list)
 
 
