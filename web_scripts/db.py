@@ -1,5 +1,6 @@
 #!/usr/bin/python
 from schema import *
+import strutils
 
 
 ##############################################################
@@ -68,6 +69,33 @@ def get_project_id(name):
     if project:
         return project.project_id
     return None
+
+
+def get_all_project_info():
+    """Get the information for all projects.
+
+    Returns
+    -------
+    project_list : list of dict
+        List of all projects.
+    """
+    project_list = list_dict_convert(get_all_projects())
+    # There's probably a way to do this with joins...
+    for project in project_list:
+        project_id = project['project_id']
+        project['links'] = [
+            link['link'] for link in get_links(project_id)
+        ]
+        project['comm_channels'] = [
+            strutils.obfuscate_email(channel['commchannel'])
+            for channel in get_comm(project_id)
+        ]
+        project['roles'] = get_roles(project_id)
+        project['contacts'] = get_contacts(project_id)
+        for contact in project['contacts']:
+            contact['email'] = strutils.obfuscate_email(contact['email'])
+    return project_list
+
 
 # Adding entry to each table
 
