@@ -11,11 +11,11 @@ def format_project_list(project_list):
         loader=jinja2.FileSystemLoader("templates"),
         autoescape=True
     )
-    result = u''
+    result = ''
     result += 'Content-type: text/html\n'
     result += jenv.get_template('projectlist.html').render(
         project_list=project_list
-    ).encode('utf-8')
+    )#.encode('utf-8')
     return result
 
 
