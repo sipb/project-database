@@ -20,6 +20,7 @@
         <td>Link(s)</td>
         <td>Communication Channel(s)</td>
         <td>Roles</td>
+        <td>Contact(s)</td>
     </tr>
     {% for project in project_list %}
         <tr>
@@ -56,6 +57,13 @@
                         </dd>
                     {% endfor %}
                 </dl>
+            </td>
+            <td>
+                <ul>
+                    {% for contact in project.contacts %}
+                        <li>{{ contact.email }} ({{ contact.type }})</li>
+                    {% endfor %}
+                </ul>
             </td>
         </tr>
     {% endfor %}

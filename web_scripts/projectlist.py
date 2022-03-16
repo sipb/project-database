@@ -35,6 +35,9 @@ def get_project_table():
             for channel in db.get_comm(project_id)
         ]
         project['roles'] = db.get_roles(project_id)
+        project['contacts'] = db.get_contacts(project_id)
+        for contact in project['contacts']:
+            contact['email'] = obfuscate_email(contact['email'])
     return project_list
 
 
