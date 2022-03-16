@@ -11,12 +11,12 @@ def format_project_list(project_list):
         loader=jinja2.FileSystemLoader("templates"),
         autoescape=True
     )
-    result = ''
-    result += 'Content-type: text/html\n'
-    result += jenv.get_template('projectlist.html').render(
-        project_list=project_list
-    )#.encode('utf-8')
-    return result
+    print('Content-type: text/html\n')
+    print(
+        jenv.get_template('projectlist.html').render(
+            project_list=project_list
+        ).encode('utf-8')
+    )
 
 
 def obfuscate_email(email):
@@ -43,8 +43,7 @@ def get_project_table():
 
 def main():
     project_list = get_project_table()
-    page = format_project_list(project_list)
-    print(page)
+    format_project_list(project_list)
 
 
 if __name__ == '__main__':
