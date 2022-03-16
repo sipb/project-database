@@ -7,8 +7,20 @@ import db
 
 
 def format_project_list(project_list):
+    """Format a list of projects into an HTML page.
+
+    Parameters
+    ----------
+    project_list : list of dict
+        The projects to list.
+
+    Returns
+    -------
+    result : str
+        The HTML to display.
+    """
     jenv = jinja2.Environment(
-        loader=jinja2.FileSystemLoader("templates"),
+        loader=jinja2.FileSystemLoader('templates'),
         autoescape=True
     )
     result = ''
@@ -20,11 +32,31 @@ def format_project_list(project_list):
 
 
 def obfuscate_email(email):
+    """Obfuscate an email address to mitigate simple spam bots.
+
+    Parameters
+    ----------
+    email : str
+        The raw email address.
+
+    Returns
+    -------
+    email_obfuscated : str
+        The obfuscated email address.
+    """
     return email.replace('@', ' [at] ').replace('.', ' [dot] ')
 
 
-def get_project_table():
+def get_project_info():
+    """Get the information for all projects.
+
+    Returns
+    -------
+    project_list : list of dict
+        List of all projects.
+    """
     project_list = db.list_dict_convert(db.get_all_projects())
+    # There's probably a way to do this with joins...
     for project in project_list:
         project_id = project['project_id']
         project['links'] = [
@@ -42,7 +74,9 @@ def get_project_table():
 
 
 def main():
-    project_list = get_project_table()
+    """Display the info for all projects.
+    """
+    project_list = get_project_info()
     page = format_project_list(project_list)
     print(page)
 
