@@ -19,6 +19,7 @@
         <td>Status</td>
         <td>Link(s)</td>
         <td>Communication Channel(s)</td>
+        <td>Roles</td>
     </tr>
     {% for project in project_list %}
         <tr>
@@ -38,6 +39,23 @@
                         <li>{{ channel }}</li>
                     {% endfor %}
                 </ul>
+            </td>
+            <td>
+                <dl>
+                    {% for role in project.roles %}
+                        <dt>{{ role.role }}</dt>
+                        <dd>
+                            <i>Description: </i>{{ role.description }}
+                        </dd>
+                        <dd>
+                            {% if role.prereq == None %}
+                                <i>Prereqs:</i> none
+                            {% else %}
+                                <i>Prereqs:</i> {{ role.prereq }}
+                            {% endif %}
+                        </dd>
+                    {% endfor %}
+                </dl>
             </td>
         </tr>
     {% endfor %}
