@@ -12,7 +12,7 @@ def format_project_list(project_list):
         autoescape=True
     )
     print(
-        'Content-type: text/html\n' +
+        u'Content-type: text/html\n' +
         jenv.get_template('projectlist.html').render(
             project_list=project_list
         ).encode('utf-8')
