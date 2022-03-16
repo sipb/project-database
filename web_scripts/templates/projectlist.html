@@ -45,7 +45,7 @@
                     {% for role in project.roles %}
                         <dt>{{ role.role }}</dt>
                         <dd>
-                            <i>Description: </i>{{ role.description }}
+                            <i>Description:</i> {{ role.description }}
                         </dd>
                         <dd>
                             {% if role.prereq == None %}

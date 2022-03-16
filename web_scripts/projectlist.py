@@ -35,6 +35,7 @@ def get_project_table():
             for channel in db.get_comm(project_id)
         ]
         project['roles'] = db.get_roles(project_id)
+    return project_list
 
 
 def main():
