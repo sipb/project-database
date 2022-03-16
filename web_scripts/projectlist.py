@@ -16,6 +16,7 @@ def format_project_list(project_list):
     result += jenv.get_template('projectlist.html').render(
         project_list=project_list
     ).encode('utf-8')
+    return result
 
 
 def obfuscate_email(email):
