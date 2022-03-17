@@ -6,9 +6,10 @@ import jinja2
 
 
 def add_project(arguments):
-    import pickle as pkl
-    with open('results.pkl', 'wb') as pf:
-        pkl.dump(arguments, pf)
+    # import pickle as pkl
+    # with open('results.pkl', 'wb') as pf:
+    #     pkl.dump(arguments, pf)
+    pass
 
 
 def render_result_page():
