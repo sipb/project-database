@@ -10,7 +10,9 @@
     </style>
     <!-- Based on https://stackoverflow.com/questions/14853779/adding-input-elements-dynamically-to-form -->
     <script type="text/javascript">
+        // Global counter to obtain unique role field names:
         var role_counter = 0;
+
         function add_role() {
             var container = document.getElementById("roles_container");
             var role_fields = document.createElement("p");
@@ -113,7 +115,7 @@
                 <input type="text" id="comm_channels" name="comm_channels">
             </p>
             <p>
-                <label for="contacts">Contact(s) (comma-separated):</label>
+                <label for="contacts">Contact(s) (comma-separated, first is primary):</label>
                 <input type="text" id="contacts" name="contacts">
             </p>
             <p>
