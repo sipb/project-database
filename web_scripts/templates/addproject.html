@@ -10,18 +10,68 @@
     </style>
     <!-- Based on https://stackoverflow.com/questions/14853779/adding-input-elements-dynamically-to-form -->
     <script type="text/javascript">
-        function addRole() {
+        function add_role() {
             var container = document.getElementById("roles_container");
             var role_fields = document.createElement("p");
+
             var role_name_label = document.createElement("label");
             role_name_label.setAttribute("for", "role_name");
             role_name_label.innerHTML = "Role name:"
             role_fields.appendChild(role_name_label);
+
+            var role_name_field = document.createElement("input");
+            role_name_field.setAttribute("type", "text");
+            role_name_field.setAttribute("id", "role_name");
+            role_name_field.setAttribute("name", "role_name[]");
+            role_fields.appendChild(role_name_field);
+
+            role_fields.appendChild(document.createElement("br"));
+
+            var role_description_label = document.createElement("label");
+            role_description_label.setAttribute("for", "role_description");
+            role_description_label.innerHTML = "Role description:"
+            role_fields.appendChild(role_description_label);
+
+            var role_description_field = document.createElement("input");
+            role_description_field.setAttribute("type", "text");
+            role_description_field.setAttribute("id", "role_description");
+            role_description_field.setAttribute("name", "role_description[]");
+            role_fields.appendChild(role_description_field);
+
+            role_fields.appendChild(document.createElement("br"));
+
+            var role_prereqs_label = document.createElement("label");
+            role_prereqs_label.setAttribute("for", "role_prereqs");
+            role_prereqs_label.innerHTML = "Role prereqs:"
+            role_fields.appendChild(role_prereqs_label);
+
+            var role_prereqs_field = document.createElement("input");
+            role_prereqs_field.setAttribute("type", "text");
+            role_prereqs_field.setAttribute("id", "role_prereqs");
+            role_prereqs_field.setAttribute("name", "role_prereqs[]");
+            role_fields.appendChild(role_prereqs_field);
+
+            role_fields.appendChild(document.createElement("br"));
+
+            var remove_roll_button = document.createElement("input");
+            remove_roll_button.setAttribute("type", "button");
+            remove_roll_button.setAttribute("value", "Remove role");
+            remove_roll_button.setAttribute("onclick", "remove_role(this)");
+            role_fields.appendChild(remove_roll_button);
+
             container.appendChild(role_fields);
+        }
+
+        function remove_role(elem) {
+            elem.parentElement.remove();
         }
     </script>
 </head>
-<body onload="addRole()">
+{% if user and can_add %}
+    <body onload="add_role()">
+{% else %}
+    <body>
+{% endif %}
     <h2>SIPB Project Database -- Add Project</h2>
 
     {% if not user %}
@@ -62,36 +112,14 @@
             <p>
                 <label>Role(s):</label>
             </p>
-            <div id="roles_container">
-                <!-- <p>
-                    <label for="role_name">Role name:</label>
-                    <input type="text" id="role_name" name="role_name[]"><br>
-                    <label for="role_description">Role description:</label>
-                    <input type="text" id="role_description" name="role_description[]"><br>
-                    <label for="role_prereqs">Role prereqs:</label>
-                    <input type="text" id="role_prereqs" name="role_prereqs[]"><br>
-                    <input type="button" value='Remove role' class='remove_role'>
-                </p> -->
-            </div>
+            <div id="roles_container"></div>
             <p>
-                <input type="button" value='Add another role' class='add_role'>
+                <input type="button" value="Add another role" onclick="add_role()">
+            </p>
+            <p>
+                <input type="submit" value="Create project">
             </p>
         </form>
-        <!-- Based on: https://stackoverflow.com/questions/5156790/creating-a-dynamic-html-form -->
-        <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> -->
-        <!-- <script type="text/javascript">
-            $(".add_role").click(
-                function() {
-                    $("form > p:nth-child(8)").clone(true).insertBefore("form > p:last-child");
-                    return false;
-                }
-            );
-            $(".remove_role").click(
-                function() {
-                    $(this).parent().remove();
-                }
-            );
-        </script> -->
     {% endif %}
 </body>
 </html>
