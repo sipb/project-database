@@ -5,7 +5,7 @@
 
 import os
 
-import moira
+# import moira
 
 
 def get_kerberos():
@@ -64,8 +64,9 @@ def get_auth_url(do_authenticate):
 
 
 def is_sipb(user):
-    # TODO: can we access moira from scripts? Authentication seems to hang when
-    # I enable this check.
+    # TODO: scripts can't access moira anymore. What is an alternate way to
+    # check if a user is in SIPB? Do we have a member database mirrored
+    # somewhere?
     # return moira.has_access(user, 'sipb-office@mit.edu')
     return True
 

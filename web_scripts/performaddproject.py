@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import traceback
+
 import cgi
 import jinja2
 
+import authutils
+import db
 import strutils
 
 
@@ -105,6 +109,24 @@ def args_to_dict(arguments):
     }
 
 
+def validate_add_permission():
+    user = authutils.get_kerberos()
+    can_add = authutils.can_add(user)
+    return can_add
+
+
+def validate_project_name(name):
+    return len(name) >= 1
+
+
+def validate_project_name_available(name):
+    return db.get_project_id(name) is None
+
+
+def validate_project_description(description):
+    return len(description) >= 1
+
+
 def validate(project_info):
     """Validate that the given project is OK to add.
 
@@ -124,8 +146,24 @@ def validate(project_info):
     is_ok : bool
         Indicates whether or not the project is OK to add.
     """
-    # TODO!
-    return 'Success!', True
+    defect_list = []
+
+    if not validate_add_permission():
+        defect_list.append('User is not authorized to add projects!')
+
+    if not validate_project_name(project_info['name']):
+        defect_list.append('Project name must be non-empty!')
+
+    if not validate_project_name_available(project_info['name']):
+        defect_list.append('A project with that name already exists!')
+
+    if not validate_project_description(project_info['description']):
+        defect_list.append('Project description must be non-empty!')
+
+    if len(defect_list) == 0:
+        return 'Success!', True
+    else:
+        return strutils.html_listify(defect_list), False
 
 
 def add_project(project_info):
@@ -136,6 +174,7 @@ def add_project(project_info):
     project_info : dict
         The project info extracted from the form.
     """
+    raise RuntimeError('Nope!')
     pass
 
 
@@ -177,9 +216,15 @@ def format_failure_page(status):
     result : str
         The HTML to display.
     """
+    jenv = jinja2.Environment(
+        loader=jinja2.FileSystemLoader('templates'),
+        autoescape=True
+    )
     result = ''
     result += 'Content-type: text/html\n\n'
-    # TODO!
+    result += jenv.get_template('performaddprojectfailure.html').render(
+        status=status
+    ).encode('utf-8')
     return result
 
 
@@ -190,11 +235,21 @@ def main():
     arguments = cgi.FieldStorage()
     project_info = args_to_dict(arguments)
     status, is_ok = validate(project_info)
+
+    if is_ok:
+        try:
+            add_project(project_info)
+        except Exception:
+            is_ok = False
+            status = 'add_project failed with the following exception:\n'
+            status += traceback.format_exc()
+
     if is_ok:
         add_project(project_info)
         page = format_success_page(project_info)
     else:
         page = format_failure_page(status)
+
     print(page)
 
 

@@ -28,3 +28,23 @@ def split_comma_sep(input_str):
         The elements of input_str, with leading/trailing whitespace stripped.
     """
     return [s.strip() for s in input_str.split(',')]
+
+
+def html_listify(items):
+    """Convert a list of strings to an HTML unordered list.
+
+    Parameters
+    ----------
+    items : list of str
+        The list items.
+
+    Returns
+    -------
+    result : str
+        The HTML list.
+    """
+    result = '<ul>\n'
+    for item in items:
+        result += '    <li>%s</li>\n' % item
+    result += '</ul>\n'
+    return result
