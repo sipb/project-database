@@ -18,7 +18,7 @@ def render_result_page():
     )
     result = ''
     result += 'Content-type: text/html\n\n'
-    result += '<!DOCTYPE html>\n<html lang="en">\n<head>\n<title>success?</title>\n</head>\n<body>\n<p>hello</p>\n</body>'
+    result += '<!DOCTYPE html>\n<html lang="en">\n<head>\n<title>success?</title>\n</head>\n<body>\n<p>hello</p>\n</body>\n</html>\n'
     # result += jenv.get_template('projectlist.html').render().encode('utf-8')
     return result
 
