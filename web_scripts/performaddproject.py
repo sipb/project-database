@@ -12,22 +12,23 @@ def add_project(arguments):
     pass
 
 
-def render_result_page():
+def render_result_page(arguments):
     jenv = jinja2.Environment(
         loader=jinja2.FileSystemLoader('templates'),
         autoescape=True
     )
     result = ''
     result += 'Content-type: text/html\n\n'
-    result += '<!DOCTYPE html>\n<html lang="en">\n<head>\n<title>success?</title>\n</head>\n<body>\n<p>hello</p>\n</body>\n</html>\n'
-    # result += jenv.get_template('projectlist.html').render().encode('utf-8')
+    result += jenv.get_template('performaddprojectsuccess.html').render(
+        name=arguments['name']
+    ).encode('utf-8')
     return result
 
 
 def main():
     arguments = cgi.FieldStorage()
     add_project(arguments)
-    page = render_result_page()
+    page = render_result_page(arguments)
     print(page)
 
 
