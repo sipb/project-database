@@ -105,17 +105,53 @@ def args_to_dict(arguments):
     }
 
 
-def add_project(arguments):
-    """Add the given project 
+def validate(project_info):
+    """Validate that the given project is OK to add.
+
+    In particular, check that:
+    * The user is signed-in and is authorized to add projects.
+    * The project_info is properly-formed.
+
+    Parameters
+    ----------
+    project_info : dict
+        The project info extracted from the form.
+
+    Returns
+    -------
+    status : str
+        A status message indicating the result of the validation.
+    is_ok : bool
+        Indicates whether or not the project is OK to add.
     """
-    # TODO: This should authenticate the user, do any sort of validation/
-    # sanitization we need, and write to the DB. It should return an error
-    # message if it fails, which we should check and use to render the
-    # appropriate follow-on page.
+    # TODO!
+    return 'Success!', True
+
+
+def add_project(project_info):
+    """Add the given project to the database.
+
+    Parameters
+    ----------
+    project_info : dict
+        The project info extracted from the form.
+    """
     pass
 
 
-def render_result_page(project_info):
+def format_success_page(project_info):
+    """Format the success page.
+
+    Parameters
+    ----------
+    project_info : dict
+        The project info which was added to the database.
+
+    Returns
+    -------
+    result : str
+        The HTML to display.
+    """
     jenv = jinja2.Environment(
         loader=jinja2.FileSystemLoader('templates'),
         autoescape=True
@@ -128,11 +164,34 @@ def render_result_page(project_info):
     return result
 
 
+def format_failure_page(status):
+    """Format the failure page.
+
+    Parameters
+    ----------
+    status : str
+        The status string explaining why the project was rejected.
+
+    Returns
+    -------
+    result : str
+        The HTML to display.
+    """
+    result = ''
+    result += 'Content-type: text/html\n\n'
+    # TODO!
+    return result
+
+
 def main():
     arguments = cgi.FieldStorage()
     project_info = args_to_dict(arguments)
-    add_project(project_info)
-    page = render_result_page(project_info)
+    status, is_ok = validate(project_info)
+    if is_ok:
+        add_project(project_info)
+        page = format_success_page(project_info)
+    else:
+        page = format_failure_page(status)
     print(page)
 
 

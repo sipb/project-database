@@ -19,10 +19,11 @@ def format_add_project():
     result = ''
     result += 'Content-type: text/html\n\n'
     result += jenv.get_template('addproject.html').render(
+        # TODO: Get user and permissions properly!
         user='markchil',
         can_add=True,
         help_address='dev [slash] null'
-    )#.encode('utf-8')
+    ).encode('utf-8')
     return result
 
 
