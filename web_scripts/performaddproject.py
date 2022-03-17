@@ -28,7 +28,7 @@ def render_result_page(arguments):
         contacts=arguments['contacts'].value,
         role_names=arguments['role_name[]'],
         role_descriptions=arguments['role_description[]'],
-        role_prereqs=arguments['role_prereqs[]']
+        # role_prereqs=arguments['role_prereqs[]']
     ).encode('utf-8')
     return result
 
