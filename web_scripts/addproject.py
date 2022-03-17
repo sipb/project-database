@@ -27,9 +27,9 @@ def format_add_project():
     result = ''
     result += 'Content-type: text/html\n\n'
     result += jenv.get_template('addproject.html').render(
-        # TODO: Get permissions properly!
         user=user,
         can_add=can_add,
+        # TODO: what is the contact email for projects-db maintainers?
         help_address='useful-help-email-for-projects-db [at] mit [dot] edu',
         authlink=authlink
     ).encode('utf-8')
