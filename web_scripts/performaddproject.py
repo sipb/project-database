@@ -243,6 +243,7 @@ def main():
             is_ok = False
             status = 'add_project failed with the following exception:\n'
             status += traceback.format_exc()
+            status.replace('\n', '<br>')
 
     if is_ok:
         add_project(project_info)
