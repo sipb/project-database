@@ -23,12 +23,13 @@ def format_add_project():
     # add the authentication port if there isn't a user). But, this doesn't
     # seem to work for me when running from my scripts account.
     authlink = authutils.get_auth_url(True)
+    can_add = authutils.can_add(user)
     result = ''
     result += 'Content-type: text/html\n\n'
     result += jenv.get_template('addproject.html').render(
-        # TODO: Get user and permissions properly!
+        # TODO: Get permissions properly!
         user=user,
-        can_add=True,
+        can_add=can_add,
         help_address='useful-help-email-for-projects-db [at] mit [dot] edu',
         authlink=authlink
     ).encode('utf-8')
