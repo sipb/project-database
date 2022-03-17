@@ -3,6 +3,8 @@
 
 import jinja2
 
+import authutils
+
 
 def format_add_project():
     """Format the add project interface.
@@ -16,13 +18,16 @@ def format_add_project():
         loader=jinja2.FileSystemLoader('templates'),
         autoescape=True
     )
+    user = authutils.get_kerberos()
+    authlink = authutils.get_auth_url(user is not None)
     result = ''
     result += 'Content-type: text/html\n\n'
     result += jenv.get_template('addproject.html').render(
         # TODO: Get user and permissions properly!
-        user='markchil',
+        user=user,
         can_add=True,
-        help_address='dev [slash] null'
+        help_address='useful-help-email-for-projects-db [at] mit [dot] edu',
+        authlink=authlink
     ).encode('utf-8')
     return result
 
