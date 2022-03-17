@@ -69,9 +69,9 @@ def extract_roles(arguments):
     for role_id in role_ids:
         roles.append(
             {
-                'role': arguments['role_name_' + role_id],
-                'description': arguments['role_description_' + role_id],
-                'prereq': arguments['role_prereqs_' + role_id]
+                'role': arguments['role_name_' + role_id].value,
+                'description': arguments['role_description_' + role_id].value,
+                'prereq': arguments['role_prereqs_' + role_id].value
             }
         )
     return roles
@@ -99,7 +99,7 @@ def args_to_dict(arguments):
             arguments['comm_channels'].value
         ),
         'contacts': contact_list_to_dict_list(
-            strutils.split_comma_sep(arguments['contacts'])
+            strutils.split_comma_sep(arguments['contacts'].value)
         ),
         'roles': extract_roles(arguments)
     }
