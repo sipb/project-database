@@ -64,7 +64,7 @@ def get_auth_url(do_authenticate):
 
 
 def is_sipb(user):
-    return moira.has_access(user, 'sipb@mit.edu')
+    return moira.has_access(user, 'sipb-office@mit.edu')
 
 
 def can_add(user):
