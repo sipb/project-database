@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Add Project</title>
+    <meta charset="UTF-8">
+    <style>
+    td { padding: 5px; }
+    .header td { border: 2px solid black; }
+    .gone { border: 0; }
+    </style>
+</head>
+<body>
+    <h2>SIPB Project Database -- Add Project</h2>
+
+    {% if not user %}
+        <p><a href="{{ authlink }}">Sign in to create a project.</a></p>
+    {% elif not can_add %}
+        <p>You do not have access to create new projects. Please contact {{ help_address }} for help.</p>
+    {% else %}
+        <p>Signed in as {{ user }}.</p>
+
+        <form action="performaddproject.py" method="POST">
+            <p>
+                <label for="name">Project name:</label>
+                <input type="text" id="name" name="name">
+            </p>
+            <p>
+                <label for="description">Description:</label><br>
+                <textarea id="description" name="description" rows="24" cols="80"></textarea>
+            </p>
+            <p>
+                <label>Status:</label>
+                <input type="radio" id="active" name="status" value="active" checked="checked">
+                <label for="active">Active</label>
+                <input type="radio" id="inactive" name="status" value="inactive">
+                <label for="inactive">Inactive</label>
+            </p>
+            <p>
+                <label for="links">Link(s) (comma-separated):</label>
+                <input type="text" id="links" name="links">
+            </p>
+            <p>
+                <label for="comm_channels">Communication channel(s) (comma-separated):</label>
+                <input type="text" id="comm_channels" name="comm_channels">
+            </p>
+            <p>
+                <label for="contacts">Contact(s) (comma-separated):</label>
+                <input type="text" id="contacts" name="contacts">
+            </p>
+            <p>
+                <label>Role(s):</label>
+            </p>
+            <p>
+                <label for="role_name">Role name:</label>
+                <input type="text" id="role_name" name="role_name[]"><br>
+                <label for="role_description">Role description:</label>
+                <input type="text" id="role_description" name="role_description[]"><br>
+                <label for="role_prereqs">Role prereqs:</label>
+                <input type="text" id="role_prereqs" name="role_prereqs[]"><br>
+                <input type="button" value='Remove role' class='remove_role'>
+            </p>
+            <p>
+                <input type="button" value='Add another role' class='add_role'>
+            </p>
+        </form>
+        <!-- Based on: https://stackoverflow.com/questions/5156790/creating-a-dynamic-html-form -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script type="text/javascript">
+            $(".add_role").click(
+                function() {
+                    $("form > p:nth-child(8)").clone(true).insertBefore("form > p:last-child");
+                    return false;
+                }
+            );
+            $(".remove_role").click(
+                function() {
+                    $(this).parent().remove();
+                }
+            );
+        </script>
+    {% endif %}
+</body>
+</html>
