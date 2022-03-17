@@ -20,7 +20,8 @@ def render_result_page(arguments):
     result = ''
     result += 'Content-type: text/html\n\n'
     result += jenv.get_template('performaddprojectsuccess.html').render(
-        name=arguments['name']
+        name=arguments['name'].value,
+
     ).encode('utf-8')
     return result
 
