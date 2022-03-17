@@ -19,7 +19,10 @@ def format_add_project():
         autoescape=True
     )
     user = authutils.get_kerberos()
-    authlink = authutils.get_auth_url(user is not None)
+    # NOTE: the original HWOPS code sets the argument to "not user" (i.e., only
+    # add the authentication port if there isn't a user). But, this doesn't
+    # seem to work for me when running from my scripts account.
+    authlink = authutils.get_auth_url(True)
     result = ''
     result += 'Content-type: text/html\n\n'
     result += jenv.get_template('addproject.html').render(

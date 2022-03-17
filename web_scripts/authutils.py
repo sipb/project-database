@@ -15,7 +15,8 @@ def get_kerberos():
         (email.count('@') != 1)
     ):
         return None
-    return email[:email.index('@')]
+    else:
+        return email[:email.index('@')]
 
 
 def get_base_url(do_authenticate):
@@ -27,7 +28,4 @@ def get_base_url(do_authenticate):
 
 
 def get_auth_url(do_authenticate):
-    return (
-        get_base_url(do_authenticate=do_authenticate) +
-        os.environ['REQUEST_URI']
-    )
+    return get_base_url(do_authenticate) + os.environ['REQUEST_URI']
