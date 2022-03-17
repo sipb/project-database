@@ -184,6 +184,9 @@ def format_failure_page(status):
 
 
 def main():
+    """Respond to an add project request, displaying the appropriate status
+    message.
+    """
     arguments = cgi.FieldStorage()
     project_info = args_to_dict(arguments)
     status, is_ok = validate(project_info)
