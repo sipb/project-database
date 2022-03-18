@@ -221,9 +221,9 @@ def format_failure_page(status):
     )
     result = ''
     result += 'Content-type: text/html\n\n'
-    result += jenv.get_template('performaddprojectfailure.html').render(
-        status=status
-    ).encode('utf-8')
+    # result += jenv.get_template('performaddprojectfailure.html').render(
+    #     status=status
+    # ).encode('utf-8')
     return result
 
 
