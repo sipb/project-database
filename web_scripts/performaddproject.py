@@ -151,8 +151,8 @@ def validate(project_info):
     if not validate_add_permission():
         defect_list.append('User is not authorized to add projects!')
 
-    # if not validate_project_name(project_info['name']):
-    #     defect_list.append('Project name must be non-empty!')
+    if not validate_project_name(project_info['name']):
+        defect_list.append('Project name must be non-empty!')
 
     # if not validate_project_name_available(project_info['name']):
     #     defect_list.append('A project with that name already exists!')
