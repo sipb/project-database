@@ -174,7 +174,6 @@ def add_project(project_info):
     project_info : dict
         The project info extracted from the form.
     """
-    raise RuntimeError('Nope!')
     pass
 
 
