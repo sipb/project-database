@@ -241,11 +241,12 @@ def main():
             add_project(project_info)
         except Exception:
             is_ok = False
-            status = '<p>'
+            status = ''
             status += 'add_project failed with the following exception:\n'
             status += traceback.format_exc()
-            status += '\n</p>'
-            status.replace('\n', '<br>')
+            status += '\n'
+            status = cgi.escape(status, quote=True)
+            status = status.replace('\n', '<br>')
 
     if is_ok:
         add_project(project_info)
