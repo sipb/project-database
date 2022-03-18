@@ -114,6 +114,8 @@ def extract_roles(arguments):
                 )
             }
         )
+        if len(roles[-1]['prereq']) == 0:
+            roles[-1]['prereq'] = None
     return roles
 
 
