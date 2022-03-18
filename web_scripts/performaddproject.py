@@ -31,7 +31,9 @@ def contact_list_to_dict_list(contact_list):
         The formatted contact dicts with types assigned.
     """
     result = [
-        {'email': contact, 'type': 'secondary'} for contact in contact_list
+        {'email': contact, 'type': 'secondary'}
+        for contact in contact_list
+        if len(contact) > 0
     ]
     if len(result) > 0:
         result[0]['type'] = 'primary'
@@ -163,7 +165,6 @@ def validate_project_description(description):
 
 
 def validate_project_contacts(contacts):
-    raise ValueError('contacts are %s' % contacts)
     return len(contacts) >= 1
 
 
