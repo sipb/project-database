@@ -163,7 +163,8 @@ def validate(project_info):
     if len(defect_list) == 0:
         return 'Success!', True
     else:
-        return strutils.html_listify(defect_list), False
+        # return strutils.html_listify(defect_list), False
+        return 'bah', False
 
 
 def add_project(project_info):
