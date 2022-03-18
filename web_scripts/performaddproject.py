@@ -10,6 +10,9 @@ import authutils
 import db
 import strutils
 
+import cgitb
+cgitb.enable()
+
 
 def contact_list_to_dict_list(contact_list):
     """Convert a list of contacts to a properly-formatted list of dicts.
@@ -163,8 +166,7 @@ def validate(project_info):
     if len(defect_list) == 0:
         return 'Success!', True
     else:
-        # return strutils.html_listify(defect_list), False
-        return 'bah', False
+        return strutils.html_listify(defect_list), False
 
 
 def add_project(project_info):
@@ -222,9 +224,9 @@ def format_failure_page(status):
     )
     result = ''
     result += 'Content-type: text/html\n\n'
-    # result += jenv.get_template('performaddprojectfailure.html').render(
-    #     status=status
-    # ).encode('utf-8')
+    result += jenv.get_template('performaddprojectfailure.html').render(
+        status=status
+    ).encode('utf-8')
     return result
 
 
