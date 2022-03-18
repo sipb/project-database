@@ -10,7 +10,7 @@ import authutils
 import db
 import strutils
 
-# TODO: May want to turn error help off once stable?
+# TODO: May want to turn error listing off once stable?
 import cgitb
 cgitb.enable()
 
@@ -150,16 +150,22 @@ def args_to_dict(arguments):
 
 
 def validate_add_permission():
+    """Return True if the user has permission to add projects.
+    """
     user = authutils.get_kerberos()
     can_add = authutils.can_add(user)
     return can_add
 
 
 def validate_project_name(name):
+    """Return True if the project name is non-empty.
+    """
     return len(name) >= 1
 
 
 def validate_project_name_available(name):
+    """Return True if the project name is available.
+    """
     # TODO: the get_project_id function does not work on the old version of
     # sqlalchemy on scripts.
     # TODO: it would be good to do a case-insensitive search
@@ -168,14 +174,20 @@ def validate_project_name_available(name):
 
 
 def validate_project_description(description):
+    """Return True if the project description is non-empty.
+    """
     return len(description) >= 1
 
 
 def validate_project_contacts(contacts):
+    """Return True if there is at least one contact.
+    """
     return len(contacts) >= 1
 
 
 def validate_project_contact_addresses(contacts):
+    """Return True if the project contact addresses are all MIT addresses.
+    """
     for contact in contacts:
         if not strutils.is_mit_email(contact['email']):
             return False
@@ -183,6 +195,8 @@ def validate_project_contact_addresses(contacts):
 
 
 def validate_project_roles(roles):
+    """Return True if the project roles all have names and descriptions.
+    """
     for role in roles:
         if (len(role['role']) == 0) or (len(role['description']) == 0):
             return False

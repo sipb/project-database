@@ -12,7 +12,6 @@
 <body>
     <h2>SIPB Project Database -- Add Project Complete</h2>
 
-    <!-- TODO: de-duplicate this code with projectlist.html -->
     <table border="1">
     <tr class="header">
         <td>Name</td>
@@ -23,49 +22,7 @@
         <td>Roles</td>
         <td>Contact(s)</td>
     </tr>
-    <tr>
-        <td>{{ project.name  }}</td>
-        <td>{{ project.description }}</td>
-        <td>{{ project.status }}</td>
-        <td>
-            <ul>
-                {% for link in project.links %}
-                    <li><a href="{{ link }}">{{ link }}</a></li>
-                {% endfor %}
-            </ul>
-        </td>
-        <td>
-            <ul>
-                {% for channel in project.comm_channels %}
-                    <li>{{ channel }}</li>
-                {% endfor %}
-            </ul>
-        </td>
-        <td>
-            <dl>
-                {% for role in project.roles %}
-                    <dt>{{ role.role }}</dt>
-                    <dd>
-                        <i>Description:</i> {{ role.description }}
-                    </dd>
-                    <dd>
-                        {% if role.prereq == None %}
-                            <i>Prereqs:</i> none
-                        {% else %}
-                            <i>Prereqs:</i> {{ role.prereq }}
-                        {% endif %}
-                    </dd>
-                {% endfor %}
-            </dl>
-        </td>
-        <td>
-            <ul>
-                {% for contact in project.contacts %}
-                    <li>{{ contact.email }} ({{ contact.type }})</li>
-                {% endfor %}
-            </ul>
-        </td>
-    </tr>
+    {% include 'projectrow.html' %}
     </table>
 </body>
 </html>

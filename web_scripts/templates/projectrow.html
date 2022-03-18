@@ -1,0 +1,43 @@
+<tr>
+    <td>{{ project.name  }}</td>
+    <td>{{ project.description }}</td>
+    <td>{{ project.status }}</td>
+    <td>
+        <ul>
+            {% for link in project.links %}
+                <li><a href="{{ link }}">{{ link }}</a></li>
+            {% endfor %}
+        </ul>
+    </td>
+    <td>
+        <ul>
+            {% for channel in project.comm_channels %}
+                <li>{{ channel }}</li>
+            {% endfor %}
+        </ul>
+    </td>
+    <td>
+        <dl>
+            {% for role in project.roles %}
+                <dt>{{ role.role }}</dt>
+                <dd>
+                    <i>Description:</i> {{ role.description }}
+                </dd>
+                <dd>
+                    {% if role.prereq == None %}
+                        <i>Prereqs:</i> none
+                    {% else %}
+                        <i>Prereqs:</i> {{ role.prereq }}
+                    {% endif %}
+                </dd>
+            {% endfor %}
+        </dl>
+    </td>
+    <td>
+        <ul>
+            {% for contact in project.contacts %}
+                <li>{{ contact.email }} ({{ contact.type }})</li>
+            {% endfor %}
+        </ul>
+    </td>
+</tr>
