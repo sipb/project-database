@@ -163,6 +163,7 @@ def validate_project_description(description):
 
 
 def validate_project_contacts(contacts):
+    raise ValueError('contacts are %s' % contacts)
     return len(contacts) >= 1
 
 
