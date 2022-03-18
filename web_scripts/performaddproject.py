@@ -162,6 +162,24 @@ def validate_project_description(description):
     return len(description) >= 1
 
 
+def validate_project_contacts(contacts):
+    return len(contacts) >= 1
+
+
+def validate_project_contact_addresses(contacts):
+    for contact in contacts:
+        if not strutils.is_mit_email(contact['email']):
+            return False
+    return True
+
+
+def validate_project_roles(roles):
+    for role in roles:
+        if (len(role['role']) == 0) or (len(role['description']) == 0):
+            return False
+    return True
+
+
 def validate(project_info):
     """Validate that the given project is OK to add.
 
@@ -194,6 +212,15 @@ def validate(project_info):
 
     if not validate_project_description(project_info['description']):
         defect_list.append('Project description must be non-empty!')
+
+    if not validate_project_contacts(project_info['contacts']):
+        defect_list.append('There must be at least one contact!')
+
+    if not validate_project_contact_addresses(project_info['contacts']):
+        defect_list.append('Contacts must be mit.edu email addresses!')
+
+    if not validate_project_roles(project_info['roles']):
+        defect_list.append('Each role must have a name and a description!')
 
     if len(defect_list) == 0:
         return 'Success!', True

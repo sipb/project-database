@@ -48,3 +48,22 @@ def html_listify(items):
         result += '    <li>%s</li>\n' % item
     result += '</ul>\n'
     return result
+
+
+def is_mit_email(email):
+    """Check whether a given string is an MIT email address.
+
+    NOTE: only checks the ending -- does not actually check if this is a valid
+    address!
+
+    Parameters
+    ----------
+    email : str
+        The email address to check.
+
+    Returns
+    -------
+    is_mit : bool
+        Whether or not the address is an MIT address.
+    """
+    return email.endswith('@mit.edu') and (email.count('@') == 1)
