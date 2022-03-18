@@ -54,11 +54,16 @@ def get_role_ids(arguments):
         The role IDs present in the arguments, in the order they are discovered
         in.
     """
-    role_ids = []
+    role_ids = set()
     for key in arguments.keys():
+        # Check all fields so that we can catch mal-formed inputs:
         if key.startswith('role_name_'):
-            role_ids.append(key[len('role_name_'):])
-    return role_ids
+            role_ids.add(key[len('role_name_'):])
+        elif key.startswith('role_description_'):
+            role_ids.add(key[len('role_description_'):])
+        elif key.startswith('role_prereqs_'):
+            role_ids.add(key[len('role_prereqs_'):])
+    return list(role_ids)
 
 
 def safe_cgi_field_get(arguments, field, default=''):
@@ -223,6 +228,9 @@ def validate(project_info):
 
     if not validate_project_roles(project_info['roles']):
         defect_list.append('Each role must have a name and a description!')
+
+    # TODO: this currently allows links, comm channels, and roles to be empty.
+    # Do we want to require any of those at project creation time?
 
     if len(defect_list) == 0:
         return 'Success!', True
