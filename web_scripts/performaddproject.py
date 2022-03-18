@@ -151,7 +151,11 @@ def validate_project_name(name):
 
 
 def validate_project_name_available(name):
-    return db.get_project_id(name) is None
+    # TODO: the get_project_id function does not work on the old version of
+    # sqlalchemy on scripts.
+    # TODO: it would be good to do a case-insensitive search
+    # return db.get_project_id(name) is None
+    return True
 
 
 def validate_project_description(description):
