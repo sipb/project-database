@@ -10,6 +10,7 @@ import authutils
 import db
 import strutils
 
+# TODO: May want to turn error help off once stable?
 import cgitb
 cgitb.enable()
 
@@ -58,6 +59,27 @@ def get_role_ids(arguments):
     return role_ids
 
 
+def safe_cgi_field_get(arguments, field, default=''):
+    """Get a field from CGI arguments, with failback for absent fields.
+
+    Parameters
+    ----------
+    arguments : cgi.FieldStorage
+        The data from the form.
+    field : str
+        The field to get.
+    default : str, optional
+        The value to use when a field is not present. Default is the empty
+        string.
+
+    Returns
+    -------
+    value : str
+        The field value.
+    """
+    return arguments[field].value if field in arguments else default
+
+
 def extract_roles(arguments):
     """Extract the role dicts from the arguments from CGI.
 
@@ -76,9 +98,13 @@ def extract_roles(arguments):
     for role_id in role_ids:
         roles.append(
             {
-                'role': arguments['role_name_' + role_id].value,
-                'description': arguments['role_description_' + role_id].value,
-                'prereq': arguments['role_prereqs_' + role_id].value
+                'role': safe_cgi_field_get(arguments, 'role_name_' + role_id),
+                'description': safe_cgi_field_get(
+                    arguments, 'role_description_' + role_id
+                ),
+                'prereq': safe_cgi_field_get(
+                    arguments, 'role_prereqs_' + role_id
+                )
             }
         )
     return roles
@@ -98,15 +124,17 @@ def args_to_dict(arguments):
         The project info dict.
     """
     return {
-        'name': arguments['name'].value,
-        'description': arguments['description'].value,
-        'status': arguments['status'].value,
-        'links': strutils.split_comma_sep(arguments['links'].value),
+        'name': safe_cgi_field_get(arguments, 'name'),
+        'description': safe_cgi_field_get(arguments, 'description'),
+        'status': safe_cgi_field_get(arguments, 'status'),
+        'links': strutils.split_comma_sep(
+            safe_cgi_field_get(arguments, 'links')
+        ),
         'comm_channels': strutils.split_comma_sep(
-            arguments['comm_channels'].value
+            safe_cgi_field_get(arguments, 'comm_channels')
         ),
         'contacts': contact_list_to_dict_list(
-            strutils.split_comma_sep(arguments['contacts'].value)
+            strutils.split_comma_sep(safe_cgi_field_get(arguments, 'contacts'))
         ),
         'roles': extract_roles(arguments)
     }
@@ -157,11 +185,11 @@ def validate(project_info):
     if not validate_project_name(project_info['name']):
         defect_list.append('Project name must be non-empty!')
 
-    # if not validate_project_name_available(project_info['name']):
-    #     defect_list.append('A project with that name already exists!')
+    if not validate_project_name_available(project_info['name']):
+        defect_list.append('A project with that name already exists!')
 
-    # if not validate_project_description(project_info['description']):
-    #     defect_list.append('Project description must be non-empty!')
+    if not validate_project_description(project_info['description']):
+        defect_list.append('Project description must be non-empty!')
 
     if len(defect_list) == 0:
         return 'Success!', True
