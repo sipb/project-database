@@ -148,8 +148,8 @@ def validate(project_info):
     """
     defect_list = []
 
-    # if not validate_add_permission():
-    #     defect_list.append('User is not authorized to add projects!')
+    if not validate_add_permission():
+        defect_list.append('User is not authorized to add projects!')
 
     # if not validate_project_name(project_info['name']):
     #     defect_list.append('Project name must be non-empty!')
