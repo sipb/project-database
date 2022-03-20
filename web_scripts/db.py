@@ -1,6 +1,5 @@
 #!/usr/bin/python
 from schema import *
-import strutils
 
 
 ##############################################################
@@ -87,13 +86,11 @@ def get_all_project_info():
             link['link'] for link in get_links(project_id)
         ]
         project['comm_channels'] = [
-            strutils.obfuscate_email(channel['commchannel'])
-            for channel in get_comm(project_id)
+            channel['commchannel'] for channel in get_comm(project_id)
         ]
         project['roles'] = get_roles(project_id)
         project['contacts'] = get_contacts(project_id)
-        for contact in project['contacts']:
-            contact['email'] = strutils.obfuscate_email(contact['email'])
+        
     return project_list
 
 

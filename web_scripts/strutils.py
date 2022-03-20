@@ -14,6 +14,20 @@ def obfuscate_email(email):
     return email.replace('@', ' [at] ').replace('.', ' [dot] ')
 
 
+def obfuscate_project_info_dicts(project_list):
+    """Obfuscate the comm_channels and contacts fields of all projects in the
+    provided list.
+    """
+    for project in project_list:
+        project['comm_channels'] = [
+            obfuscate_email(channel['commchannel'])
+            for channel in project['comm_channels']
+        ]
+        for contact in project['contacts']:
+            contact['email'] = obfuscate_email(contact['email'])
+    return project_list
+
+
 def split_comma_sep(input_str):
     """Split a comma-separated list and strip whitespace.
 
