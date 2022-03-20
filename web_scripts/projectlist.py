@@ -41,6 +41,9 @@ def main():
     """
     project_list = db.get_all_project_info()
     project_list = strutils.obfuscate_project_info_dicts(project_list)
+    project_list = strutils.make_project_info_dicts_links_absolute(
+        project_list
+    )
     page = format_project_list(project_list)
     print(page)
 
