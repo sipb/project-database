@@ -6,6 +6,10 @@ import jinja2
 import db
 import strutils
 
+# TODO: May want to turn error listing off once stable?
+import cgitb
+cgitb.enable()
+
 
 def format_project_list(project_list):
     """Format a list of projects into an HTML page.
