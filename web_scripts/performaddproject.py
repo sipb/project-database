@@ -154,6 +154,13 @@ def args_to_dict(arguments):
 
 def validate_add_permission():
     """Check if the user has permission to add projects.
+
+    Returns
+    -------
+    is_ok : bool
+        Whether or not the validation was passed.
+    status_messages : list of str
+        A list of status messages.
     """
     user = authutils.get_kerberos()
     can_add = authutils.can_add(user)
@@ -166,6 +173,18 @@ def validate_add_permission():
 
 def validate_project_name_text(name):
     """Check if the project name text is valid.
+
+    Parameters
+    ----------
+    name : str
+        The proposed project name.
+
+    Returns
+    -------
+    is_ok : bool
+        Whether or not the validation was passed.
+    status_messages : list of str
+        A list of status messages.
     """
     name_ok = len(name) >= 1
     if name_ok:
@@ -177,6 +196,18 @@ def validate_project_name_text(name):
 
 def validate_project_name_available(name):
     """Check if the project name is available.
+
+    Parameters
+    ----------
+    name : str
+        The proposed project name.
+
+    Returns
+    -------
+    is_ok : bool
+        Whether or not the validation was passed.
+    status_messages : list of str
+        A list of status messages.
     """
     # TODO: the get_project_id function does not work on the old version of
     # sqlalchemy on scripts.
@@ -187,6 +218,18 @@ def validate_project_name_available(name):
 
 def validate_project_name(name):
     """Check if the project name field is valid.
+
+    Parameters
+    ----------
+    name : str
+        The proposed project name.
+
+    Returns
+    -------
+    is_ok : bool
+        Whether or not the validation was passed.
+    status_messages : list of str
+        A list of status messages.
     """
     name_ok = True
     status_messages = []
@@ -204,6 +247,18 @@ def validate_project_name(name):
 
 def validate_project_description(description):
     """Check if the project description is non-empty.
+
+    Parameters
+    ----------
+    description : str
+        The project description.
+
+    Returns
+    -------
+    is_ok : bool
+        Whether or not the validation was passed.
+    status_messages : list of str
+        A list of status messages.
     """
     description_ok = len(description) >= 1
     if description_ok:
@@ -215,6 +270,18 @@ def validate_project_description(description):
 
 def validate_project_contacts_nonempty(contacts):
     """Check if there is at least one contact.
+
+    Parameters
+    ----------
+    contacts : list of dict
+        The list of contacts.
+
+    Returns
+    -------
+    is_ok : bool
+        Whether or not the validation was passed.
+    status_messages : list of str
+        A list of status messages.
     """
     is_ok = len(contacts) >= 1
     if is_ok:
@@ -226,6 +293,18 @@ def validate_project_contacts_nonempty(contacts):
 
 def validate_project_contact_addresses(contacts):
     """Check if the project contact addresses are all MIT addresses.
+
+    Parameters
+    ----------
+    contacts : list of dict
+        The list of contacts.
+
+    Returns
+    -------
+    is_ok : bool
+        Whether or not the validation was passed.
+    status_messages : list of str
+        A list of status messages.
     """
     is_ok = True
     status_messages = []
@@ -241,6 +320,18 @@ def validate_project_contact_addresses(contacts):
 
 def validate_project_contacts(contacts):
     """Check if the project contacts field is valid.
+
+    Parameters
+    ----------
+    contacts : list of dict
+        The list of contacts.
+
+    Returns
+    -------
+    is_ok : bool
+        Whether or not the validation was passed.
+    status_messages : list of str
+        A list of status messages.
     """
     is_ok = True
     status_messages = []
@@ -258,6 +349,18 @@ def validate_project_contacts(contacts):
 
 def validate_project_roles(roles):
     """Check if the project roles all have names and descriptions.
+
+    Parameters
+    ----------
+    roles : list of dict
+        The list of roles.
+
+    Returns
+    -------
+    is_ok : bool
+        Whether or not the validation was passed.
+    status_messages : list of str
+        A list of status messages.
     """
     is_ok = True
     status_messages = []

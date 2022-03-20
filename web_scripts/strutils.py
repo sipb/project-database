@@ -1,3 +1,6 @@
+import cgi
+
+
 def obfuscate_email(email):
     """Obfuscate an email address to mitigate simple spam bots.
 
@@ -17,6 +20,16 @@ def obfuscate_email(email):
 def obfuscate_project_info_dicts(project_list):
     """Obfuscate the comm_channels and contacts fields of all projects in the
     provided list.
+
+    Parameters
+    ----------
+    project_list : list of dict
+        List of projects, in dictionary format. This will be modified in-place.
+
+    Returns
+    -------
+    project_list : list of dict
+        The updated project list.
     """
     for project in project_list:
         project['comm_channels'] = [
@@ -56,6 +69,7 @@ def html_listify(items):
     result : str
         The HTML list.
     """
+    items = [cgi.escape(item, quote=True) for item in items]
     result = '<ul>\n'
     for item in items:
         result += '    <li>%s</li>\n' % item
@@ -85,6 +99,16 @@ def is_mit_email(email):
 def make_url_absolute(url):
     """Make a URL absolute (with HTTP scheme), if it is not an HTTP/HTTPS URL
     already.
+
+    Parameters
+    ----------
+    url : str
+        The URL to modify.
+
+    Returns
+    -------
+    url_updated : str
+        The absolute URL.
     """
     if not (url.startswith('http://') or url.startswith('https://')):
         url = 'http://' + url
@@ -94,6 +118,16 @@ def make_url_absolute(url):
 def make_project_info_dicts_links_absolute(project_list):
     """Make all of the links for all of the projects in a list of project info
     dicts absolute.
+
+    Parameters
+    ----------
+    project_list : list of dict
+        List of projects, in dictionary format. This will be modified in-place.
+
+    Returns
+    -------
+    project_list : list of dict
+        The updated project list.
     """
     for project in project_list:
         project['links'] = [
