@@ -99,3 +99,4 @@ def make_project_info_dicts_links_absolute(project_list):
         project['links'] = [
             make_url_absolute(link) for link in project['links']
         ]
+    return project_list
