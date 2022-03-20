@@ -136,9 +136,12 @@ def args_to_dict(arguments):
         'name': safe_cgi_field_get(arguments, 'name'),
         'description': safe_cgi_field_get(arguments, 'description'),
         'status': safe_cgi_field_get(arguments, 'status'),
-        'links': strutils.split_comma_sep(
-            safe_cgi_field_get(arguments, 'links')
-        ),
+        'links': [
+            strutils.make_url_absolute(link)
+            for link in strutils.split_comma_sep(
+                safe_cgi_field_get(arguments, 'links')
+            )
+        ],
         'comm_channels': strutils.split_comma_sep(
             safe_cgi_field_get(arguments, 'comm_channels')
         ),
