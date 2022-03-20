@@ -150,57 +150,120 @@ def args_to_dict(arguments):
 
 
 def validate_add_permission():
-    """Return True if the user has permission to add projects.
+    """Check if the user has permission to add projects.
     """
     user = authutils.get_kerberos()
     can_add = authutils.can_add(user)
-    return can_add
+    if can_add:
+        status_messages = []
+    else:
+        status_messages = ['User is not authorized to add projects!']
+    return can_add, status_messages
 
 
-def validate_project_name(name):
-    """Return True if the project name is non-empty.
+def validate_project_name_text(name):
+    """Check if the project name text is valid.
     """
-    return len(name) >= 1
+    name_ok = len(name) >= 1
+    if name_ok:
+        status_messages = []
+    else:
+        status_messages = ['Project name must be non-empty!']
+    return name_ok, status_messages
 
 
 def validate_project_name_available(name):
-    """Return True if the project name is available.
+    """Check if the project name is available.
     """
     # TODO: the get_project_id function does not work on the old version of
     # sqlalchemy on scripts.
     # TODO: it would be good to do a case-insensitive search
     # return db.get_project_id(name) is None
-    return True
+    return True, []
+
+
+def validate_project_name(name):
+    """Check if the project name field is valid.
+    """
+    name_ok = True
+    status_messages = []
+
+    name_text_ok, name_msgs = validate_project_name_text(name)
+    name_ok &= name_text_ok
+    status_messages.extend(name_msgs)
+
+    name_available, name_msgs = validate_project_name_available(name)
+    name_ok &= name_available
+    status_messages.extend(name_msgs)
+
+    return name_ok, status_messages
 
 
 def validate_project_description(description):
-    """Return True if the project description is non-empty.
+    """Check if the project description is non-empty.
     """
-    return len(description) >= 1
+    description_ok = len(description) >= 1
+    if description_ok:
+        status_messages = []
+    else:
+        status_messages = ['Project description must be non-empty!']
+    return description_ok, status_messages
 
 
-def validate_project_contacts(contacts):
-    """Return True if there is at least one contact.
+def validate_project_contacts_nonempty(contacts):
+    """Check if there is at least one contact.
     """
-    return len(contacts) >= 1
+    is_ok = len(contacts) >= 1
+    if is_ok:
+        status_messages = []
+    else:
+        status_messages = ['There must be at least one contact!']
+    return is_ok, status_messages
 
 
 def validate_project_contact_addresses(contacts):
-    """Return True if the project contact addresses are all MIT addresses.
+    """Check if the project contact addresses are all MIT addresses.
     """
+    is_ok = True
+    status_messages = []
     for contact in contacts:
         if not strutils.is_mit_email(contact['email']):
-            return False
-    return True
+            is_ok = False
+            status_messages.append(
+                '"%s" is not an mit.edu email address!' % contact['email']
+            )
+
+    return is_ok, status_messages
+
+
+def validate_project_contacts(contacts):
+    """Check if the project contacts field is valid.
+    """
+    is_ok = True
+    status_messages = []
+
+    is_nonempty, nonempty_msgs = validate_project_contacts_nonempty(contacts)
+    is_ok &= is_nonempty
+    status_messages.extend(nonempty_msgs)
+
+    addresses_ok, addresses_msgs = validate_project_contact_addresses(contacts)
+    is_ok &= addresses_ok
+    status_messages.extend(addresses_msgs)
+
+    return is_ok, status_messages
 
 
 def validate_project_roles(roles):
-    """Return True if the project roles all have names and descriptions.
+    """Check if the project roles all have names and descriptions.
     """
+    is_ok = True
+    status_messages = []
     for role in roles:
         if (len(role['role']) == 0) or (len(role['description']) == 0):
-            return False
-    return True
+            is_ok = False
+            status_messages = ['Each role must have a name and a description!']
+            break
+    return is_ok, status_messages
 
 
 def validate(project_info):
@@ -222,33 +285,37 @@ def validate(project_info):
     is_ok : bool
         Indicates whether or not the project is OK to add.
     """
+    is_ok = True
     defect_list = []
 
-    if not validate_add_permission():
-        defect_list.append('User is not authorized to add projects!')
+    permission_ok, permission_msgs = validate_add_permission()
+    is_ok &= permission_ok
+    defect_list.extend(permission_msgs)
 
-    if not validate_project_name(project_info['name']):
-        defect_list.append('Project name must be non-empty!')
+    name_ok, name_msgs = validate_project_name(project_info['name'])
+    is_ok &= name_ok
+    defect_list.extend(name_msgs)
 
-    if not validate_project_name_available(project_info['name']):
-        defect_list.append('A project with that name already exists!')
+    description_ok, description_msgs = validate_project_description(
+        project_info['description']
+    )
+    is_ok &= description_ok
+    defect_list.extend(description_msgs)
 
-    if not validate_project_description(project_info['description']):
-        defect_list.append('Project description must be non-empty!')
+    contacts_ok, contacts_msgs = validate_project_contacts(
+        project_info['contacts']
+    )
+    is_ok &= contacts_ok
+    defect_list.extend(contacts_msgs)
 
-    if not validate_project_contacts(project_info['contacts']):
-        defect_list.append('There must be at least one contact!')
-
-    if not validate_project_contact_addresses(project_info['contacts']):
-        defect_list.append('Contacts must be mit.edu email addresses!')
-
-    if not validate_project_roles(project_info['roles']):
-        defect_list.append('Each role must have a name and a description!')
+    roles_ok, roles_msgs = validate_project_roles(project_info['roles'])
+    is_ok &= roles_ok
+    defect_list.extend(roles_msgs)
 
     # TODO: this currently allows links, comm channels, and roles to be empty.
     # Do we want to require any of those at project creation time?
 
-    if len(defect_list) == 0:
+    if is_ok:
         return 'Success!', True
     else:
         return strutils.html_listify(defect_list), False
@@ -261,8 +328,14 @@ def add_project(project_info):
     ----------
     project_info : dict
         The project info extracted from the form.
+
+    Returns
+    -------
+    project_id : int
+        The project_id (primary key) for the newly-added project.
     """
-    pass
+    # TODO: this needs to be implemented!
+    return -1
 
 
 def format_success_page(project_info):
@@ -325,7 +398,8 @@ def main():
 
     if is_ok:
         try:
-            add_project(project_info)
+            project_id = add_project(project_info)
+            project_info['project_id'] = project_id
         except Exception:
             is_ok = False
             status = ''
@@ -336,7 +410,6 @@ def main():
             status = status.replace('\n', '<br>')
 
     if is_ok:
-        add_project(project_info)
         page = format_success_page(project_info)
     else:
         page = format_failure_page(status)
