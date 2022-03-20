@@ -20,8 +20,7 @@ def obfuscate_project_info_dicts(project_list):
     """
     for project in project_list:
         project['comm_channels'] = [
-            obfuscate_email(channel['commchannel'])
-            for channel in project['comm_channels']
+            obfuscate_email(channel) for channel in project['comm_channels']
         ]
         for contact in project['contacts']:
             contact['email'] = obfuscate_email(contact['email'])

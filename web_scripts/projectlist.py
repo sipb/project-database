@@ -40,7 +40,7 @@ def main():
     """Display the info for all projects.
     """
     project_list = db.get_all_project_info()
-    # project_list = strutils.obfuscate_project_info_dicts(project_list)
+    project_list = strutils.obfuscate_project_info_dicts(project_list)
     page = format_project_list(project_list)
     print(page)
 
