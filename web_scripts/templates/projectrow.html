@@ -5,7 +5,11 @@
     <td>
         <ul>
             {% for link in project.links %}
-                <li><a href="{{ link }}">{{ link }}</a></li>
+                <li><a href="
+                    {% if not link.startswith("http://") and not link.startswith("https://") %}
+                        https://
+                    {% endif %}
+                    {{ link }}">{{ link }}</a></li>
             {% endfor %}
         </ul>
     </td>

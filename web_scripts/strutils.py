@@ -80,3 +80,22 @@ def is_mit_email(email):
         Whether or not the address is an MIT address.
     """
     return email.endswith('@mit.edu') and (email.count('@') == 1)
+
+
+# def make_url_absolute(url):
+#     """Make a URL absolute (with HTTP scheme), if it is not an HTTP/HTTPS URL
+#     already.
+#     """
+#     if not (url.startswith('http://') or url.startswith('https://')):
+#         url = 'http://' + url
+#     return url
+
+
+# def make_project_info_dicts_links_absolute(project_list):
+#     """Make all of the links for all of the projects in a list of project info
+#     dicts absolute.
+#     """
+#     for project in project_list:
+#         project['links'] = [
+#             make_url_absolute(link) for link in project['links']
+#         ]
