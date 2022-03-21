@@ -1,8 +1,27 @@
 import cgi
 
 
+def is_email(text):
+    """Determine if a given string is (likely) an email address.
+
+    Currently uses a very simple heuristic.
+
+    Parameters
+    ----------
+    text : str
+        The string to analyze.
+
+    Returns
+    -------
+    is_email : bool
+        Whether or not the string appears to be an email address.
+    """
+    return text.count('@') == 1
+
+
 def obfuscate_email(email):
-    """Obfuscate an email address to mitigate simple spam bots.
+    """Obfuscate an email address to mitigate simple spam bots. Things which
+    do not appear to be email addresses are not obfuscated.
 
     Parameters
     ----------
@@ -14,7 +33,10 @@ def obfuscate_email(email):
     email_obfuscated : str
         The obfuscated email address.
     """
-    return email.replace('@', ' [at] ').replace('.', ' [dot] ')
+    if is_email(email):
+        return email.replace('@', ' [at] ').replace('.', ' [dot] ')
+    else:
+        return email
 
 
 def obfuscate_project_info_dicts(project_list):
