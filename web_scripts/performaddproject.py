@@ -457,6 +457,10 @@ def format_success_page(project_info):
     result : str
         The HTML to display.
     """
+    project_info = strutils.obfuscate_project_info_dicts([project_info])[0]
+    project_info = strutils.make_project_info_dicts_links_absolute(
+        [project_info]
+    )[0]
     jenv = jinja2.Environment(
         loader=jinja2.FileSystemLoader('templates'),
         autoescape=True
