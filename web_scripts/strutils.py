@@ -100,7 +100,8 @@ def html_listify(items):
 
 
 def is_mit_email(email):
-    """Check whether a given string is an MIT email address.
+    """Check whether a given string is an MIT email address, including
+    *@*.mit.edu addresses.
 
     NOTE: only checks the ending -- does not actually check if this is a valid
     address!
@@ -115,7 +116,7 @@ def is_mit_email(email):
     is_mit : bool
         Whether or not the address is an MIT address.
     """
-    return email.endswith('@mit.edu') and (email.count('@') == 1)
+    return email.endswith('mit.edu') and (email.count('@') == 1)
 
 
 def make_url_absolute(url):
