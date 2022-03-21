@@ -260,11 +260,13 @@ def validate_project_description(description):
     status_messages : list of str
         A list of status messages.
     """
-    description_ok = len(description) >= 1
+    description_ok = len(description.split()) >= 3
     if description_ok:
         status_messages = []
     else:
-        status_messages = ['Project description must be non-empty!']
+        status_messages = [
+            'Project description must have at least three words!'
+        ]
     return description_ok, status_messages
 
 
