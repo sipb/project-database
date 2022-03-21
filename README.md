@@ -1,2 +1,2 @@
 # project-database
-Database for keeping track of project statuses
+Database for keeping track of project statuses.
