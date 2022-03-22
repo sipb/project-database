@@ -515,9 +515,6 @@ def main():
             status = ''
             status += 'add_project failed with the following exception:\n'
             status += traceback.format_exc()
-            status += '\n'
-            status = cgi.escape(status, quote=True)
-            status = status.replace('\n', '<br>')
             status_messages = [status]
 
     if is_ok:
