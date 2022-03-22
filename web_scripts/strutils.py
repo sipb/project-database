@@ -91,7 +91,9 @@ def html_listify(items):
     result : str
         The HTML list.
     """
-    items = [cgi.escape(item, quote=True) for item in items]
+    items = [
+        cgi.escape(item, quote=True).replace('\n', '<br>') for item in items
+    ]
     result = '<ul>\n'
     for item in items:
         result += '    <li>%s</li>\n' % item

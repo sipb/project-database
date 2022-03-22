@@ -388,45 +388,42 @@ def validate(project_info):
 
     Returns
     -------
-    status : str
-        A status message indicating the result of the validation.
     is_ok : bool
         Indicates whether or not the project is OK to add.
+    status_messages : list of str
+        A list of status messages indicating the result of the validation.
     """
     is_ok = True
-    defect_list = []
+    status_messages = []
 
     permission_ok, permission_msgs = validate_add_permission()
     is_ok &= permission_ok
-    defect_list.extend(permission_msgs)
+    status_messages.extend(permission_msgs)
 
     name_ok, name_msgs = validate_project_name(project_info['name'])
     is_ok &= name_ok
-    defect_list.extend(name_msgs)
+    status_messages.extend(name_msgs)
 
     description_ok, description_msgs = validate_project_description(
         project_info['description']
     )
     is_ok &= description_ok
-    defect_list.extend(description_msgs)
+    status_messages.extend(description_msgs)
 
     contacts_ok, contacts_msgs = validate_project_contacts(
         project_info['contacts']
     )
     is_ok &= contacts_ok
-    defect_list.extend(contacts_msgs)
+    status_messages.extend(contacts_msgs)
 
     roles_ok, roles_msgs = validate_project_roles(project_info['roles'])
     is_ok &= roles_ok
-    defect_list.extend(roles_msgs)
+    status_messages.extend(roles_msgs)
 
     # TODO: this currently allows links, comm channels, and roles to be empty.
     # Do we want to require any of those at project creation time?
 
-    if is_ok:
-        return 'Success!', True
-    else:
-        return strutils.html_listify(defect_list), False
+    return is_ok, status_messages
 
 
 def add_project(project_info):
@@ -443,6 +440,7 @@ def add_project(project_info):
         The project_id (primary key) for the newly-added project.
     """
     # TODO: this needs to be implemented!
+    raise ValueError('alhsdf')
     return -1
 
 
@@ -506,7 +504,7 @@ def main():
     """
     arguments = cgi.FieldStorage()
     project_info = args_to_dict(arguments)
-    status, is_ok = validate(project_info)
+    is_ok, status_messages = validate(project_info)
 
     if is_ok:
         try:
@@ -520,11 +518,12 @@ def main():
             status += '\n'
             status = cgi.escape(status, quote=True)
             status = status.replace('\n', '<br>')
+            status_messages = [status]
 
     if is_ok:
         page = format_success_page(project_info)
     else:
-        page = format_failure_page(status)
+        page = format_failure_page(strutils.html_listify(status_messages))
 
     print(page)
 
