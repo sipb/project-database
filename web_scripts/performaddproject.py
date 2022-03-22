@@ -440,7 +440,6 @@ def add_project(project_info):
         The project_id (primary key) for the newly-added project.
     """
     # TODO: this needs to be implemented!
-    raise ValueError('alhsdf')
     return -1
 
 
