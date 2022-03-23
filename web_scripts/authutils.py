@@ -87,10 +87,27 @@ def can_add(user):
     """
     if not user:
         return False
-    elif is_sipb(user):
+    elif is_sipb(user) or is_admin(user):
         return True
     else:
         return False
+
+
+def is_admin(user):
+    """Determine whether the given user is a project-database admin.
+
+    Parameters
+    ----------
+    user : str
+        The kerberos of the user.
+
+    Returns
+    -------
+    is_admin : bool
+        Whether or not the user is an admin.
+    """
+    # TODO: This should probably be loaded from some external config file?
+    return user in ['huydai', 'javsolis', 'markchil']
 
 
 def can_edit(user, project_id):
@@ -108,5 +125,14 @@ def can_edit(user, project_id):
     can_edit : bool
         Whether or not the user can add projects.
     """
-    project_contacts = db.get_contacts(project_id)
-    is_ok = user + '@mit.edu'
+    if is_admin(user):
+        return True
+    else:
+        project_contacts = db.get_contacts(project_id)
+        project_contact_emails = [
+            contact['email'] for contact in project_contacts
+        ]
+        if user + '@mit.edu' in project_contact_emails:
+            return True
+        else:
+            return False

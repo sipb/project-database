@@ -6,6 +6,7 @@ import traceback
 import cgi
 import jinja2
 
+import formutils
 import strutils
 import valutils
 
@@ -65,27 +66,6 @@ def get_role_ids(arguments):
     return list(role_ids)
 
 
-def safe_cgi_field_get(arguments, field, default=''):
-    """Get a field from CGI arguments, with failback for absent fields.
-
-    Parameters
-    ----------
-    arguments : cgi.FieldStorage
-        The data from the form.
-    field : str
-        The field to get.
-    default : str, optional
-        The value to use when a field is not present. Default is the empty
-        string.
-
-    Returns
-    -------
-    value : str
-        The field value.
-    """
-    return arguments[field].value if field in arguments else default
-
-
 def extract_roles(arguments):
     """Extract the role dicts from the arguments from CGI.
 
@@ -104,11 +84,13 @@ def extract_roles(arguments):
     for role_id in role_ids:
         roles.append(
             {
-                'role': safe_cgi_field_get(arguments, 'role_name_' + role_id),
-                'description': safe_cgi_field_get(
+                'role': formutils.safe_cgi_field_get(
+                    arguments, 'role_name_' + role_id
+                ),
+                'description': formutils.safe_cgi_field_get(
                     arguments, 'role_description_' + role_id
                 ),
-                'prereq': safe_cgi_field_get(
+                'prereq': formutils.safe_cgi_field_get(
                     arguments, 'role_prereqs_' + role_id
                 )
             }
@@ -132,20 +114,22 @@ def args_to_dict(arguments):
         The project info dict.
     """
     return {
-        'name': safe_cgi_field_get(arguments, 'name'),
-        'description': safe_cgi_field_get(arguments, 'description'),
-        'status': safe_cgi_field_get(arguments, 'status'),
+        'name': formutils.safe_cgi_field_get(arguments, 'name'),
+        'description': formutils.safe_cgi_field_get(arguments, 'description'),
+        'status': formutils.safe_cgi_field_get(arguments, 'status'),
         'links': [
             strutils.make_url_absolute(link)
             for link in strutils.split_comma_sep(
-                safe_cgi_field_get(arguments, 'links')
+                formutils.safe_cgi_field_get(arguments, 'links')
             )
         ],
         'comm_channels': strutils.split_comma_sep(
-            safe_cgi_field_get(arguments, 'comm_channels')
+            formutils.safe_cgi_field_get(arguments, 'comm_channels')
         ),
         'contacts': contact_list_to_dict_list(
-            strutils.split_comma_sep(safe_cgi_field_get(arguments, 'contacts'))
+            strutils.split_comma_sep(
+                formutils.safe_cgi_field_get(arguments, 'contacts')
+            )
         ),
         'roles': extract_roles(arguments)
     }

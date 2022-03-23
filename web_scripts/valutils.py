@@ -207,7 +207,9 @@ def validate_project_contacts(contacts):
     status_messages.extend(nonempty_msgs)
 
     if is_nonempty:
-        addresses_ok, addresses_msgs = validate_project_contact_addresses(contacts)
+        addresses_ok, addresses_msgs = validate_project_contact_addresses(
+            contacts
+        )
         is_ok &= addresses_ok
         status_messages.extend(addresses_msgs)
 

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Edit Project</title>
+    <meta charset="UTF-8">
+    <style>
+    td { padding: 5px; }
+    .header td { border: 2px solid black; }
+    .gone { border: 0; }
+    </style>
+</head>
+<body>
+    <h2>SIPB Project Database -- Edit Project</h2>
+
+    {% if not user %}
+        <p><a href="{{ authlink }}">Sign in to edit a project.</a></p>
+    {% elif not is_valid %}
+        <p>Invalid request:</p>
+        {{ validation_status }}
+    {% elif not can_edit %}
+        <p>You do not have access to edit this project. Please contact {{ help_address }} for help.</p>
+    {% else %}
+        <p>Signed in as {{ user }}.</p>
+    {% endif %}
+</body>
+</html>
