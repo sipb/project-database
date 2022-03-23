@@ -1,6 +1,6 @@
 <p>
     <label for="name">Project name:</label>
-    <input type="text" id="name" name="name" {% if project_info %} value="project_info.name" {% endif %}>
+    <input type="text" id="name" name="name" {% if project_info %} value="{{ project_info.name }}" {% endif %}>
 </p>
 <p>
     <label for="description">Description:</label><br>
