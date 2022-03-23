@@ -3,26 +3,27 @@
 // Global counter to obtain unique role field names:
 var role_counter = 0;
 
-function add_role() {
+function add_role(role_name="", role_description="", role_prereqs="") {
     var container = document.getElementById("roles_container");
     var role_fields = document.createElement("p");
 
     var role_name_label = document.createElement("label");
     role_name_label.setAttribute("for", "role_name");
-    role_name_label.innerHTML = "Role name:"
+    role_name_label.innerHTML = "Role name:";
     role_fields.appendChild(role_name_label);
 
     var role_name_field = document.createElement("input");
     role_name_field.setAttribute("type", "text");
     role_name_field.setAttribute("id", "role_name");
     role_name_field.setAttribute("name", "role_name_" + role_counter);
+    role_name_field.setAttribute("value", role_name);
     role_fields.appendChild(role_name_field);
 
     role_fields.appendChild(document.createElement("br"));
 
     var role_description_label = document.createElement("label");
     role_description_label.setAttribute("for", "role_description");
-    role_description_label.innerHTML = "Role description:"
+    role_description_label.innerHTML = "Role description:";
     role_fields.appendChild(role_description_label);
 
     var role_description_field = document.createElement("input");
@@ -31,6 +32,7 @@ function add_role() {
     role_description_field.setAttribute(
         "name", "role_description_" + role_counter
     );
+    role_description_field.setAttribute("value", role_description);
     role_fields.appendChild(role_description_field);
 
     role_fields.appendChild(document.createElement("br"));
@@ -46,6 +48,7 @@ function add_role() {
     role_prereqs_field.setAttribute(
         "name", "role_prereqs_" + role_counter
     );
+    role_prereqs_field.setAttribute("value", role_prereqs);
     role_fields.appendChild(role_prereqs_field);
 
     role_fields.appendChild(document.createElement("br"));

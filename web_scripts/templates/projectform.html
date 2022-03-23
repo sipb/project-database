@@ -29,6 +29,11 @@
     <label>Role(s):</label>
 </p>
 <div id="roles_container"></div>
+{% if project_info %}
+    {% for role in project_info.roles %}
+        <script type="text/javascript">add_role("{{ role.role }}", "{{ role.description }}", "{{ role.prereq }}");</script>
+    {% endfor %}
+{% endif %}
 <p>
     <input type="button" value="Add another role" onclick="add_role()">
 </p>
