@@ -15,7 +15,7 @@
 </p>
 <p>
     <label for="links">Link(s) (comma-separated):</label>
-    <input type="text" id="links" name="links">
+    <input type="text" id="links" name="links" {% if project_info %}value=", ".join(project_info.links){% endif %}>
 </p>
 <p>
     <label for="comm_channels">Communication channel(s) (comma-separated):</label>
