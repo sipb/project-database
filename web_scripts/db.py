@@ -85,7 +85,7 @@ def get_all_info_for_project(project_id):
     """
     # May want to figure out a way to remove redundancy with
     # get_all_project_info...
-    project_info = get_project(project_id)
+    project_info = get_project(project_id)[0]
     project_info['links'] = [
         link['link'] for link in get_links(project_id)
     ]
