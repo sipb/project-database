@@ -70,6 +70,34 @@ def get_project_id(name):
     return None
 
 
+def get_all_info_for_project(project_id):
+    """Get all of the information for a specific project.
+
+    Parameters
+    ----------
+    project_id : str or int
+        The project ID to get information for.
+
+    Returns
+    -------
+    project_info : dict
+        The information on the specified project.
+    """
+    # May want to figure out a way to remove redundancy with
+    # get_all_project_info...
+    project_info = get_project(project_id)
+    project_info['links'] = [
+        link['link'] for link in get_links(project_id)
+    ]
+    project_info['comm_channels'] = [
+        channel['commchannel'] for channel in get_comm(project_id)
+    ]
+    project_info['roles'] = get_roles(project_id)
+    project_info['contacts'] = get_contacts(project_id)
+
+    return project_info
+
+
 def get_all_project_info():
     """Get the information for all projects.
 

@@ -21,6 +21,10 @@
         <p>You do not have access to edit this project. Please contact {{ help_address }} for help.</p>
     {% else %}
         <p>Signed in as {{ user }}.</p>
+
+        <form action="performeditproject.py" method="POST">
+                {% include 'projectform.html' %}
+        </form>
     {% endif %}
 </body>
 </html>

@@ -5,6 +5,7 @@ import cgi
 import jinja2
 
 import authutils
+import db
 import formutils
 import strutils
 import valutils
@@ -31,6 +32,8 @@ def format_edit_project(project_id):
     can_edit = authutils.can_edit(user, project_id)
     authlink = authutils.get_auth_url(True)
 
+    project_info = db.get_all_info_for_project(project_id)
+
     result = ''
     result += 'Content-type: text/html\n\n'
     result += jenv.get_template('editproject.html').render(
@@ -41,7 +44,8 @@ def format_edit_project(project_id):
         ),
         can_edit=can_edit,
         help_address='useful-help-email-for-projects-db [at] mit [dot] edu',
-        authlink=authlink
+        authlink=authlink,
+        project_info=project_info
     ).encode('utf-8')
     return result
 
