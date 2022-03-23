@@ -50,6 +50,10 @@ def format_edit_project(project_id):
     ).encode('utf-8')
     return result
 
+    # TODO:
+    # * Make form fields wider
+    # * Handle escaped characters
+
 
 def main():
     """Display the edit project interface.
