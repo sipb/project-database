@@ -3,6 +3,7 @@
 
 import cgi
 import jinja2
+from django.utils import html
 
 import authutils
 import db
@@ -27,6 +28,7 @@ def format_edit_project(project_id):
         loader=jinja2.FileSystemLoader('templates'),
         autoescape=True
     )
+    jenv.filters['escapejs'] = html.escapejs
     is_valid, status_messages = valutils.validate_project_id(project_id)
     user = authutils.get_kerberos()
     can_edit = authutils.can_edit(user, project_id)
