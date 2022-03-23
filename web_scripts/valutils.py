@@ -150,7 +150,7 @@ def validate_project_contact_addresses(contacts):
     Parameters
     ----------
     contacts : list of dict
-        The list of contacts.
+        The list of contacts. Must be non-empty.
 
     Returns
     -------
@@ -161,6 +161,12 @@ def validate_project_contact_addresses(contacts):
     """
     is_ok = True
     status_messages = []
+    if not strutils.is_plain_mit_email(contacts[0]['email']):
+        is_ok = False
+        status_messages.append(
+            'Primary contact email must be of the form "<kerberos>@mit.edu"!'
+        )
+
     for contact in contacts:
         if not strutils.is_mit_email(contact['email']):
             is_ok = False
@@ -193,9 +199,10 @@ def validate_project_contacts(contacts):
     is_ok &= is_nonempty
     status_messages.extend(nonempty_msgs)
 
-    addresses_ok, addresses_msgs = validate_project_contact_addresses(contacts)
-    is_ok &= addresses_ok
-    status_messages.extend(addresses_msgs)
+    if is_nonempty:
+        addresses_ok, addresses_msgs = validate_project_contact_addresses(contacts)
+        is_ok &= addresses_ok
+        status_messages.extend(addresses_msgs)
 
     return is_ok, status_messages
 
@@ -275,3 +282,85 @@ def validate_project_info(project_info):
     # Do we want to require any of those at project creation time?
 
     return is_ok, status_messages
+
+
+def validate_project_id_is_int(project_id):
+    """Check if the given project ID is interpretable as an int.
+
+    Parameters
+    ----------
+    project_id : str
+        The project ID to check. Assumed to be a string coming from a CGI form.
+
+    Returns
+    -------
+    is_ok : bool
+        Whether or not the validation was passed.
+    status_messages : list of str
+        A list of status messages.
+    """
+    try:
+        project_id = int(project_id)
+    except ValueError:
+        return False, ['"%s" is not a valid project ID!' % project_id]
+    else:
+        return True, []
+
+
+def validate_project_id_exists(project_id):
+    """Check if the given project ID exists (and hence can be edited).
+
+    Parameters
+    ----------
+    project_id : str
+        The project ID to check. Assumed to be a string coming from a CGI form.
+
+    Returns
+    -------
+    is_ok : bool
+        Whether or not the validation was passed.
+    status_messages : list of str
+        A list of status messages.
+    """
+    project_info = db.get_project(int(project_id))
+    if len(project_info) == 0:
+        is_ok = False
+        status_messages = ['There is no project with id "%d"!' % project_id]
+    elif len(project_info) == 1:
+        is_ok = True
+        status_messages = []
+    else:
+        is_ok = False
+        status_messages = ['There are %d projects with id "%d"!']
+
+    return is_ok, status_messages
+
+
+def validate_project_id(project_id):
+    """Check if the given project ID is OK to edit.
+
+    Parameters
+    ----------
+    project_id : str
+        The project ID to check. Assumed to be a string coming from a CGI form.
+
+    Returns
+    -------
+    is_ok : bool
+        Whether or not the validation was passed.
+    status_messages : list of str
+        A list of status messages.
+    """
+    is_ok = True
+    status_messages = []
+
+    is_int, is_int_status = validate_project_id_is_int(project_id)
+    is_ok &= is_int
+    status_messages.extend(is_int_status)
+
+    if is_int:
+        is_project, is_project_status = validate_project_id_exists(project_id)
+        is_ok &= is_project
+        status_messages.extend(is_project_status)
+
+    return is_ok, status_messages 

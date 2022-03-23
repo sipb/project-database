@@ -121,6 +121,26 @@ def is_mit_email(email):
     return email.endswith('mit.edu') and (email.count('@') == 1)
 
 
+def is_plain_mit_email(email):
+    """Check whether a given string is an MIT email address of the form
+    *@mit.edu.
+
+    NOTE: only checks the ending -- does not actually check if this is a valid
+    address!
+
+    Parameters
+    ----------
+    email : str
+        The email address to check.
+
+    Returns
+    -------
+    is_mit : bool
+        Whether or not the address is an MIT address.
+    """
+    return email.endswith('@mit.edu') and (email.count('@') == 1)
+
+
 def make_url_absolute(url):
     """Make a URL absolute (with HTTP scheme), if it is not an HTTP/HTTPS URL
     already.

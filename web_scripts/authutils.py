@@ -5,6 +5,7 @@
 
 import os
 
+import db
 # import moira
 
 
@@ -90,3 +91,22 @@ def can_add(user):
         return True
     else:
         return False
+
+
+def can_edit(user, project_id):
+    """Determine whether the given user can edit the given project.
+
+    Parameters
+    ----------
+    user : str
+        The kerberos of the user.
+    project_id : str or int
+        The project ID of the project to edit.
+
+    Returns
+    -------
+    can_edit : bool
+        Whether or not the user can add projects.
+    """
+    project_contacts = db.get_contacts(project_id)
+    is_ok = user + '@mit.edu'
