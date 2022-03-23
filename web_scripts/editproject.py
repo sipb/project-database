@@ -33,6 +33,7 @@ def format_edit_project(project_id):
     authlink = authutils.get_auth_url(True)
 
     project_info = db.get_all_info_for_project(project_id)
+    project_info = strutils.enrich_project_info_dict(project_info)
 
     result = ''
     result += 'Content-type: text/html\n\n'
