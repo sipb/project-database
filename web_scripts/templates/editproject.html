@@ -16,7 +16,7 @@
         <p><a href="{{ authlink }}">Sign in to edit a project.</a></p>
     {% elif not is_valid %}
         <p>Invalid request:</p>
-        {{ validation_status }}
+        {{ validation_status|safe }}
     {% elif not can_edit %}
         <p>You do not have access to edit this project. Please contact {{ help_address }} for help.</p>
     {% else %}
