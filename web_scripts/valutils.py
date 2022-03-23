@@ -331,7 +331,8 @@ def validate_project_id_exists(project_id):
     status_messages : list of str
         A list of status messages.
     """
-    project_info = db.get_project(int(project_id))
+    project_id = int(project_id)
+    project_info = db.get_project(project_id)
     if len(project_info) == 0:
         is_ok = False
         status_messages = ['There is no project with id "%d"!' % project_id]
@@ -340,7 +341,11 @@ def validate_project_id_exists(project_id):
         status_messages = []
     else:
         is_ok = False
-        status_messages = ['There are %d projects with id "%d"!']
+        status_messages = [
+            'There are %d projects with id "%d"!' % (
+                len(project_info), project_id
+            )
+        ]
 
     return is_ok, status_messages
 
