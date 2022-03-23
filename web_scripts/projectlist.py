@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import jinja2
-
 import db
 import strutils
+import templateutils
 
 # TODO: May want to turn error listing off once stable?
 import cgitb
@@ -24,10 +23,7 @@ def format_project_list(project_list):
     result : str
         The HTML to display.
     """
-    jenv = jinja2.Environment(
-        loader=jinja2.FileSystemLoader('templates'),
-        autoescape=True
-    )
+    jenv = templateutils.get_jenv()
     result = ''
     result += 'Content-type: text/html\n\n'
     result += jenv.get_template('projectlist.html').render(

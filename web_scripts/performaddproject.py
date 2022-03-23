@@ -4,10 +4,10 @@
 import traceback
 
 import cgi
-import jinja2
 
 import formutils
 import strutils
+import templateutils
 import valutils
 
 # TODO: May want to turn error listing off once stable?
@@ -169,10 +169,7 @@ def format_success_page(project_info):
     project_info = strutils.make_project_info_dicts_links_absolute(
         [project_info]
     )[0]
-    jenv = jinja2.Environment(
-        loader=jinja2.FileSystemLoader('templates'),
-        autoescape=True
-    )
+    jenv = templateutils.get_jenv()
     result = ''
     result += 'Content-type: text/html\n\n'
     result += jenv.get_template('performaddprojectsuccess.html').render(
@@ -194,10 +191,7 @@ def format_failure_page(status):
     result : str
         The HTML to display.
     """
-    jenv = jinja2.Environment(
-        loader=jinja2.FileSystemLoader('templates'),
-        autoescape=True
-    )
+    jenv = templateutils.get_jenv()
     result = ''
     result += 'Content-type: text/html\n\n'
     result += jenv.get_template('performaddprojectfailure.html').render(

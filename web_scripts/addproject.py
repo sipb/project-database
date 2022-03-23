@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import jinja2
-
 import authutils
+import templateutils
 
 
 def format_add_project():
@@ -14,10 +13,7 @@ def format_add_project():
     result : str
         The HTML to display.
     """
-    jenv = jinja2.Environment(
-        loader=jinja2.FileSystemLoader('templates'),
-        autoescape=True
-    )
+    jenv = templateutils.get_jenv()
     user = authutils.get_kerberos()
     # NOTE: the original HWOPS code sets the argument to "not user" (i.e., only
     # add the authentication port if there isn't a user). But, this doesn't

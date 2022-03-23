@@ -2,13 +2,12 @@
 # -*- coding: utf-8 -*-
 
 import cgi
-import jinja2
-from django.utils import html
 
 import authutils
 import db
 import formutils
 import strutils
+import templateutils
 import valutils
 
 # TODO: May want to turn error listing off once stable?
@@ -24,11 +23,7 @@ def format_edit_project(project_id):
     result : str
         The HTML to display.
     """
-    jenv = jinja2.Environment(
-        loader=jinja2.FileSystemLoader('templates'),
-        autoescape=True
-    )
-    jenv.filters['escapejs'] = html.escapejs
+    jenv = templateutils.get_jenv()
     is_valid, status_messages = valutils.validate_project_id(project_id)
     user = authutils.get_kerberos()
     can_edit = authutils.can_edit(user, project_id)
