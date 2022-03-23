@@ -69,7 +69,10 @@ def is_sipb(user):
     # check if a user is in SIPB? Do we have a member database mirrored
     # somewhere?
     # return moira.has_access(user, 'sipb-office@mit.edu')
-    return True
+    if user:
+        return True
+    else:
+        return False
 
 
 def can_add(user):
@@ -107,7 +110,10 @@ def is_admin(user):
         Whether or not the user is an admin.
     """
     # TODO: This should probably be loaded from some external config file?
-    return user in ['huydai', 'javsolis', 'markchil']
+    if user and user in ['huydai', 'javsolis', 'markchil']:
+        return True
+    else:
+        return False
 
 
 def can_edit(user, project_id):
@@ -125,7 +131,9 @@ def can_edit(user, project_id):
     can_edit : bool
         Whether or not the user can add projects.
     """
-    if is_admin(user):
+    if not user:
+        return False
+    elif is_admin(user):
         return True
     else:
         project_contacts = db.get_contacts(project_id)
