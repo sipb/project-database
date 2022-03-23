@@ -4,7 +4,11 @@
 </p>
 <p>
     <label for="description">Description:</label><br>
-    <textarea id="description" name="description" rows="24" cols="80"></textarea>
+    <textarea id="description" name="description" rows="24" cols="80">
+        {% if project_info %}
+            {{ project_info.description }}
+        {% endif %}
+    </textarea>
 </p>
 <p>
     <label>Status:</label>
