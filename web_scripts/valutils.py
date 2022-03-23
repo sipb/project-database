@@ -161,18 +161,25 @@ def validate_project_contact_addresses(contacts):
     """
     is_ok = True
     status_messages = []
-    if not strutils.is_plain_mit_email(contacts[0]['email']):
-        is_ok = False
-        status_messages.append(
-            'Primary contact email must be of the form "<kerberos>@mit.edu"!'
-        )
 
+    contains_plain_mit = False
     for contact in contacts:
         if not strutils.is_mit_email(contact['email']):
             is_ok = False
             status_messages.append(
                 '"%s" is not an mit.edu email address!' % contact['email']
             )
+
+        if strutils.is_plain_mit_email(contact['email']):
+            contains_plain_mit = True
+
+    if not contains_plain_mit:
+        is_ok = False
+        status_messages.append(
+            'At least one contact must have an email address of the form '
+            '"<username>@mit.edu" (otherwise no contacts will be able to edit '
+            'project info).'
+        )
 
     return is_ok, status_messages
 
