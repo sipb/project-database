@@ -23,7 +23,7 @@ function add_role(role_name="", role_description="", role_prereqs="") {
 
     var role_description_label = document.createElement("label");
     role_description_label.setAttribute("for", "role_description");
-    role_description_label.innerHTML = "Role description:";
+    role_description_label.innerHTML = "Role descriptionasdfasdfasdf:";
     role_fields.appendChild(role_description_label);
 
     role_fields.appendChild(document.createElement("br"));
