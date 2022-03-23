@@ -9,7 +9,7 @@ function add_role(role_name="", role_description="", role_prereqs="") {
 
     var role_name_label = document.createElement("label");
     role_name_label.setAttribute("for", "role_name");
-    role_name_label.innerHTML = "Role name:";
+    role_name_label.innerHTML = "Role name: ";
     role_fields.appendChild(role_name_label);
 
     var role_name_field = document.createElement("input");
@@ -26,6 +26,8 @@ function add_role(role_name="", role_description="", role_prereqs="") {
     role_description_label.innerHTML = "Role description:";
     role_fields.appendChild(role_description_label);
 
+    role_fields.appendChild(document.createElement("br"));
+
     var role_description_field = document.createElement("input");
     role_description_field.setAttribute("type", "text");
     role_description_field.setAttribute("id", "role_description");
@@ -33,6 +35,7 @@ function add_role(role_name="", role_description="", role_prereqs="") {
         "name", "role_description_" + role_counter
     );
     role_description_field.setAttribute("value", role_description);
+    role_description_field.setAttribute("size", "80");
     role_fields.appendChild(role_description_field);
 
     role_fields.appendChild(document.createElement("br"));
@@ -42,6 +45,8 @@ function add_role(role_name="", role_description="", role_prereqs="") {
     role_prereqs_label.innerHTML = "Role prereqs:"
     role_fields.appendChild(role_prereqs_label);
 
+    role_fields.appendChild(document.createElement("br"));
+
     var role_prereqs_field = document.createElement("input");
     role_prereqs_field.setAttribute("type", "text");
     role_prereqs_field.setAttribute("id", "role_prereqs");
@@ -49,15 +54,16 @@ function add_role(role_name="", role_description="", role_prereqs="") {
         "name", "role_prereqs_" + role_counter
     );
     role_prereqs_field.setAttribute("value", role_prereqs);
+    role_prereqs_field.setAttribute("size", "80");
     role_fields.appendChild(role_prereqs_field);
 
     role_fields.appendChild(document.createElement("br"));
 
-    var remove_roll_button = document.createElement("input");
-    remove_roll_button.setAttribute("type", "button");
-    remove_roll_button.setAttribute("value", "Remove role");
-    remove_roll_button.setAttribute("onclick", "remove_role(this)");
-    role_fields.appendChild(remove_roll_button);
+    var remove_role_button = document.createElement("input");
+    remove_role_button.setAttribute("type", "button");
+    remove_role_button.setAttribute("value", "Remove role");
+    remove_role_button.setAttribute("onclick", "remove_role(this)");
+    role_fields.appendChild(remove_role_button);
 
     container.appendChild(role_fields);
 
