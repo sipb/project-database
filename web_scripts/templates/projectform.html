@@ -10,7 +10,7 @@
     <label>Status:</label>
     <input type="radio" id="active" name="status" value="active" {% if (project_info and project_info.status == "active") or not project_info %}checked{% endif %}>
     <label for="active">Active</label>
-    <input type="radio" id="inactive" name="status" value="inactive" {% if (project_info and project_info.status == "inactive" %}checked{% endif %}>
+    <input type="radio" id="inactive" name="status" value="inactive" {% if project_info and project_info.status == "inactive" %}checked{% endif %}>
     <label for="inactive">Inactive</label>
 </p>
 <p>
