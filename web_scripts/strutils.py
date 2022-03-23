@@ -201,7 +201,7 @@ def enrich_project_info_dict(project_info):
     project_info['contacts_str'] = ', '.join(
         [
             contact['email'] for contact in sorted(
-                project_info.contacts,
+                project_info['contacts'],
                 key=lambda x: 1 if x['type'] == 'secondary' else 0
             )
         ]
