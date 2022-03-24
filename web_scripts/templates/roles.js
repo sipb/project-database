@@ -36,7 +36,7 @@ function add_role(role_name="", role_description="", role_prereqs="") {
     );
     role_description_field.setAttribute("rows", "4");
     role_description_field.setAttribute("cols", "80");
-    role_description_field.setAttribute("value", role_description);
+    role_description_field.value = role_description;
     role_fields.appendChild(role_description_field);
 
     role_fields.appendChild(document.createElement("br"));
