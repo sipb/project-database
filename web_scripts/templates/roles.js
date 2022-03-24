@@ -8,7 +8,7 @@ function add_role(role_name="", role_description="", role_prereqs="") {
     var role_fields = document.createElement("p");
     role_fields.setAttribute(
         "style",
-        "border:3px; border-style:solid; border-color:#000000; padding:1em;"
+        "border:1px; border-style:solid; border-color:#000000; padding:1em;"
     );
 
     var role_name_label = document.createElement("label");
