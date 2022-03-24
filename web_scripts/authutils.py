@@ -144,3 +144,24 @@ def can_edit(user, project_id):
             return True
         else:
             return False
+
+
+def enrich_project_list_with_permissions(user, project_list):
+    """Add the 'can_edit' field to each entry in the given project_list.
+
+    Parameters
+    ----------
+    user : str
+        The kerberos of the user.
+    project_list : list of dict
+        The info for each project. This will be updated in-place.
+
+    Returns
+    -------
+    project_list : list of dict
+        The updated project info.
+    """
+
+    for project in project_list:
+        project['can_edit'] = can_edit(user, project_list)
+    return project_list

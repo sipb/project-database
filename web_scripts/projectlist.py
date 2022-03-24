@@ -26,6 +26,9 @@ def format_project_list(project_list):
     """
     jenv = templateutils.get_jenv()
     user = authutils.get_kerberos()
+    project_list = authutils.enrich_project_list_with_permissions(
+        user, project_list
+    )
     authlink = authutils.get_auth_url(True)
     deauthlink = authutils.get_auth_url(False)
     can_add = authutils.can_add(user)

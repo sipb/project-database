@@ -40,4 +40,9 @@
             {% endfor %}
         </ul>
     </td>
+    <td>
+        {% if project.can_edit %}
+            <a href="editproject.py?project_id={{ project.project_id }}">edit</a>
+        {% endif %}
+    </td>
 </tr>
