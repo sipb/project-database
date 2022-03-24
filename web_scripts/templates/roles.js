@@ -6,6 +6,10 @@ var role_counter = 0;
 function add_role(role_name="", role_description="", role_prereqs="") {
     var container = document.getElementById("roles_container");
     var role_fields = document.createElement("p");
+    role_fields.setAttribute(
+        "style",
+        "border:3px; border-style:solid; border-color:#000000; padding:1em;"
+    );
 
     var role_name_label = document.createElement("label");
     role_name_label.setAttribute("for", "role_name");
