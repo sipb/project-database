@@ -12,6 +12,8 @@
 <body>
     <h2>SIPB Project Database -- {{ operation }} Failed</h2>
 
+    {% include 'navigationlinks.html' %}
+
     <p>The operation failed with the following issues:</p>
     {{ status|safe }}
     <p>Please fix these issues and try again.</p>
