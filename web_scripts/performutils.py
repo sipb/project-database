@@ -22,6 +22,9 @@ def format_success_page(project_info, operation):
     )[0]
     jenv = templateutils.get_jenv()
     user = authutils.get_kerberos()
+    project_info['can_edit'] = authutils.can_edit(
+        user, project_info['project_id']
+    )
     authlink = authutils.get_auth_url(True)
     deauthlink = authutils.get_auth_url(False)
     can_add = authutils.can_add(user)
