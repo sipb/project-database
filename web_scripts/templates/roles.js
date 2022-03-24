@@ -28,7 +28,6 @@ function add_role(role_name="", role_description="", role_prereqs="") {
 
     role_fields.appendChild(document.createElement("br"));
 
-    // var role_description_field = document.createElement("input");
     var role_description_field = document.createElement("textarea");
     role_description_field.setAttribute("id", "role_description");
     role_description_field.setAttribute(
@@ -48,14 +47,15 @@ function add_role(role_name="", role_description="", role_prereqs="") {
 
     role_fields.appendChild(document.createElement("br"));
 
-    var role_prereqs_field = document.createElement("input");
+    var role_prereqs_field = document.createElement("textarea");
     role_prereqs_field.setAttribute("type", "text");
     role_prereqs_field.setAttribute("id", "role_prereqs");
     role_prereqs_field.setAttribute(
         "name", "role_prereqs_" + role_counter
     );
-    role_prereqs_field.setAttribute("value", role_prereqs);
-    role_prereqs_field.setAttribute("size", "80");
+    role_prereqs_field.setAttribute("rows", "4");
+    role_prereqs_field.setAttribute("cols", "80");
+    role_prereqs_field.value = role_prereqs;
     role_fields.appendChild(role_prereqs_field);
 
     role_fields.appendChild(document.createElement("br"));
