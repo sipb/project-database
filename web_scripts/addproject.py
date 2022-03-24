@@ -15,10 +15,8 @@ def format_add_project():
     """
     jenv = templateutils.get_jenv()
     user = authutils.get_kerberos()
-    # NOTE: the original HWOPS code sets the argument to "not user" (i.e., only
-    # add the authentication port if there isn't a user). But, this doesn't
-    # seem to work for me when running from my scripts account.
     authlink = authutils.get_auth_url(True)
+    deauthlink = authutils.get_auth_url(False)
     can_add = authutils.can_add(user)
     result = ''
     result += 'Content-type: text/html\n\n'
@@ -27,7 +25,8 @@ def format_add_project():
         can_add=can_add,
         # TODO: what is the contact email for projects-db maintainers?
         help_address='useful-help-email-for-projects-db [at] mit [dot] edu',
-        authlink=authlink
+        authlink=authlink,
+        deauthlink=deauthlink
     ).encode('utf-8')
     return result
 

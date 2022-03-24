@@ -17,13 +17,13 @@
 {% endif %}
     <h2>SIPB Project Database -- Add Project</h2>
 
+    {% include 'navigationlinks.html' %}
+
     {% if not user %}
         <p><a href="{{ authlink }}">Sign in to create a project.</a></p>
     {% elif not can_add %}
         <p>You do not have access to create new projects. Please contact {{ help_address }} for help.</p>
     {% else %}
-        <p>Signed in as {{ user }}.</p>
-
         <form action="performaddproject.py" method="POST">
             {% include 'projectform.html' %}
         </form>
