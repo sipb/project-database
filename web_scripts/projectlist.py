@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import authutils
 import db
 import strutils
 import templateutils
@@ -24,10 +25,18 @@ def format_project_list(project_list):
         The HTML to display.
     """
     jenv = templateutils.get_jenv()
+    user = authutils.get_kerberos()
+    authlink = authutils.get_auth_url(True)
+    deauthlink = authutils.get_auth_url(False)
+    can_add = authutils.can_add(user)
     result = ''
     result += 'Content-type: text/html\n\n'
     result += jenv.get_template('projectlist.html').render(
-        project_list=project_list
+        project_list=project_list,
+        user=user,
+        authlink=authlink,
+        deauthlink=deauthlink,
+        can_add=can_add
     ).encode('utf-8')
     return result
 

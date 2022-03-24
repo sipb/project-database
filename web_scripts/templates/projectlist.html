@@ -12,6 +12,8 @@
 <body>
     <h2>SIPB Project List</h2>
 
+    {% include 'navigationlinks.html' %}
+
     <table border="1">
     {% include 'projectheader.html' %}
     {% for project in project_list %}
