@@ -28,6 +28,8 @@ def format_edit_project(project_id):
     user = authutils.get_kerberos()
     can_edit = authutils.can_edit(user, project_id)
     authlink = authutils.get_auth_url(True)
+    deauthlink = authutils.get_auth_url(False)
+    can_add = authutils.can_add(user)
 
     project_info = db.get_all_info_for_project(project_id)
     project_info = strutils.enrich_project_info_dict(project_info)
@@ -44,13 +46,11 @@ def format_edit_project(project_id):
         help_address='useful-help-email-for-projects-db [at] mit [dot] edu',
         authlink=authlink,
         project_info=project_info,
-        project_id=project_id
+        project_id=project_id,
+        deauthlink=deauthlink,
+        can_add=can_add
     ).encode('utf-8')
     return result
-
-    # TODO:
-    # * Make form fields wider
-    # * Handle escaped characters
 
 
 def main():
