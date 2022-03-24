@@ -29,7 +29,7 @@ function add_role(role_name="", role_description="", role_prereqs="") {
     role_fields.appendChild(document.createElement("br"));
 
     // var role_description_field = document.createElement("input");
-    var role_description_field = document.createElement("textarea")
+    var role_description_field = document.createElement("textarea");
     role_description_field.setAttribute("id", "role_description");
     role_description_field.setAttribute(
         "name", "role_description_" + role_counter
