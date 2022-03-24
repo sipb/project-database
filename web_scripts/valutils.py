@@ -242,6 +242,50 @@ def validate_project_roles(roles):
 
 
 def validate_project_info(project_info):
+    """Validate that the given project info is OK.
+
+    Parameters
+    ----------
+    project_info : dict
+        The project info extracted from the form.
+
+    Returns
+    -------
+    is_ok : bool
+        Indicates whether or not the project info is OK.
+    status_messages : list of str
+        A list of status messages indicating the result of the validation.
+    """
+    is_ok = True
+    status_messages = []
+
+    name_ok, name_msgs = validate_project_name(project_info['name'])
+    is_ok &= name_ok
+    status_messages.extend(name_msgs)
+
+    description_ok, description_msgs = validate_project_description(
+        project_info['description']
+    )
+    is_ok &= description_ok
+    status_messages.extend(description_msgs)
+
+    contacts_ok, contacts_msgs = validate_project_contacts(
+        project_info['contacts']
+    )
+    is_ok &= contacts_ok
+    status_messages.extend(contacts_msgs)
+
+    roles_ok, roles_msgs = validate_project_roles(project_info['roles'])
+    is_ok &= roles_ok
+    status_messages.extend(roles_msgs)
+
+    # TODO: this currently allows links, comm channels, and roles to be empty.
+    # Do we want to require any of those at project creation time?
+
+    return is_ok, status_messages
+
+
+def validate_add_project(project_info):
     """Validate that the given project is OK to add.
 
     In particular, check that:
@@ -267,28 +311,65 @@ def validate_project_info(project_info):
     is_ok &= permission_ok
     status_messages.extend(permission_msgs)
 
-    name_ok, name_msgs = validate_project_name(project_info['name'])
-    is_ok &= name_ok
-    status_messages.extend(name_msgs)
+    info_ok, info_msgs = validate_project_info(project_info)
+    is_ok &= info_ok
+    status_messages.extend(info_msgs)
 
-    description_ok, description_msgs = validate_project_description(
-        project_info['description']
-    )
-    is_ok &= description_ok
-    status_messages.extend(description_msgs)
+    return is_ok, status_messages
 
-    contacts_ok, contacts_msgs = validate_project_contacts(
-        project_info['contacts']
-    )
-    is_ok &= contacts_ok
-    status_messages.extend(contacts_msgs)
 
-    roles_ok, roles_msgs = validate_project_roles(project_info['roles'])
-    is_ok &= roles_ok
-    status_messages.extend(roles_msgs)
+def validate_edit_permission(project_id):
+    """Validate that the user has permission to edit the project.
 
-    # TODO: this currently allows links, comm channels, and roles to be empty.
-    # Do we want to require any of those at project creation time?
+    Parameters
+    ----------
+    project_id : str or int
+        The project ID.
+
+    Returns
+    -------
+    is_ok : bool
+        Indicates whether or not the project is OK to edit.
+    status_messages : list of str
+        A list of status messages indicating the result of the validation.
+    """
+    user = authutils.get_kerberos()
+    can_edit = authutils.can_edit(user, project_id)
+    if can_edit:
+        return True, []
+    else:
+        return False, ['User is not authorized to edit this project!']
+
+
+def validate_edit_project(project_info, project_id):
+    """Validate that the given project is OK to edit.
+
+    In particular, check that:
+    * The user is signed-in and is authorized to edit the project.
+    * The project_info is properly-formed.
+
+    Parameters
+    ----------
+    project_info : dict
+        The project info extracted from the form.
+
+    Returns
+    -------
+    is_ok : bool
+        Indicates whether or not the project is OK to edit.
+    status_messages : list of str
+        A list of status messages indicating the result of the validation.
+    """
+    is_ok = True
+    status_messages = []
+
+    permission_ok, permission_msgs = validate_edit_permission(project_id)
+    is_ok &= permission_ok
+    status_messages.extend(permission_msgs)
+
+    info_ok, info_msgs = validate_project_info(project_info)
+    is_ok &= info_ok
+    status_messages.extend(info_msgs)
 
     return is_ok, status_messages
 

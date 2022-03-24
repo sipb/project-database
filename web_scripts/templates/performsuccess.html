@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Success</title>
+    <meta charset="UTF-8">
+    <style>
+    td { padding: 5px; }
+    .header td { border: 2px solid black; }
+    .gone { border: 0; }
+    </style>
+</head>
+<body>
+    <h2>SIPB Project Database -- {{ operation }} Complete</h2>
+
+    <table border="1">
+    {% include 'projectheader.html' %}
+    {% include 'projectrow.html' %}
+    </table>
+</body>
+</html>

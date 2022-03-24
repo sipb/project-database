@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Failure</title>
+    <meta charset="UTF-8">
+    <style>
+    td { padding: 5px; }
+    .header td { border: 2px solid black; }
+    .gone { border: 0; }
+    </style>
+</head>
+<body>
+    <h2>SIPB Project Database -- {{ operation }} Failed</h2>
+
+    <p>The operation failed with the following issues:</p>
+    {{ status|safe }}
+    <p>Please fix these issues and try again.</p>
+</body>
+</html>

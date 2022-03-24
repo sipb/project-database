@@ -43,7 +43,8 @@ def format_edit_project(project_id):
         can_edit=can_edit,
         help_address='useful-help-email-for-projects-db [at] mit [dot] edu',
         authlink=authlink,
-        project_info=project_info
+        project_info=project_info,
+        project_id=project_id
     ).encode('utf-8')
     return result
 
