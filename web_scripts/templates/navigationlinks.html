@@ -2,10 +2,12 @@
     {% if not user %}
         <a href="{{ authlink }}">Sign In</a>
     {% else %}
-        Signed in as {{ user }} (<a href="{{ deauthlink }}">Sign Out</a>)
+        Signed in as {{ user }} (<a href="{{ deauthlink }}">sign out</a>)
     {% endif %}
+    |
     <a href="projectlist.py">Project List</a>
     {% if can_add %}
+        |
         <a href="addproject.py">Add Project</a>
     {% endif %}
 </p>
