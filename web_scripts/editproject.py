@@ -48,7 +48,8 @@ def format_edit_project(project_id):
         project_info=project_info,
         project_id=project_id,
         deauthlink=deauthlink,
-        can_add=can_add
+        can_add=can_add,
+        operation='Update project'
     ).encode('utf-8')
     return result
 

@@ -26,7 +26,8 @@ def format_add_project():
         # TODO: what is the contact email for projects-db maintainers?
         help_address='useful-help-email-for-projects-db [at] mit [dot] edu',
         authlink=authlink,
-        deauthlink=deauthlink
+        deauthlink=deauthlink,
+        operation='Create project'
     ).encode('utf-8')
     return result
 
