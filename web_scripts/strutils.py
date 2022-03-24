@@ -63,7 +63,7 @@ def obfuscate_project_info_dicts(project_list):
 
 
 def split_comma_sep(input_str):
-    """Split a comma-separated list and strip whitespace.
+    """Split a comma-separated list and strip whitespace and blank entries.
 
     Parameters
     ----------
@@ -75,7 +75,9 @@ def split_comma_sep(input_str):
     element_list : list of str
         The elements of input_str, with leading/trailing whitespace stripped.
     """
-    return [s.strip() for s in input_str.split(',')]
+    result = [s.strip() for s in input_str.split(',')]
+    result = [s for s in result if len(s) > 0]
+    return result
 
 
 def html_listify(items):
