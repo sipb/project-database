@@ -67,7 +67,7 @@ def validate_project_name_available(name):
         return True, []
 
 
-def validate_project_name(name):
+def validate_project_name(name, exist_ok=False):
     """Check if the project name field is valid.
 
     Parameters
@@ -89,9 +89,10 @@ def validate_project_name(name):
     name_ok &= name_text_ok
     status_messages.extend(name_msgs)
 
-    name_available, name_msgs = validate_project_name_available(name)
-    name_ok &= name_available
-    status_messages.extend(name_msgs)
+    if not exist_ok:
+        name_available, name_msgs = validate_project_name_available(name)
+        name_ok &= name_available
+        status_messages.extend(name_msgs)
 
     return name_ok, status_messages
 
@@ -241,7 +242,7 @@ def validate_project_roles(roles):
     return is_ok, status_messages
 
 
-def validate_project_info(project_info):
+def validate_project_info(project_info, exist_ok=False):
     """Validate that the given project info is OK.
 
     Parameters
@@ -259,7 +260,9 @@ def validate_project_info(project_info):
     is_ok = True
     status_messages = []
 
-    name_ok, name_msgs = validate_project_name(project_info['name'])
+    name_ok, name_msgs = validate_project_name(
+        project_info['name'], exist_ok=exist_ok
+    )
     is_ok &= name_ok
     status_messages.extend(name_msgs)
 
@@ -311,7 +314,7 @@ def validate_add_project(project_info):
     is_ok &= permission_ok
     status_messages.extend(permission_msgs)
 
-    info_ok, info_msgs = validate_project_info(project_info)
+    info_ok, info_msgs = validate_project_info(project_info, exist_ok=False)
     is_ok &= info_ok
     status_messages.extend(info_msgs)
 
@@ -367,7 +370,7 @@ def validate_edit_project(project_info, project_id):
     is_ok &= permission_ok
     status_messages.extend(permission_msgs)
 
-    info_ok, info_msgs = validate_project_info(project_info)
+    info_ok, info_msgs = validate_project_info(project_info, exist_ok=True)
     is_ok &= info_ok
     status_messages.extend(info_msgs)
 
