@@ -60,11 +60,11 @@ def validate_project_name_available(name):
     status_messages : list of str
         A list of status messages.
     """
-    # TODO: the get_project_id function does not work on the old version of
-    # sqlalchemy on scripts.
-    # TODO: it would be good to do a case-insensitive search
-    # return db.get_project_id(name) is None
-    return True, []
+    project_id = db.get_project_id(name)
+    if project_id:
+        return False, ['A project with name "%s" already exists!' % name]
+    else:
+        return True, []
 
 
 def validate_project_name(name):

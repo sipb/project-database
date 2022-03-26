@@ -1,4 +1,6 @@
 #!/usr/bin/python
+
+from sqlalchemy import func
 from schema import *
 
 
@@ -64,10 +66,7 @@ def get_project_id(name):
     Get the ID of a project with `name`, if it exists
     Otherwise returns None
     '''
-    project = session.query(Projects).filter_by(name=name).one_or_none()
-    if project:
-        return project.project_id
-    return None
+    return session.query(Projects.project_id).filter_by(name=name).scalar()
 
 
 def get_all_info_for_project(project_id):
