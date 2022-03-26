@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import cgi
+
 import authutils
 import db
+import formutils
 import strutils
 import templateutils
 
@@ -11,7 +14,7 @@ import cgitb
 cgitb.enable()
 
 
-def format_project_list(project_list):
+def format_project_list(project_list, status_filter):
     """Format a list of projects into an HTML page.
 
     Parameters
@@ -32,6 +35,16 @@ def format_project_list(project_list):
     authlink = authutils.get_auth_url(True)
     deauthlink = authutils.get_auth_url(False)
     can_add = authutils.can_add(user)
+
+    if status_filter == 'all':
+        title = 'SIPB Project List'
+    elif status_filter == 'active':
+        title = 'SIPB Active Project List'
+    elif status_filter == 'inactive':
+        title = 'SIPB Inactive Project List'
+    else:
+        raise ValueError('Unknown status filter!')
+
     result = ''
     result += 'Content-type: text/html\n\n'
     result += jenv.get_template('projectlist.html').render(
@@ -39,7 +52,8 @@ def format_project_list(project_list):
         user=user,
         authlink=authlink,
         deauthlink=deauthlink,
-        can_add=can_add
+        can_add=can_add,
+        title=title
     ).encode('utf-8')
     return result
 
@@ -47,12 +61,16 @@ def format_project_list(project_list):
 def main():
     """Display the info for all projects.
     """
-    project_list = db.get_all_project_info()
+    arguments = cgi.FieldStorage()
+    status_filter = formutils.safe_cgi_field_get(
+        arguments, 'status', default='all'
+    )
+    project_list = db.get_all_project_info(status_filter=status_filter)
     project_list = strutils.obfuscate_project_info_dicts(project_list)
     project_list = strutils.make_project_info_dicts_links_absolute(
         project_list
     )
-    page = format_project_list(project_list)
+    page = format_project_list(project_list, status_filter)
     print(page)
 
 

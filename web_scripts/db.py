@@ -43,7 +43,20 @@ def get_all_projects():
     '''Get metadata all of projects in database'''
     return session.query(Projects).all()
 
-def get_project_info(model,project_id):
+
+def get_active_projects():
+    """Get data for all active projects in the database.
+    """
+    return session.query(Projects).filter_by(status='active').all()
+
+
+def get_inactive_projects():
+    """Get data for all inactive projects in the database.
+    """
+    return session.query(Projects).filter_by(status='inactive').all()
+
+
+def get_project_info(model, project_id):
     '''
     Given an SQL class model (e.g. ContactEmail, Roles, Links, etc.), query that table
     for all entries associated with project_id and return the result in the form of 
@@ -97,15 +110,30 @@ def get_all_info_for_project(project_id):
     return project_info
 
 
-def get_all_project_info():
+def get_all_project_info(status_filter='all'):
     """Get the information for all projects.
+
+    Parameters
+    ----------
+    status_filter : {'all', 'active', 'inactive'}, optional
+        The filter to apply to project status. Default is to retrieve all
+        projects (both active and inactive).
 
     Returns
     -------
     project_list : list of dict
         List of all projects.
     """
-    project_list = list_dict_convert(get_all_projects())
+    if status_filter == 'all':
+        projects = get_all_projects()
+    elif status_filter == 'active':
+        projects = get_active_projects()
+    elif status_filter == 'inactive':
+        projects = get_inactive_projects()
+    else:
+        raise ValueError('Unknown status filter!')
+
+    project_list = list_dict_convert(projects)
     # There's probably a way to do this with joins...
     for project in project_list:
         project_id = project['project_id']
