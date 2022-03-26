@@ -26,7 +26,7 @@ def format_success_page(project_info, operation):
         user, project_info['project_id']
     )
     authlink = authutils.get_auth_url(True)
-    deauthlink = authutils.get_auth_url(False)
+    deauthlink = authutils.get_base_url(False) + '/projectlist.py'
     can_add = authutils.can_add(user)
     result = ''
     result += 'Content-type: text/html\n\n'
@@ -57,7 +57,7 @@ def format_failure_page(status, operation):
     jenv = templateutils.get_jenv()
     user = authutils.get_kerberos()
     authlink = authutils.get_auth_url(True)
-    deauthlink = authutils.get_auth_url(False)
+    deauthlink = authutils.get_base_url(False) + '/projectlist.py'
     can_add = authutils.can_add(user)
     result = ''
     result += 'Content-type: text/html\n\n'
