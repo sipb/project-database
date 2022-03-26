@@ -122,6 +122,26 @@ def get_all_project_info():
     return project_list
 
 
+def get_project_ids_for_contact(email):
+    """Get the IDs for all projects for which the given email is a contact.
+
+    Parameters
+    ----------
+    email : str
+        The email address.
+
+    Returns
+    -------
+    results : list of int
+        The project IDs for each project the user is a contact on.
+    """
+    results = session.query(
+        ContactEmails.project_id
+    ).filter_by(email=email).all()
+
+    return [r[0] for r in results]
+
+
 # Adding entry to each table
 
 def add_project_metadata(args):
