@@ -1,6 +1,6 @@
 <p>
     {% if not user %}
-        <a href="{{ authlink }}">Sign In</a>
+        <a href="{{ authlink }}">Sign In (certificate required)</a>
     {% else %}
         Signed in as {{ user }} (<a href="{{ deauthlink }}">sign out</a>)
     {% endif %}
