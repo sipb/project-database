@@ -19,11 +19,11 @@
 </p>
 <p>
     <label for="comm_channels">Communication channel(s) (comma-separated):</label><br>
-    <input type="text" id="comm_channels" name="comm_channels" size="80" {% if project_info %}value="{{ project_info.comm_channels_str }}"{% endif %}>
+    <input type="text" id="comm_channels" name="comm_channels" size="80" {% if project_info %}value="{{ project_info.comm_channels|join(', ') }}"{% endif %}>
 </p>
 <p>
     <label for="contacts">Contact(s) (comma-separated, first is primary, only contacts of the form &lt;kerberos&gt;@mit.edu can edit project details):</label><br>
-    <input type="text" id="contacts" name="contacts" size="80" {% if project_info %}value="{{ project_info.contacts_str }}"{% endif %}>
+    <input type="text" id="contacts" name="contacts" size="80" {% if project_info %}value="{{ project_info.contacts|join(', ') }}"{% endif %}>
 </p>
 <p>
     <label>Role(s):</label>
