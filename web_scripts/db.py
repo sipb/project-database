@@ -138,13 +138,13 @@ def get_all_project_info(filter_method='all', contact_email=None):
     project_list : list of dict
         List of all projects.
     """
-    if status_filter == 'all':
+    if filter_method == 'all':
         projects = get_all_projects()
-    elif status_filter == 'active':
+    elif filter_method == 'active':
         projects = get_active_projects()
-    elif status_filter == 'inactive':
+    elif filter_method == 'inactive':
         projects = get_inactive_projects()
-    elif status_filter == 'contact':
+    elif filter_method == 'contact':
         projects = get_projects_for_contact(contact_email)
     else:
         raise ValueError('Unknown status filter!')
