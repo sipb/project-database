@@ -12,7 +12,13 @@
     <td>
         <ul>
             {% for channel in project.comm_channels %}
-                <li>{{ channel }}</li>
+                <li>
+                    {% if user %}
+                        {{ channel|linkify }}
+                    {% else %}
+                        {{ channel }}
+                    {% endif %}
+                </li>
             {% endfor %}
         </ul>
     </td>
