@@ -141,27 +141,6 @@ def make_url_absolute(url):
     return url
 
 
-def make_project_info_dicts_links_absolute(project_list):
-    """Make all of the links for all of the projects in a list of project info
-    dicts absolute.
-
-    Parameters
-    ----------
-    project_list : list of dict
-        List of projects, in dictionary format. This will be modified in-place.
-
-    Returns
-    -------
-    project_list : list of dict
-        The updated project list.
-    """
-    for project in project_list:
-        project['links'] = [
-            make_url_absolute(link) for link in project['links']
-        ]
-    return project_list
-
-
 def enrich_project_info_dict(project_info):
     """Add formatted text fields to the given project_info dict.
 

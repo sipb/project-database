@@ -1,5 +1,4 @@
 import authutils
-import strutils
 import templateutils
 
 
@@ -17,9 +16,6 @@ def format_success_page(project_info, operation):
         The HTML to display.
     """
     user = authutils.get_kerberos()
-    project_info = strutils.make_project_info_dicts_links_absolute(
-        [project_info]
-    )[0]
     jenv = templateutils.get_jenv()
     project_info['can_edit'] = authutils.can_edit(
         user, project_info['project_id']
