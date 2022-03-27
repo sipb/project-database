@@ -14,7 +14,7 @@
             {% for channel in project.comm_channels %}
                 <li>
                     {% if user %}
-                        {{ channel|linkify }}
+                        {{ channel|urlize }}
                     {% else %}
                         {{ channel }}
                     {% endif %}
