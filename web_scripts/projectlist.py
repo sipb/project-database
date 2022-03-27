@@ -80,9 +80,9 @@ def main():
     project_list = db.get_all_project_info(
         filter_method=filter_method, contact_email=contact_email
     )
-    project_list = strutils.make_project_info_dicts_links_absolute(
-        project_list
-    )
+    # project_list = strutils.make_project_info_dicts_links_absolute(
+    #     project_list
+    # )
     page = format_project_list(project_list, filter_method, contact_email)
     print(page)
 

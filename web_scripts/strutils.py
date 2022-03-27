@@ -39,29 +39,6 @@ def obfuscate_email(email):
         return email
 
 
-def obfuscate_project_info_dicts(project_list):
-    """Obfuscate the comm_channels and contacts fields of all projects in the
-    provided list.
-
-    Parameters
-    ----------
-    project_list : list of dict
-        List of projects, in dictionary format. This will be modified in-place.
-
-    Returns
-    -------
-    project_list : list of dict
-        The updated project list.
-    """
-    for project in project_list:
-        project['comm_channels'] = [
-            obfuscate_email(channel) for channel in project['comm_channels']
-        ]
-        for contact in project['contacts']:
-            contact['email'] = obfuscate_email(contact['email'])
-    return project_list
-
-
 def split_comma_sep(input_str):
     """Split a comma-separated list and strip whitespace and blank entries.
 
