@@ -16,12 +16,13 @@ def format_success_page(project_info, operation):
     result : str
         The HTML to display.
     """
-    project_info = strutils.obfuscate_project_info_dicts([project_info])[0]
+    user = authutils.get_kerberos()
+    if user:
+        project_info = strutils.obfuscate_project_info_dicts([project_info])[0]
     project_info = strutils.make_project_info_dicts_links_absolute(
         [project_info]
     )[0]
     jenv = templateutils.get_jenv()
-    user = authutils.get_kerberos()
     project_info['can_edit'] = authutils.can_edit(
         user, project_info['project_id']
     )
