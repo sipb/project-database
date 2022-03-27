@@ -14,7 +14,7 @@ import cgitb
 cgitb.enable()
 
 
-def format_project_list(project_list, status_filter, contact_email):
+def format_project_list(project_list, filter_method, contact_email):
     """Format a list of projects into an HTML page.
 
     Parameters
@@ -37,14 +37,16 @@ def format_project_list(project_list, status_filter, contact_email):
     deauthlink = authutils.get_auth_url(False)
     can_add = authutils.can_add(user)
 
-    if status_filter == 'all':
+    if filter_method == 'all':
         title = 'SIPB Project List'
-    elif status_filter == 'active':
+    elif filter_method == 'active':
         title = 'SIPB Active Project List'
-    elif status_filter == 'inactive':
+    elif filter_method == 'inactive':
         title = 'SIPB Inactive Project List'
-    elif status_filter == 'contact':
+    elif filter_method == 'contact':
         title = 'SIPB Project List for %s' % contact_email
+    else:
+        raise ValueError('Unknown filter method!')
 
     result = ''
     result += 'Content-type: text/html\n\n'
@@ -64,11 +66,11 @@ def main():
     """Display the info for all projects.
     """
     arguments = cgi.FieldStorage()
-    status_filter = formutils.safe_cgi_field_get(
+    filter_method = formutils.safe_cgi_field_get(
         arguments, 'filter_by', default='all'
     )
 
-    if status_filter == 'contact':
+    if filter_method == 'contact':
         contact_email = formutils.safe_cgi_field_get(
             arguments, 'email', default=''
         )
@@ -76,13 +78,13 @@ def main():
         contact_email = None
 
     project_list = db.get_all_project_info(
-        status_filter=status_filter, contact_email=contact_email
+        filter_method=filter_method, contact_email=contact_email
     )
     project_list = strutils.obfuscate_project_info_dicts(project_list)
     project_list = strutils.make_project_info_dicts_links_absolute(
         project_list
     )
-    page = format_project_list(project_list, status_filter, contact_email)
+    page = format_project_list(project_list, filter_method, contact_email)
     print(page)
 
 
