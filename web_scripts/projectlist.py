@@ -44,7 +44,7 @@ def format_project_list(project_list, filter_method, contact_email):
     elif filter_method == 'inactive':
         title = 'SIPB Inactive Project List'
     elif filter_method == 'contact':
-        title = 'SIPB Project List for %s' % contact_email
+        title = 'SIPB Projects for Which %s Is a Contact' % contact_email
     else:
         raise ValueError('Unknown filter method!')
 
