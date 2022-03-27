@@ -9,7 +9,7 @@ def linkify(text):
     """
     if text.startswith('http://') or text.startswith('https://'):
         return '<a href="%s">%s</a>' % (text, text)
-    elif strutils.isemail(text):
+    elif strutils.is_email(text):
         return '<a href="mailto:%s">%s</a>' % (text, text)
     else:
         return text
