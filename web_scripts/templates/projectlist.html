@@ -16,8 +16,11 @@
 
     <p>
         <a href="projectlist.py">All projects</a> |
-        <a href="projectlist.py?status=active">Active projects</a> |
-        <a href="projectlist.py?status=inactive">Inactive projects</a>
+        <a href="projectlist.py?filter_by=active">Active projects</a> |
+        <a href="projectlist.py?filter_by=inactive">Inactive projects</a>
+        {% if user %}
+            | <a href="projectlist.py?filter_by=contact&email={{ user_email }}">Your projects</a>
+        {% endif %}
     </p>
 
     <table border="1">

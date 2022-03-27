@@ -56,6 +56,14 @@ def get_inactive_projects():
     return session.query(Projects).filter_by(status='inactive').all()
 
 
+def get_projects_for_contact(email):
+    """Get all projects for which the given email is a contact.
+    """
+    return session.query(Projects).join(
+        ContactEmails, Projects.project_id == ContactEmails.project_id
+    ).filter(ContactEmails.email == email).all()
+
+
 def get_project_info(model, project_id):
     '''
     Given an SQL class model (e.g. ContactEmail, Roles, Links, etc.), query that table
@@ -110,14 +118,20 @@ def get_all_info_for_project(project_id):
     return project_info
 
 
-def get_all_project_info(status_filter='all'):
+def get_all_project_info(filter_method='all', contact_email=None):
     """Get the information for all projects.
 
     Parameters
     ----------
-    status_filter : {'all', 'active', 'inactive'}, optional
-        The filter to apply to project status. Default is to retrieve all
-        projects (both active and inactive).
+    filter_method : {'all', 'active', 'inactive'}, optional
+        The filter to apply. Options are:
+        * 'all' (default): return all projects
+        * 'active': return all active projects
+        * 'inactive': return all inactive projects
+        * 'contact': return projects for which the given contact_email is in
+            the contact list.
+    contact_email : str, optional
+        The contact email to filter on when filter_method is 'contact'.
 
     Returns
     -------
@@ -130,6 +144,8 @@ def get_all_project_info(status_filter='all'):
         projects = get_active_projects()
     elif status_filter == 'inactive':
         projects = get_inactive_projects()
+    elif status_filter == 'contact':
+        projects = get_projects_for_contact(contact_email)
     else:
         raise ValueError('Unknown status filter!')
 
@@ -147,26 +163,6 @@ def get_all_project_info(status_filter='all'):
         project['contacts'] = get_contacts(project_id)
         
     return project_list
-
-
-def get_project_ids_for_contact(email):
-    """Get the IDs for all projects for which the given email is a contact.
-
-    Parameters
-    ----------
-    email : str
-        The email address.
-
-    Returns
-    -------
-    results : list of int
-        The project IDs for each project the user is a contact on.
-    """
-    results = session.query(
-        ContactEmails.project_id
-    ).filter_by(email=email).all()
-
-    return [r[0] for r in results]
 
 
 # Adding entry to each table

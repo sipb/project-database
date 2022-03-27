@@ -14,7 +14,7 @@ import cgitb
 cgitb.enable()
 
 
-def format_project_list(project_list, status_filter):
+def format_project_list(project_list, status_filter, contact_email):
     """Format a list of projects into an HTML page.
 
     Parameters
@@ -29,6 +29,7 @@ def format_project_list(project_list, status_filter):
     """
     jenv = templateutils.get_jenv()
     user = authutils.get_kerberos()
+    user_email = authutils.get_email()
     project_list = authutils.enrich_project_list_with_permissions(
         user, project_list
     )
@@ -42,14 +43,15 @@ def format_project_list(project_list, status_filter):
         title = 'SIPB Active Project List'
     elif status_filter == 'inactive':
         title = 'SIPB Inactive Project List'
-    else:
-        raise ValueError('Unknown status filter!')
+    elif status_filter == 'contact':
+        title = 'SIPB Project List for %s' % contact_email
 
     result = ''
     result += 'Content-type: text/html\n\n'
     result += jenv.get_template('projectlist.html').render(
         project_list=project_list,
         user=user,
+        user_email=user_email,
         authlink=authlink,
         deauthlink=deauthlink,
         can_add=can_add,
@@ -63,14 +65,24 @@ def main():
     """
     arguments = cgi.FieldStorage()
     status_filter = formutils.safe_cgi_field_get(
-        arguments, 'status', default='all'
+        arguments, 'filter_by', default='all'
     )
-    project_list = db.get_all_project_info(status_filter=status_filter)
+
+    if status_filter == 'contact':
+        contact_email = formutils.safe_cgi_field_get(
+            arguments, 'email', default=''
+        )
+    else:
+        contact_email = None
+
+    project_list = db.get_all_project_info(
+        status_filter=status_filter, contact_email=contact_email
+    )
     project_list = strutils.obfuscate_project_info_dicts(project_list)
     project_list = strutils.make_project_info_dicts_links_absolute(
         project_list
     )
-    page = format_project_list(project_list, status_filter)
+    page = format_project_list(project_list, status_filter, contact_email)
     print(page)
 
 

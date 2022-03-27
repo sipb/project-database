@@ -17,6 +17,21 @@ def get_kerberos():
     kerberos : str
         The kerberos (username only) for the user.
     """
+    email = get_email()
+    if email:
+        return email[:email.index('@')]
+    else:
+        return None
+
+
+def get_email():
+    """Get the email of the user. Returns None if there is no user.
+
+    Returns
+    -------
+    email : str
+        The email for the user.
+    """
     email = os.getenv('SSL_CLIENT_S_DN_Email')
     if (
         (email is None) or
@@ -25,7 +40,7 @@ def get_kerberos():
     ):
         return None
     else:
-        return email[:email.index('@')]
+        return email
 
 
 def get_base_url(do_authenticate):
