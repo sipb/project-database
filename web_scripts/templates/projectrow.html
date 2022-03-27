@@ -36,7 +36,16 @@
     <td>
         <ul>
             {% for contact in project.contacts %}
-                <li>{{ contact.email }} ({{ contact.type }})</li>
+                <li>
+                    {% if user %}
+                        <a href="mailto:{{ contact.email }}">
+                    {% endif %}
+                    {{ contact.email }}
+                    {% if user %}
+                        </a>
+                    {% endif %}
+                    ({{ contact.type }})
+                </li>
             {% endfor %}
         </ul>
     </td>
