@@ -17,7 +17,7 @@ def format_success_page(project_info, operation):
         The HTML to display.
     """
     user = authutils.get_kerberos()
-    if user:
+    if not user:
         project_info = strutils.obfuscate_project_info_dicts([project_info])[0]
     project_info = strutils.make_project_info_dicts_links_absolute(
         [project_info]
