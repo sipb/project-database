@@ -80,9 +80,6 @@ def main():
     project_list = db.get_all_project_info(
         filter_method=filter_method, contact_email=contact_email
     )
-    user = authutils.get_kerberos()
-    if not user:
-        project_list = strutils.obfuscate_project_info_dicts(project_list)
     project_list = strutils.make_project_info_dicts_links_absolute(
         project_list
     )

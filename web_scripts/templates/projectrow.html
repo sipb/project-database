@@ -16,7 +16,7 @@
                     {% if user %}
                         {{ channel|urlize }}
                     {% else %}
-                        {{ channel }}
+                        {{ channel|obfuscate_email }}
                     {% endif %}
                 </li>
             {% endfor %}
@@ -46,7 +46,7 @@
                     {% if user %}
                         {{ contact.email|urlize }}
                     {% else %}
-                        {{ contact.email }}
+                        {{ contact.email|obfuscate_email }}
                     {% endif %}
                     ({{ contact.type }})
                 </li>
