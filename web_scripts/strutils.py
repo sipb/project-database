@@ -120,7 +120,7 @@ def is_mit_email(email):
     is_mit : bool
         Whether or not the address is an MIT address.
     """
-    return email.endswith('mit.edu') and (email.count('@') == 1)
+    return email.lower().endswith('mit.edu') and (email.count('@') == 1)
 
 
 def is_plain_mit_email(email):
@@ -140,7 +140,7 @@ def is_plain_mit_email(email):
     is_mit : bool
         Whether or not the address is an MIT address.
     """
-    return email.endswith('@mit.edu') and (email.count('@') == 1)
+    return email.lower().endswith('@mit.edu') and (email.count('@') == 1)
 
 
 def make_url_absolute(url):
@@ -157,7 +157,9 @@ def make_url_absolute(url):
     url_updated : str
         The absolute URL.
     """
-    if not (url.startswith('http://') or url.startswith('https://')):
+    if not (
+        url.lower().startswith('http://') or url.lower().startswith('https://')
+    ):
         url = 'http://' + url
     return url
 
