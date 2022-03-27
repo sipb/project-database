@@ -44,11 +44,9 @@
             {% for contact in project.contacts %}
                 <li>
                     {% if user %}
-                        <a href="mailto:{{ contact.email }}">
-                    {% endif %}
-                    {{ contact.email }}
-                    {% if user %}
-                        </a>
+                        {{ contact.email|urlize }}
+                    {% else %}
+                        {{ contact.email }}
                     {% endif %}
                     ({{ contact.type }})
                 </li>
