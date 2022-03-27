@@ -139,31 +139,3 @@ def make_url_absolute(url):
     ):
         url = 'http://' + url
     return url
-
-
-def enrich_project_info_dict(project_info):
-    """Add formatted text fields to the given project_info dict.
-
-    Parameters
-    ----------
-    project_info : dict
-        The project_info dict to enrich. This will be edited in-place.
-
-    Returns
-    -------
-    project_info : dict
-        The enriched project_info dict.
-    """
-    project_info['links_str'] = ', '.join(project_info['links'])
-    project_info['comm_channels_str'] = ', '.join(
-        project_info['comm_channels']
-    )
-    project_info['contacts_str'] = ', '.join(
-        [
-            contact['email'] for contact in sorted(
-                project_info['contacts'],
-                key=lambda x: 1 if x['type'] == 'secondary' else 0
-            )
-        ]
-    )
-    return project_info

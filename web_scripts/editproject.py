@@ -32,7 +32,6 @@ def format_edit_project(project_id):
     can_add = authutils.can_add(user)
 
     project_info = db.get_all_info_for_project(project_id)
-    project_info = strutils.enrich_project_info_dict(project_info)
 
     result = ''
     result += 'Content-type: text/html\n\n'
