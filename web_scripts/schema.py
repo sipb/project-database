@@ -25,9 +25,11 @@ SQLBase.metadata.create_all(sqlengine)
 class Projects(SQLBase):
     __tablename__ = "projects"
     project_id = db.Column(db.Integer(), nullable=False, primary_key=True, autoincrement=True)
-    status = db.Column(db.String(50), nullable=False) # Can be "active" or "inactive"
-    name = db.Column(db.String(50), nullable=False, primary_key=True)
+    name = db.Column(db.String(50), nullable=False, unique=True)
     description = db.Column(db.Text(), nullable=False)
+    status = db.Column(db.String(25), nullable=False) # Can be "active" or "inactive"
+    approval = db.Column(db.String(25), nullable=False) # Can be "awaiting_approval" or "approved" or "rejected"
+    creator = db.Column(db.String(50), nullable=False) # Kerb of user who registered the project
     
 class ContactEmails(SQLBase):
     __tablename__ = "contactemails"
