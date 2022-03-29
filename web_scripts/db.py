@@ -328,6 +328,8 @@ def add_project(project):
         'name': project['name'],
         'description': project['description'],
         'status': project['status'],
+        'approval': 'awaiting_approval', # By default project is not approved
+        'creator': project['creator'],
     }
     project_id = add_project_metadata(metadata)
     add_project_links(project_id, project['links'])
