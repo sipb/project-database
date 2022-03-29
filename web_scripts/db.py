@@ -170,14 +170,14 @@ def add_project_metadata(args):
     Add a project with provided metadata to the database
     
     Requires: 
-        - args to have keys of 'name', 'status', 'description' with valid types
+        - args to have keys of 'name', 'status', 'description', and 'creator' with valid types
         - status is either 'active' or 'inactive'
         
     Returns: 
         - project_id associated with newly created project, None if project already exists or invalid arguments
     '''
     try:
-        args_lst = ['name','status','description']
+        args_lst = ['name','status','description','creator']
         assert check_object_params(args,args_lst)
         assert args['status'] in ['active','inactive']
     except AssertionError:
@@ -192,6 +192,7 @@ def add_project_metadata(args):
     project.name = args['name']
     project.status = args['status']
     project.description = args['description']
+    project.creator = args['creator']
     db_add(project)
     return get_project_id(args['name'])
     
@@ -328,7 +329,6 @@ def add_project(project):
         'name': project['name'],
         'description': project['description'],
         'status': project['status'],
-        'approval': 'awaiting_approval', # By default project is not approved
         'creator': project['creator'],
     }
     project_id = add_project_metadata(metadata)
