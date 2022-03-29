@@ -9,28 +9,11 @@ import formutils
 import performutils
 import strutils
 import valutils
+import db
 
 # TODO: May want to turn error listing off once stable?
 import cgitb
 cgitb.enable()
-
-
-def add_project(project_info):
-    """Add the given project to the database.
-
-    Parameters
-    ----------
-    project_info : dict
-        The project info extracted from the form.
-
-    Returns
-    -------
-    project_id : int
-        The project_id (primary key) for the newly-added project.
-    """
-    # TODO: this needs to be implemented!
-    return -1
-
 
 def main():
     """Respond to an add project request, displaying the appropriate status
@@ -42,7 +25,8 @@ def main():
 
     if is_ok:
         try:
-            project_id = add_project(project_info)
+            project_id = db.add_project(project_info)
+            assert project_id != -1
             project_info['project_id'] = project_id
         except Exception:
             is_ok = False
