@@ -166,7 +166,6 @@ def get_all_project_info(filter_method='all', contact_email=None):
 
 
 # Adding entry to each table
-
 def add_project_metadata(args):
     '''
     Add a project with provided metadata to the database
@@ -318,6 +317,38 @@ def add_project_comms(project_name, args):
         db_add(comm)
     return get_comm(project_id)
 
+def add_project(project):
+    """Add the given project to the database.
+
+    Parameters
+    ----------
+    proj : dict
+        The project info extracted from the form in performaddproject.html
+
+    Returns
+    -------
+    project_id : int
+        If success, return the project_id (primary key) for the newly-added project.
+        Otherwise, return -1
+    """
+    project_id = None
+    # TODO: this needs to be implemented!
+    project_id = get_project_id(project['name'])
+    if project_id:
+        return -1 #Project already exists
+    
+    metadata = {
+        'name': project['name'],
+        'description': project['description'],
+        'status': project['status'],
+    }
+    project_id = add_project_metadata(metadata)
+    add_project_links(project['name'], project['links'])
+    add_project_comms(project['name'], project['comm_channels'])
+    add_project_contacts(project['name'], project['contacts'])
+    add_project_roles(project['name'], project['roles'])
+    return get_project_id(project['name'])
+    
 ######################################################################
 ###### Testing Code 
 ######################################################################
