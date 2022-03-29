@@ -193,6 +193,7 @@ def add_project_metadata(args):
     project.status = args['status']
     project.description = args['description']
     project.creator = args['creator']
+    project.approval = 'awaiting_approval' # Projects are waiting to be approved by default
     db_add(project)
     return get_project_id(args['name'])
     
