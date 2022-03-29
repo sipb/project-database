@@ -89,7 +89,6 @@ def get_project_id(name):
     '''
     return session.query(Projects.project_id).filter_by(name=name).scalar()
 
-
 def get_all_info_for_project(project_id):
     """Get all of the information for a specific project.
 
@@ -173,7 +172,9 @@ def add_project_metadata(args):
     Requires: 
         - args to have keys of 'name', 'status', 'description' with valid types
         - status is either 'active' or 'inactive'
-    Returns: project_id associated with newly created project, None if project already exists or invalid arguments
+        
+    Returns: 
+        - project_id associated with newly created project, None if project already exists or invalid arguments
     '''
     try:
         args_lst = ['name','status','description']
@@ -194,13 +195,15 @@ def add_project_metadata(args):
     db_add(project)
     return get_project_id(args['name'])
     
-def add_project_contacts(project_name, args):
+def add_project_contacts(project_id, args):
     '''
     Add a list of emails associated with a project to the database
     
     Requires: 
+        - project_id to be a valid project ID in the Metadata table
         - args to be list of dictionaries with keys 'type','email' 
         - key 'type' is either 'primary' or 'secondary'
+        
     Returns: 
         - None if no project with that name or invalid arguments, otherwise 
         returns list of all emails associated with project in DB
@@ -213,11 +216,6 @@ def add_project_contacts(project_name, args):
     except AssertionError:
         return None
     
-    # Get project ID
-    project_id = get_project_id(project_name)
-    if not project_id:
-        return None
-    
     for entry in args:
         contact = ContactEmails()
         contact.project_id = project_id
@@ -226,26 +224,23 @@ def add_project_contacts(project_name, args):
         db_add(contact)
     return get_contacts(project_id)
 
-def add_project_roles(project_name, args):
+def add_project_roles(project_id, args):
     '''
     Add a list of roles associated with a project to the database
     
     Requires: 
+        - project_id to be a valid project ID in the Metadata table
         - args to be list of dictionaries with keys 'role','description', and (optional) 'prereq' 
+        
     Returns: 
-        - None if no project with that name or invalid arguments, otherwise 
-        returns list of all roles associated with project in DB
+        - None if no project with that name or invalid arguments, otherwise returns list of all 
+            roles associated with project in DB
     '''
     try:
         args_lst = ['role','description'] # 'prereq' optional 
         for dict in args:
             assert check_object_params(dict,args_lst)
     except AssertionError:
-        return None
-    
-    # Get project ID
-    project_id = get_project_id(project_name)
-    if not project_id:
         return None
     
     for entry in args:
@@ -258,26 +253,23 @@ def add_project_roles(project_name, args):
         db_add(role)
     return get_roles(project_id)
 
-def add_project_links(project_name, args):
+def add_project_links(project_id, args):
     '''
     Add a list of website links associated with a project to the database
     
     Requires: 
+        - project_id to be a valid project ID in the Metadata table
         - args to be list of dictionaries with keys 'link'
+        
     Returns: 
         - None if no project with that name or invalid arguments, otherwise 
-        returns list of all links associated with project in DB
+            returns list of all links associated with project in DB
     '''
     try:
         args_lst = ['link'] 
         for dict in args:
             assert check_object_params(dict,args_lst)
     except AssertionError:
-        return None
-    
-    # Get project ID
-    project_id = get_project_id(project_name)
-    if not project_id:
         return None
     
     for entry in args:
@@ -287,27 +279,24 @@ def add_project_links(project_name, args):
         db_add(link)
     return get_links(project_id)
 
-def add_project_comms(project_name, args):
+def add_project_comms(project_id, args):
     '''
     Add a list of communication channels associated with a project to the database
     CommChannels can be text description rather than just HTML links
     
     Requires: 
+        - project_id to be a valid project ID in the Metadata table
         - args to be list of dictionaries with keys 'commchannel'
+        
     Returns: 
         - None if no project with that name or invalid arguments, otherwise 
-        returns list of all communication channels associated with project in DB
+            returns list of all communication channels associated with project in DB
     '''
     try:
         args_lst = ['commchannel'] 
         for dict in args:
             assert check_object_params(dict,args_lst)
     except AssertionError:
-        return None
-    
-    # Get project ID
-    project_id = get_project_id(project_name)
-    if not project_id:
         return None
     
     for entry in args:
@@ -331,8 +320,6 @@ def add_project(project):
         If success, return the project_id (primary key) for the newly-added project.
         Otherwise, return -1
     """
-    project_id = None
-    # TODO: this needs to be implemented!
     project_id = get_project_id(project['name'])
     if project_id:
         return -1 #Project already exists
@@ -343,11 +330,11 @@ def add_project(project):
         'status': project['status'],
     }
     project_id = add_project_metadata(metadata)
-    add_project_links(project['name'], project['links'])
-    add_project_comms(project['name'], project['comm_channels'])
-    add_project_contacts(project['name'], project['contacts'])
-    add_project_roles(project['name'], project['roles'])
-    return get_project_id(project['name'])
+    add_project_links(project_id, project['links'])
+    add_project_comms(project_id, project['comm_channels'])
+    add_project_contacts(project_id, project['contacts'])
+    add_project_roles(project_id, project['roles'])
+    return project_id
     
 ######################################################################
 ###### Testing Code 
