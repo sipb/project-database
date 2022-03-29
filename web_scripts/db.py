@@ -339,6 +339,19 @@ def add_project(project):
     add_project_roles(project_id, project['roles'])
     return project_id
     
+def update_project(project_info, project_id):
+    """Update the information for the given project in the database.
+
+    Parameters
+    ----------
+    project_info : dict
+        The project info extracted from the form.
+    project_id : int or str
+        The project ID for the existing project.
+    """
+    # TODO: this needs to be implemented!
+    pass
+    
 ######################################################################
 ###### Testing Code 
 ######################################################################

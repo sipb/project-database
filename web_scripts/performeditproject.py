@@ -8,25 +8,11 @@ import formutils
 import performutils
 import strutils
 import valutils
+import db
 
 # TODO: May want to turn error listing off once stable?
 import cgitb
 cgitb.enable()
-
-
-def update_project(project_info, project_id):
-    """Update the information for the given project in the database.
-
-    Parameters
-    ----------
-    project_info : dict
-        The project info extracted from the form.
-    project_id : int or str
-        The project ID for the existing project.
-    """
-    # TODO: this needs to be implemented!
-    pass
-
 
 def main():
     arguments = cgi.FieldStorage()
@@ -40,7 +26,7 @@ def main():
 
     if is_ok:
         try:
-            update_project(project_info, project_id)
+            db.update_project(project_info, project_id)
             project_info['project_id'] = project_id
         except Exception:
             is_ok = False
