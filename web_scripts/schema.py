@@ -35,7 +35,7 @@ class ContactEmails(SQLBase):
     __tablename__ = "contactemails"
     id = sqlalchemy.Column(sqlalchemy.Integer(), nullable=False, primary_key=True, autoincrement=True)
     project_id = db.Column(db.Integer(), nullable=False)
-    type = db.Column(db.String(50), nullable=False) # Can be either "primary" or "secondary"
+    type = db.Column(db.String(25), nullable=False) # Can be either "primary" or "secondary"
     email = db.Column(db.String(50), nullable=False)
 
 class Roles(SQLBase):
