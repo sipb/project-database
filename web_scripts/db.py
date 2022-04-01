@@ -370,7 +370,7 @@ def update_metadata(project_id, args):
     """
     allowed_fields = ['name','description','status']
     changed_fields = set()
-    metadata = get_project(project_id,False)[0] # Returns SQL object
+    metadata = get_project(project_id,True)[0] # Returns SQL object
     
     for field in allowed_fields: # Only look for changes in the allowed fields
         if field in args and args[field] != getattr(metadata, field):
@@ -457,11 +457,11 @@ def update_project(project_info, project_id):
 
 # print("Done")
 
-project_mod = {
-        "name":"SIPB Takes Over the World",
-        "status":"active",
-        "description":"April Fools"
-}
+# project_mod = {
+#         "name":"SIPB Takes Over the World",
+#         "status":"active",
+#         "description":"April Fools"
+# }
     
-print(update_metadata(1, project_mod))
+# print(update_metadata(1, project_mod))
     
