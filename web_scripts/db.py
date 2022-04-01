@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+from turtle import update
 from sqlalchemy import func
 from schema import *
 
@@ -8,7 +9,7 @@ from schema import *
 ## Database Operations
 ##############################################################
 
-# General Purpose
+# General Purpose Functions
 
 def db_add(x):
     '''
@@ -37,7 +38,7 @@ def check_object_params(dict,req_params):
             res = False
     return res
 
-# DB specific
+## Get Functions
 
 def get_all_projects():
     '''Get metadata all of projects in database'''
@@ -163,8 +164,8 @@ def get_all_project_info(filter_method='all', contact_email=None):
         
     return project_list
 
+## Adding operations
 
-# Adding entry to each table
 def add_project_metadata(args):
     '''
     Add a project with provided metadata to the database
@@ -339,6 +340,37 @@ def add_project(project):
     add_project_roles(project_id, project['roles'])
     return project_id
     
+## Update an existing project
+
+def update_metadata(project_id, args):
+    """Update the metadata entries for a project in the database.
+    Only the name, description, and status can be changed.
+
+    Parameters
+    ----------
+    project_id : int
+        ID of the project we want to modify
+    args : dict
+        Keys are fields in the Projects table, and values fit the
+        right type and correct value according to schema.
+        
+    Returns
+    -------
+    changed_fields : set
+        Return the set of string fields which were changed for the project. 
+        If no fields change, return empty dictionary.
+    """
+    allowed_fields = ['name','description','status']
+    changed_fields = set()
+    metadata = get_project(project_id)[0]
+    
+    for field in allowed_fields: # Only look for changes in the allowed fields
+        if field in args and args[field] != getattr(metadata, field):
+            changed_fields.add(field)
+            setattr(metadata, field, args[field]) 
+    session.commit()
+    return changed_fields
+    
 def update_project(project_info, project_id):
     """Update the information for the given project in the database.
 
@@ -417,8 +449,11 @@ def update_project(project_info, project_id):
 
 # print("Done")
 
-
+project_mod = {
+        "name":"SIPB Takes Over the World",
+        "status":"active",
+        "description":"April Fools"
+}
     
-    
-
+print(update_metadata(1, project_mod))
     
