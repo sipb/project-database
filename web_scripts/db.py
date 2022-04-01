@@ -65,23 +65,31 @@ def get_projects_for_contact(email):
     ).filter(ContactEmails.email == email).all()
 
 
-def get_project_info(model, project_id):
+def get_project_info(model, project_id, raw_input=False):
     '''
     Given an SQL class model (e.g. ContactEmail, Roles, Links, etc.), query that table
     for all entries associated with project_id and return the result in the form of 
     list of dictionaries
     
+    If `raw_input` is set to True, we will return the SQLobject instead. This allows
+    for direct object modification
+    
     Useful for building higher-level queries
     '''
     sql_result = session.query(model).filter_by(project_id=project_id).all()
-    return list_dict_convert(sql_result)
+    if raw_input:
+        return sql_result
+    else:
+        return list_dict_convert(sql_result)
 
-## Shorthand functions to get all table entries associated with a project ID `id`
-get_project = lambda id: get_project_info(Projects,id) # Return maximum 1 result
-get_contacts = lambda id: get_project_info(ContactEmails,id)
-get_roles = lambda id: get_project_info(Roles,id)
-get_links = lambda id: get_project_info(Links,id)
-get_comm = lambda id: get_project_info(CommChannels, id)
+## Shorthand functions to get all table entries associated with a project ID `id` 
+## If `get_raw` is set to True, return SQL object instead of dictionary.
+
+get_project = lambda id, get_raw=False: get_project_info(Projects,id,get_raw) # Return maximum 1 result
+get_contacts = lambda id, get_raw=False: get_project_info(ContactEmails,id,get_raw)
+get_roles = lambda id, get_raw=False: get_project_info(Roles,id,get_raw)
+get_links = lambda id, get_raw=False: get_project_info(Links,id,get_raw)
+get_comm = lambda id, get_raw=False: get_project_info(CommChannels, id,get_raw)
 
 def get_project_id(name):
     '''
@@ -362,7 +370,7 @@ def update_metadata(project_id, args):
     """
     allowed_fields = ['name','description','status']
     changed_fields = set()
-    metadata = get_project(project_id)[0]
+    metadata = get_project(project_id,False)[0] # Returns SQL object
     
     for field in allowed_fields: # Only look for changes in the allowed fields
         if field in args and args[field] != getattr(metadata, field):
