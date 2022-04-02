@@ -15,6 +15,7 @@ import db
 import cgitb
 cgitb.enable()
 
+
 def main():
     """Respond to an add project request, displaying the appropriate status
     message.
