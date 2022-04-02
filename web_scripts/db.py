@@ -91,12 +91,23 @@ get_roles = lambda id, get_raw=False: get_project_info(Roles,id,get_raw)
 get_links = lambda id, get_raw=False: get_project_info(Links,id,get_raw)
 get_comm = lambda id, get_raw=False: get_project_info(CommChannels, id,get_raw)
 
+
 def get_project_id(name):
     '''
     Get the ID of a project with `name`, if it exists
     Otherwise returns None
     '''
     return session.query(Projects.project_id).filter_by(name=name).scalar()
+
+
+def get_project_name(project_id):
+    """Get the name of the project with the given project_id, if it exists.
+    Otherwise returns None.
+    """
+    return session.query(
+        Projects.name
+    ).filter_by(project_id=project_id).scalar()
+
 
 def get_all_info_for_project(project_id):
     """Get all of the information for a specific project.

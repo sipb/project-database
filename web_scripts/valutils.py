@@ -67,7 +67,7 @@ def validate_project_name_available(name):
         return True, []
 
 
-def validate_project_name(name, exist_ok=False):
+def validate_project_name(name, previous_name=None):
     """Check if the project name field is valid.
 
     Parameters
@@ -89,7 +89,7 @@ def validate_project_name(name, exist_ok=False):
     name_ok &= name_text_ok
     status_messages.extend(name_msgs)
 
-    if not exist_ok:
+    if (previous_name is None) or (name.lower() != previous_name.lower()):
         name_available, name_msgs = validate_project_name_available(name)
         name_ok &= name_available
         status_messages.extend(name_msgs)
@@ -242,7 +242,7 @@ def validate_project_roles(roles):
     return is_ok, status_messages
 
 
-def validate_project_info(project_info, exist_ok=False):
+def validate_project_info(project_info, previous_name=False):
     """Validate that the given project info is OK.
 
     Parameters
@@ -261,7 +261,7 @@ def validate_project_info(project_info, exist_ok=False):
     status_messages = []
 
     name_ok, name_msgs = validate_project_name(
-        project_info['name'], exist_ok=exist_ok
+        project_info['name'], previous_name=previous_name
     )
     is_ok &= name_ok
     status_messages.extend(name_msgs)
@@ -314,7 +314,7 @@ def validate_add_project(project_info):
     is_ok &= permission_ok
     status_messages.extend(permission_msgs)
 
-    info_ok, info_msgs = validate_project_info(project_info, exist_ok=False)
+    info_ok, info_msgs = validate_project_info(project_info)
     is_ok &= info_ok
     status_messages.extend(info_msgs)
 
@@ -370,7 +370,10 @@ def validate_edit_project(project_info, project_id):
     is_ok &= permission_ok
     status_messages.extend(permission_msgs)
 
-    info_ok, info_msgs = validate_project_info(project_info, exist_ok=True)
+    previous_name = db.get_project_name(project_id)
+    info_ok, info_msgs = validate_project_info(
+        project_info, previous_name=previous_name
+    )
     is_ok &= info_ok
     status_messages.extend(info_msgs)
 

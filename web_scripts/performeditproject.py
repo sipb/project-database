@@ -14,6 +14,7 @@ import db
 import cgitb
 cgitb.enable()
 
+
 def main():
     arguments = cgi.FieldStorage()
     project_info = formutils.args_to_dict(arguments)
