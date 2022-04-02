@@ -242,7 +242,7 @@ def validate_project_roles(roles):
     return is_ok, status_messages
 
 
-def validate_project_info(project_info, previous_name=False):
+def validate_project_info(project_info, previous_name=None):
     """Validate that the given project info is OK.
 
     Parameters
