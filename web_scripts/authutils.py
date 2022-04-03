@@ -161,6 +161,8 @@ def can_edit(user, project_id):
         return False
     elif is_admin(user):
         return True
+    elif db.get_project_creator(project_id) == user:
+        return True
     else:
         project_contacts = db.get_contacts(project_id)
         project_contact_emails = [

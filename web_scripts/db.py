@@ -127,6 +127,15 @@ def get_project_name(project_id):
     ).filter_by(project_id=project_id).scalar()
 
 
+def get_project_creator(project_id):
+    """Get the kerberos of the creator of the project with the given
+    project_id, if it exists. Otherwise returns None.
+    """
+    return session.query(
+        Projects.creator
+    ).filter_by(project_id=project_id).scalar()
+
+
 def get_all_info_for_project(project_id):
     """Get all of the information for a specific project.
 
