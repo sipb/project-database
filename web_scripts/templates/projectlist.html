@@ -21,6 +21,9 @@
         {% if user %}
             | <a href="projectlist.py?filter_by=contact&email={{ user_email }}">Your projects</a>
         {% endif %}
+        {% if can_approve %}
+            | <a href="projectlist.py?filter_by=awaiting_approval">Projects awaiting approval</a>
+        {% endif %}
     </p>
 
     <table border="1">

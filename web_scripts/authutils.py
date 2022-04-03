@@ -90,6 +90,17 @@ def is_sipb(user):
         return False
 
 
+def is_keyholder(user):
+    # TODO: scripts can't access moira anymore. What is an alternate way to
+    # check if a user is a SIPB keyholder? Do we have a keyholder database
+    # mirrored somewhere?
+    # return moira.has_access(user, 'sipb-???@mit.edu')
+    if user:
+        return True
+    else:
+        return False
+
+
 def can_add(user):
     """Determine whether the given user has add permission.
 
@@ -159,6 +170,27 @@ def can_edit(user, project_id):
             return True
         else:
             return False
+
+
+def can_approve(user):
+    """Determine whether the given user can approve projects.
+
+    Parameters
+    ----------
+    user : str
+        The kerberos of the user.
+
+    Returns
+    -------
+    can_edit : bool
+        Whether or not the user can approve projects.
+    """
+    if not user:
+        return False
+    elif is_admin(user):
+        return True
+    elif is_keyholder(user):
+        return True
 
 
 def enrich_project_list_with_permissions(user, project_list):

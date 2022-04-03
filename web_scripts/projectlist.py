@@ -35,6 +35,7 @@ def format_project_list(project_list, filter_method, contact_email):
     authlink = authutils.get_auth_url(True)
     deauthlink = authutils.get_auth_url(False)
     can_add = authutils.can_add(user)
+    can_approve = authutils.can_approve(user)
 
     if filter_method == 'approved':
         title = 'SIPB Project List'
@@ -58,7 +59,8 @@ def format_project_list(project_list, filter_method, contact_email):
         authlink=authlink,
         deauthlink=deauthlink,
         can_add=can_add,
-        title=title
+        title=title,
+        can_approve=can_approve
     ).encode('utf-8')
     return result
 
