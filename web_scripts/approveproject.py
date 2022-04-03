@@ -26,7 +26,7 @@ def format_approve_project(project_id):
     jenv = templateutils.get_jenv()
     is_valid, status_messages = valutils.validate_project_id(project_id)
     user = authutils.get_kerberos()
-    can_approve = authutils.can_edit(user)
+    can_approve = authutils.can_approve(user)
     authlink = authutils.get_auth_url(True)
     deauthlink = authutils.get_auth_url(False)
     can_add = authutils.can_add(user)
