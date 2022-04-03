@@ -45,16 +45,34 @@ def get_all_projects():
     return session.query(Projects).all()
 
 
-def get_active_projects():
+def get_all_approved_projects():
+    """Get data for all approved projects in the database.
+    """
+    return session.query(Projects).filter_by(approval='approved').all()
+
+
+def get_all_awaiting_approval_projects():
+    """Get data for all projects which are awaiting approval.
+    """
+    return session.query(Projects).filter_by(
+        approval='awaiting_approval'
+    ).all()
+
+
+def get_active_approved_projects():
     """Get data for all active projects in the database.
     """
-    return session.query(Projects).filter_by(status='active').all()
+    return session.query(Projects).filter_by(
+        status='active', approval='approved'
+    ).all()
 
 
-def get_inactive_projects():
+def get_inactive_approved_projects():
     """Get data for all inactive projects in the database.
     """
-    return session.query(Projects).filter_by(status='inactive').all()
+    return session.query(Projects).filter_by(
+        status='inactive', approval='approved'
+    ).all()
 
 
 def get_projects_for_contact(email):
@@ -137,18 +155,19 @@ def get_all_info_for_project(project_id):
     return project_info
 
 
-def get_all_project_info(filter_method='all', contact_email=None):
+def get_all_project_info(filter_method='approved', contact_email=None):
     """Get the information for all projects.
 
     Parameters
     ----------
     filter_method : {'all', 'active', 'inactive'}, optional
         The filter to apply. Options are:
-        * 'all' (default): return all projects
-        * 'active': return all active projects
-        * 'inactive': return all inactive projects
+        * 'approved' (default): return all approved projects
+        * 'active': return all active approved projects
+        * 'inactive': return all inactive approved projects
         * 'contact': return projects for which the given contact_email is in
             the contact list.
+        * 'awaiting_approval': return projects which are awaiting approval.
     contact_email : str, optional
         The contact email to filter on when filter_method is 'contact'.
 
@@ -157,14 +176,16 @@ def get_all_project_info(filter_method='all', contact_email=None):
     project_list : list of dict
         List of all projects.
     """
-    if filter_method == 'all':
-        projects = get_all_projects()
+    if filter_method == 'approved':
+        projects = get_all_approved_projects()
     elif filter_method == 'active':
-        projects = get_active_projects()
+        projects = get_active_approved_projects()
     elif filter_method == 'inactive':
-        projects = get_inactive_projects()
+        projects = get_inactive_approved_projects()
     elif filter_method == 'contact':
         projects = get_projects_for_contact(contact_email)
+    elif filter_method == 'awaiting_approval':
+        projects = get_all_awaiting_approval_projects()
     else:
         raise ValueError('Unknown status filter!')
 

@@ -36,7 +36,7 @@ def format_project_list(project_list, filter_method, contact_email):
     deauthlink = authutils.get_auth_url(False)
     can_add = authutils.can_add(user)
 
-    if filter_method == 'all':
+    if filter_method == 'approved':
         title = 'SIPB Project List'
     elif filter_method == 'active':
         title = 'SIPB Active Project List'
@@ -44,6 +44,8 @@ def format_project_list(project_list, filter_method, contact_email):
         title = 'SIPB Inactive Project List'
     elif filter_method == 'contact':
         title = 'SIPB Projects for Which %s Is a Contact' % contact_email
+    elif filter_method == 'awaiting_approval':
+        title = 'SIPB Projects Awaiting Approval'
     else:
         raise ValueError('Unknown filter method!')
 
@@ -66,7 +68,7 @@ def main():
     """
     arguments = cgi.FieldStorage()
     filter_method = formutils.safe_cgi_field_get(
-        arguments, 'filter_by', default='all'
+        arguments, 'filter_by', default='approved'
     )
 
     if filter_method == 'contact':
