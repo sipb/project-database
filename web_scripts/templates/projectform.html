@@ -37,6 +37,9 @@
 <p>
     <input type="button" value="Add another role" onclick="add_role()">
 </p>
+{% if can_approve %}
+    <p>Test.</p>
+{% endif %}
 <p>
     <input type="submit" value="{{ operation }}">
 </p>
