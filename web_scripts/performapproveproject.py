@@ -49,9 +49,11 @@ def main():
         if approval_action == 'approved':
             action = db.approve_project
             action_name = 'approve_project'
+            project_info['approval'] = 'approved'
         elif approval_action == 'rejected':
             action = db.reject_project
             action_name = 'reject_project'
+            project_info['approval'] = 'rejected'
         else:
             raise ValueError('Unknown approval action!')
 
