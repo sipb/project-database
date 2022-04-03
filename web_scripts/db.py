@@ -136,6 +136,15 @@ def get_project_creator(project_id):
     ).filter_by(project_id=project_id).scalar()
 
 
+def get_project_approval_status(project_id):
+    """Get the approval status of the project with the given project_id, if it
+    exists. Otherwise returns None.
+    """
+    return session.query(
+        Projects.approval
+    ).filter_by(project_id=project_id).scalar()
+
+
 def get_all_info_for_project(project_id):
     """Get all of the information for a specific project.
 
@@ -436,6 +445,49 @@ def update_project(project_info, project_id, editor_kerberos):
     """
     # TODO: this needs to be implemented!
     pass
+
+
+def approve_project(
+    project_info, project_id, approver_kerberos, approver_comments
+):
+    """Approve a project. This should update the database and send an email to
+    the project's creator and points-of-contact.
+
+    Parameters
+    ----------
+    project_info : dict
+        The project info extracted from the form.
+    project_id : int or str
+        The project ID for the existing project.
+    approver_kerberos : str
+        The kerberos of the user approving the project.
+    approver_comments : str
+        The approver's comments on the project.
+    """
+    # TODO: this needs to be implemented!
+    pass
+
+
+def reject_project(
+    project_info, project_id, approver_kerberos, approver_comments
+):
+    """Reject a project. This should update the database and send an email to
+    the project's creator and points-of-contact.
+
+    Parameters
+    ----------
+    project_info : dict
+        The project info extracted from the form.
+    project_id : int or str
+        The project ID for the existing project.
+    approver_kerberos : str
+        The kerberos of the user approving the project.
+    approver_comments : str
+        The approver's comments on the project.
+    """
+    # TODO: this needs to be implemented!
+    pass
+
     
 ######################################################################
 ###### Testing Code 

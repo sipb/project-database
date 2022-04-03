@@ -355,6 +355,8 @@ def validate_edit_project(project_info, project_id):
     ----------
     project_info : dict
         The project info extracted from the form.
+    project_id : int
+        The ID of the project to edit.
 
     Returns
     -------
@@ -376,6 +378,132 @@ def validate_edit_project(project_info, project_id):
     )
     is_ok &= info_ok
     status_messages.extend(info_msgs)
+
+    return is_ok, status_messages
+
+
+def validate_approval_permission():
+    """Check if the user has permission to approve projects.
+
+    Returns
+    -------
+    is_ok : bool
+        Whether or not the validation was passed.
+    status_messages : list of str
+        A list of status messages.
+    """
+    user = authutils.get_kerberos()
+    is_ok = authutils.can_approve(user)
+    if is_ok:
+        status_messages = []
+    else:
+        status_messages = ['User is not authorized to approve projects!']
+    return is_ok, status_messages
+
+
+def validate_approval_action(approval_action):
+    """Check if the selected approval action is valid.
+
+    Parameters
+    ----------
+    approval_action : str
+        The selected approval action.
+
+    Returns
+    -------
+    is_ok : bool
+        Whether or not the validation was passed.
+    status_messages : list of str
+        A list of status messages.
+    """
+    is_ok = approval_action in ['approved', 'rejected']
+    if is_ok:
+        status_messages = []
+    else:
+        status_messages = [
+            '"%s" is not a valid approval action!' % approval_action
+        ]
+    return is_ok, status_messages
+
+
+def validate_approval_comments(approval_action, approver_comments):
+    """Check if the approver comments are valid.
+
+    Parameters
+    ----------
+    approval_action : str
+        The selected approval action.
+    approver_comments : str
+        The reviewer's comments.
+
+    Returns
+    -------
+    is_ok : bool
+        Whether or not the validation was passed.
+    status_messages : list of str
+        A list of status messages.
+    """
+    if approval_action == 'rejected':
+        is_ok = len(approver_comments.split()) >= 3
+    else:
+        is_ok = True
+
+    if is_ok:
+        status_messages = []
+    else:
+        status_messages = [
+            'Comments must have at least three words when rejecting a project!'
+        ]
+
+    return is_ok, status_messages
+
+
+def validate_approve_project(
+    project_info, project_id, approval_action, approver_comments
+):
+    """Validate that the given project is OK to approve/reject, possibly
+    including changes to the project info made by the reviewer.
+
+    In particular, check that:
+    * The user is signed-in and is authorized to approve projects.
+    * The project_info is properly-formed.
+    * If the project is to be rejected, comments have been provided.
+
+    Parameters
+    ----------
+    project_info : dict
+        The project info extracted from the form.
+    project_id : int
+        The ID of the project to edit.
+
+    Returns
+    -------
+    is_ok : bool
+        Indicates whether or not the project is OK to edit.
+    status_messages : list of str
+        A list of status messages indicating the result of the validation.
+    """
+    is_ok = True
+    status_messages = []
+
+    permission_ok, permission_msgs = validate_approval_permission()
+    is_ok &= permission_ok
+    status_messages.extend(permission_msgs)
+
+    previous_name = db.get_project_name(project_id)
+    info_ok, info_msgs = validate_project_info(
+        project_info, previous_name=previous_name
+    )
+    is_ok &= info_ok
+    status_messages.extend(info_msgs)
+
+    action_ok, action_msgs = validate_approval_action(approval_action)
+
+    comments_ok, comments_msgs = validate_approval_comments(
+        approval_action, approver_comments
+    )
+    is_ok &= comments_ok
+    status_messages.extend(comments_msgs)
 
     return is_ok, status_messages
 
