@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Approve Project</title>
+    <meta charset="UTF-8">
+    <style>
+    td { padding: 5px; }
+    .header td { border: 2px solid black; }
+    .gone { border: 0; }
+    </style>
+    <script type="text/javascript" src="templates/roles.js"></script>
+</head>
+<body>
+    <h2>SIPB Project Database -- Approve Project</h2>
+
+    {% include 'navigationlinks.html' %}
+
+    {% if not user %}
+        <p><a href="{{ authlink }}">Sign in to approve projects.</a></p>
+    {% elif not is_valid %}
+        <p>Invalid request:</p>
+        {{ validation_status|safe }}
+    {% elif not can_approve %}
+        <p>You do not have access to approve this project. Please contact {{ help_address }} for help.</p>
+    {% else %}
+        <p>Instructions: please review the proposed project to ensure it meets SIPB's standards. Once approved, the project information will be shown on the public-facing project list.</p>
+        <p>You may edit fields to correct minor typos, but please ask the project's creator before making any substantial changes.</p>
+        <p>If rejecting a project, please describe the reason for rejection in the text box at the bottom of this form. Your comments will be sent to the project's creator.</p>
+        <form action="performapproveproject.py?project_id={{ project_id }}" method="POST">
+            {% include 'projectform.html' %}
+        </form>
+    {% endif %}
+</body>
+</html>
