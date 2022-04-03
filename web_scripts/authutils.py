@@ -210,7 +210,11 @@ def enrich_project_list_with_permissions(user, project_list):
     project_list : list of dict
         The updated project info.
     """
-
+    user_can_approve = can_approve(user)
     for project in project_list:
         project['can_edit'] = can_edit(user, project_list)
+        project['can_approve'] = (
+            user_can_approve and
+            project['approval'] == 'awaiting_approval'
+        )
     return project_list

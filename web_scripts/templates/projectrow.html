@@ -55,7 +55,10 @@
     </td>
     <td>
         {% if project.can_edit %}
-            <a href="editproject.py?project_id={{ project.project_id }}">edit</a>
+            <p><a href="editproject.py?project_id={{ project.project_id }}">edit</a></p>
+        {% endif %}
+        {% if project.can_approve %}
+            <p><a href="approveproject.py?project_id={{ project.project_id }}">review</a></p>
         {% endif %}
     </td>
 </tr>
