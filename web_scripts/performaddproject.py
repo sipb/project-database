@@ -5,6 +5,7 @@ import traceback
 
 import cgi
 
+import authutils
 import formutils
 import performutils
 import strutils
@@ -26,7 +27,7 @@ def main():
 
     if is_ok:
         try:
-            project_id = db.add_project(project_info)
+            project_id = db.add_project(project_info, authutils.get_kerberos())
             assert project_id != -1
             project_info['project_id'] = project_id
         except Exception:

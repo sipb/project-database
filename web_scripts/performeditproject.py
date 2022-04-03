@@ -4,6 +4,7 @@
 import cgi
 import traceback
 
+import authutils
 import formutils
 import performutils
 import strutils
@@ -27,7 +28,9 @@ def main():
 
     if is_ok:
         try:
-            db.update_project(project_info, project_id)
+            db.update_project(
+                project_info, project_id, authutils.get_kerberos()
+            )
             project_info['project_id'] = project_id
         except Exception:
             is_ok = False

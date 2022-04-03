@@ -349,13 +349,15 @@ def add_project_comms(project_id, args):
         db_add(comm)
     return get_comm(project_id)
 
-def add_project(project):
+def add_project(project, creator_kerberos):
     """Add the given project to the database.
 
     Parameters
     ----------
     proj : dict
         The project info extracted from the form in performaddproject.html
+    creator_kerberos : str
+        The kerberos of the user who created the project.
 
     Returns
     -------
@@ -365,13 +367,13 @@ def add_project(project):
     """
     project_id = get_project_id(project['name'])
     if project_id:
-        return -1 #Project already exists
+        return -1  # Project already exists
     
     metadata = {
         'name': project['name'],
         'description': project['description'],
         'status': project['status'],
-        'creator': project['creator'],
+        'creator': creator_kerberos,
     }
     project_id = add_project_metadata(metadata)
     add_project_links(project_id, project['links'])
@@ -411,7 +413,7 @@ def update_metadata(project_id, args):
     session.commit()
     return changed_fields
     
-def update_project(project_info, project_id):
+def update_project(project_info, project_id, editor_kerberos):
     """Update the information for the given project in the database.
 
     Parameters
@@ -420,6 +422,8 @@ def update_project(project_info, project_id):
         The project info extracted from the form.
     project_id : int or str
         The project ID for the existing project.
+    editor_kerberos : str
+        The kerberos of the user editing the project.
     """
     # TODO: this needs to be implemented!
     pass
