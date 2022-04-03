@@ -17,9 +17,9 @@ def format_success_page(project_info, operation):
     """
     user = authutils.get_kerberos()
     jenv = templateutils.get_jenv()
-    project_info['can_edit'] = authutils.can_edit(
-        user, project_info['project_id']
-    )
+    project_info = authutils.enrich_project_list_with_permissions(
+        user, [project_info]
+    )[0]
     authlink = authutils.get_auth_url(True)
     deauthlink = authutils.get_base_url(False) + '/projectlist.py'
     can_add = authutils.can_add(user)
