@@ -466,13 +466,22 @@ def update_project_contacts(project_id, args):
     args : dict
         - args is a list of dictionaries with keys 'type' and 'email' 
         - key 'type' is either 'primary' or 'secondary'
-    """
-    ## Delete current email entries
-    session.query(ContactEmails).filter_by(project_id=project_id).delete()
-    session.commit()
     
-    ## Add the new email list    
-    add_project_contacts(project_id,args)    
+    Returns
+    -------
+    original_links : list
+        Return the list of entries that was replaced due to this
+        update operation
+    """
+    ## Delete current contact entries
+    query_command = session.query(ContactEmails).filter_by(project_id=project_id)
+    original_contacts = list_dict_convert(query_command.all(), True)
+    query_command.delete()
+    session.commit()
+
+    ## Add the new contact list    
+    add_project_contacts(project_id,args)   
+    return original_contacts
 
 def update_project_roles(project_id, args):
     """Update the roles entries for a project in the database.
@@ -484,13 +493,22 @@ def update_project_roles(project_id, args):
     args : dict
         - args is a list of dictionaries with keys 'role', 'description', and (optional) 'prereq' 
         - key 'type' is either 'primary' or 'secondary'
+        
+    Returns
+    -------
+    original_roles : list
+        Return the list of entries that was replaced due to this
+        update operation
     """
-    ## Delete current email entries
-    session.query(Roles).filter_by(project_id=project_id).delete()
+    ## Delete current roles entries
+    query_command = session.query(Roles).filter_by(project_id=project_id)
+    original_roles = list_dict_convert(query_command.all(), True)
+    query_command.delete()
     session.commit()
 
     ## Add the new roles list    
-    add_project_roles(project_id,args)    
+    add_project_roles(project_id,args)   
+    return original_roles
 
 def update_project_links(project_id, args):
     """Update the links entries for a project in the database.
@@ -508,13 +526,13 @@ def update_project_links(project_id, args):
         Return the list of entries that was replaced due to this
         update operation
     """
-    ## Delete current email entries
+    ## Delete current link entries
     query_command = session.query(Links).filter_by(project_id=project_id)
     original_links = list_dict_convert(query_command.all(), True)
     query_command.delete()
     session.commit()
 
-    ## Add the new roles list    
+    ## Add the new link list    
     add_project_links(project_id,args)   
     return original_links
 
@@ -612,11 +630,11 @@ def reject_project(
 # ]
 # #print(add_project_roles('test1',roles1))
 
-links1 = [
-    {'link':'https://sipb.mit.edu/'},
-    {'link':'https://hwops.mit.edu/'}
-]
-update_project_links(1,links1)
+# links1 = [
+#     {'link':'https://sipb.mit.edu/'},
+#     {'link':'https://hwops.mit.edu/'}
+# ]
+# print(update_project_links(1,links1))
 
 # comms1 = [
 #     {'commchannel':'sipb-hwops@mit.edu'},
