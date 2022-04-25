@@ -3,23 +3,40 @@ actor Approver
 actor Requestor
 participant approveproject.py
 participant performapproveproject.py
+participant authutils.py
+participant valutils.py
 database Database
 
-Approver -> approveproject.py : Submit
+Approver -> approveproject.py : Submit approval action and content edits
+approveproject.py -> performapproveproject.py : Process approval action
+performapproveproject.py -> authutils.py : Check approve permission
+authutils.py -> performapproveproject.py : Return approve permission
+performapproveproject.py -> valutils.py : Validate content
+valutils.py -> performapproveproject.py : Return validation result
 
-alt Project approved
+alt Approver is not authorized or content is invalid
 
-    approveproject.py -> performapproveproject.py : Approve project
+    performapproveproject.py -> Approver : Display failure page with error info
+
+else Approver is authorized and content is valid
+
     performapproveproject.py -> Database : Update project
-    performapproveproject.py -> Database : Set status to "approved"
-    performapproveproject.py -> Requestor : Send approval email
 
-else Project rejected
+    alt Project approved
 
-    approveproject.py -> performapproveproject.py : Reject project
-    performapproveproject.py -> Database : Update project
-    performapproveproject.py -> Database : Set status to "rejected"
-    performapproveproject.py -> Requestor : Send rejection email
+        
+        
+        performapproveproject.py -> Database : Set status to "approved"
+        performapproveproject.py -> Requestor : Send approval email
+
+    else Project rejected
+
+        performapproveproject.py -> Database : Set status to "rejected"
+        performapproveproject.py -> Requestor : Send rejection email
+
+    end
+
+    performapproveproject.py -> Approver : Display success page
 
 end
 

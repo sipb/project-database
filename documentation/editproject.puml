@@ -3,15 +3,33 @@ actor Editor
 actor Approvers
 participant editproject.py
 participant performeditproject.py
+participant authutils.py
+participant valutils.py
 database Database
+
 Editor -> editproject.py : Submit
 editproject.py -> performeditproject.py : Edit project
-performeditproject.py -> Database : Update project
+performeditproject.py -> authutils.py : Check edit permission
+authutils.py -> performeditproject.py : Return edit permission
+performeditproject.py -> valutils.py : Validate content
+valutils.py -> performeditproject.py : Return validation result
 
-alt Status is "rejected"
-    
-    performeditproject.py -> Database : Set status to "awaiting_approval"
-    performeditproject.py -> Approvers : Send email
+alt Editor is not authorized or content is invalid
+
+    performeditproject.py -> Editor : Display failure page with error info
+
+else Editor is authorized and content is valid
+
+    performeditproject.py -> Database : Update project
+
+    alt Status is "rejected"
+        
+        performeditproject.py -> Database : Set status to "awaiting_approval"
+        performeditproject.py -> Approvers : Send email
+
+    end
+
+    performeditproject.py -> Editor : Display success page
 
 end
 
