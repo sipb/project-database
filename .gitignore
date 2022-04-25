@@ -1,3 +1,4 @@
 web_scripts/creds.py
 *.pyc
 __pycache__
+documentation/*.png
