@@ -3,10 +3,27 @@ actor Requestor
 actor Approvers
 participant addproject.py
 participant performaddproject.py
+participant authutils.py
+participant valutils.py
 database Database
 
 Requestor -> addproject.py : Submit
 addproject.py -> performaddproject.py : Add project
-performaddproject.py -> Database : Add project with status "awaiting_approval"
-performaddproject.py -> Approvers : Send email
+performaddproject.py -> authutils.py : Check add permission
+authutils.py -> performaddproject.py : Return add permission
+performaddproject.py -> valutils.py : Validate content
+valutils.py -> performaddproject.py : Return validation result
+
+alt Requestor is not authorized or content is invalid
+
+    performaddproject.py -> Requestor : Display failure page with error info
+
+else Requestor is authorized and content is valid
+
+    performaddproject.py -> Database : Add project with status "awaiting_approval"
+    Database -> performaddproject.py : Return project_id
+    performaddproject.py -> Approvers : Send email
+    performaddproject.py -> Requestor : Display success page
+
+end
 @enduml
