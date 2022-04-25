@@ -19,14 +19,29 @@ def db_add(x):
     session.add(x)
     session.commit()
     
-def list_dict_convert(query_res_lst):
+def list_dict_convert(query_res_lst, remove_sql_ref=False):
     '''
     Given a list which contains query results from SQLalchemy,
     return a list of their Python dictionary representation
     
+    If `remove_sql_ref` set to True, the `_sa_instance_state`
+    key automatically inserted by SQLalchemy will be removed 
+    from each list entry
+    
+    Safety: For value safety this function gets the shallow copy
+    of each entry's dictionary representation
+    
     Source: https://stackoverflow.com/questions/1958219/how-to-convert-sqlalchemy-row-object-to-a-python-dict
     '''
-    return [r.__dict__ for r in query_res_lst]
+    if remove_sql_ref:
+        converted_lst = []
+        for entry in query_res_lst:
+            entry_dict = entry.__dict__.copy()
+            entry_dict.pop('_sa_instance_state')
+            converted_lst.append(entry_dict)
+        return converted_lst
+    else:
+        return [r.__dict__.copy() for r in query_res_lst]
 
 def check_object_params(dict,req_params):
     '''
@@ -486,14 +501,22 @@ def update_project_links(project_id, args):
         ID of the project we want to modify
     args : dict
         - args is a list of dictionaries with keys 'link'
+        
+    Returns
+    -------
+    original_links : list
+        Return the list of entries that was replaced due to this
+        update operation
     """
     ## Delete current email entries
-    out = session.query(Links).filter_by(project_id=project_id).delete()
-    print(out)
+    query_command = session.query(Links).filter_by(project_id=project_id)
+    original_links = list_dict_convert(query_command.all(), True)
+    query_command.delete()
     session.commit()
-    
+
     ## Add the new roles list    
-    add_project_links(project_id,args)    
+    add_project_links(project_id,args)   
+    return original_links
 
 def approve_project(
     project_info, project_id, approver_kerberos, approver_comments
