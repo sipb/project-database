@@ -261,7 +261,7 @@ def add_project_contacts(project_id, args):
     Add a list of emails associated with a project to the database
     
     Requires: 
-        - project_id to be a valid project ID in the Metadata table
+        - project_id to be a valid project ID in the Contacts table
         - args to be list of dictionaries with keys 'type','email' 
         - key 'type' is either 'primary' or 'secondary'
         
@@ -290,7 +290,7 @@ def add_project_roles(project_id, args):
     Add a list of roles associated with a project to the database
     
     Requires: 
-        - project_id to be a valid project ID in the Metadata table
+        - project_id to be a valid project ID in the Roles table
         - args to be list of dictionaries with keys 'role','description', and (optional) 'prereq' 
         
     Returns: 
@@ -319,7 +319,7 @@ def add_project_links(project_id, args):
     Add a list of website links associated with a project to the database
     
     Requires: 
-        - project_id to be a valid project ID in the Metadata table
+        - project_id to be a valid project ID in the Links table
         - args to be list of dictionaries with keys 'link'
         
     Returns: 
@@ -346,7 +346,7 @@ def add_project_comms(project_id, args):
     CommChannels can be text description rather than just HTML links
     
     Requires: 
-        - project_id to be a valid project ID in the Metadata table
+        - project_id to be a valid project ID in the Comms table
         - args to be list of dictionaries with keys 'commchannel'
         
     Returns: 
@@ -430,7 +430,35 @@ def update_metadata(project_id, args):
             setattr(metadata, field, args[field]) 
     session.commit()
     return changed_fields
+
+#################################################################################################
+## Update Logic:
+##
+## For the other tables, we handle updating by deleting all current email entries and then adding
+## back provided ones in `args`.
+##
+## In the future, we may consider inserting the deleted entries into an archival table for logging
+## / history purposes.
+#################################################################################################
+
+def update_contacts(project_id, args):
+    """Update the contact email entries for a project in the database.
+
+    Parameters
+    ----------
+    project_id : int
+        ID of the project we want to modify
+    args : dict
+        - args is a list of dictionaries with keys 'type' and 'email' 
+        - key 'type' is either 'primary' or 'secondary'
+    """
+    ## Delete current email entries
+    session.query(ContactEmails).filter_by(project_id=project_id).delete()
+    session.commit()
     
+    ## Add the new email list    
+    add_project_contacts(project_id,args)    
+
 def update_project(project_info, project_id, editor_kerberos):
     """Update the information for the given project in the database.
 
@@ -511,17 +539,18 @@ def reject_project(
 # print(get_project_id('test1'))
 # print(get_all_projects())
 
-# contacts1 =[
-#     {
-#         'type':'primary',
-#         'email':'huydai@mit.edu',
-#     },
-#     {
-#         'type':'secondary',
-#         'email':'ec-discuss@mit.edu'
-#     }
-# ]
-#print(add_project_contacts('test1',contacts1))
+contacts1 =[
+    {
+        'type':'primary',
+        'email':'you-fools@mit.edu',
+    },
+    {
+        'type':'secondary',
+        'email':'ec-discuss-never@mit.edu'
+    }
+]
+project_id = get_project_id('test')
+update_contacts(project_id,contacts1)
 
 # project_id = get_project_id('test1')
 # print(get_contacts(project_id))
