@@ -402,7 +402,7 @@ def add_project(project, creator_kerberos):
     
 ## Update an existing project
 
-def update_metadata(project_id, args):
+def update_project_metadata(project_id, args):
     """Update the metadata entries for a project in the database.
     Only the name, description, and status can be changed.
 
@@ -441,7 +441,7 @@ def update_metadata(project_id, args):
 ## / history purposes.
 #################################################################################################
 
-def update_contacts(project_id, args):
+def update_project_contacts(project_id, args):
     """Update the contact email entries for a project in the database.
 
     Parameters
@@ -459,21 +459,41 @@ def update_contacts(project_id, args):
     ## Add the new email list    
     add_project_contacts(project_id,args)    
 
-def update_project(project_info, project_id, editor_kerberos):
-    """Update the information for the given project in the database.
+def update_project_roles(project_id, args):
+    """Update the roles entries for a project in the database.
 
     Parameters
     ----------
-    project_info : dict
-        The project info extracted from the form.
-    project_id : int or str
-        The project ID for the existing project.
-    editor_kerberos : str
-        The kerberos of the user editing the project.
+    project_id : int
+        ID of the project we want to modify
+    args : dict
+        - args is a list of dictionaries with keys 'role', 'description', and (optional) 'prereq' 
+        - key 'type' is either 'primary' or 'secondary'
     """
-    # TODO: this needs to be implemented!
-    pass
+    ## Delete current email entries
+    session.query(Roles).filter_by(project_id=project_id).delete()
+    session.commit()
 
+    ## Add the new roles list    
+    add_project_roles(project_id,args)    
+
+def update_project_links(project_id, args):
+    """Update the links entries for a project in the database.
+
+    Parameters
+    ----------
+    project_id : int
+        ID of the project we want to modify
+    args : dict
+        - args is a list of dictionaries with keys 'link'
+    """
+    ## Delete current email entries
+    out = session.query(Links).filter_by(project_id=project_id).delete()
+    print(out)
+    session.commit()
+    
+    ## Add the new roles list    
+    add_project_links(project_id,args)    
 
 def approve_project(
     project_info, project_id, approver_kerberos, approver_comments
@@ -539,18 +559,18 @@ def reject_project(
 # print(get_project_id('test1'))
 # print(get_all_projects())
 
-contacts1 =[
-    {
-        'type':'primary',
-        'email':'you-fools@mit.edu',
-    },
-    {
-        'type':'secondary',
-        'email':'ec-discuss-never@mit.edu'
-    }
-]
-project_id = get_project_id('test')
-update_contacts(project_id,contacts1)
+# contacts1 =[
+#     {
+#         'type':'primary',
+#         'email':'you-fools@mit.edu',
+#     },
+#     {
+#         'type':'secondary',
+#         'email':'ec-discuss-never@mit.edu'
+#     }
+# ]
+# project_id = get_project_id('test')
+# update_project_contacts(project_id,contacts1)
 
 # project_id = get_project_id('test1')
 # print(get_contacts(project_id))
@@ -569,11 +589,11 @@ update_contacts(project_id,contacts1)
 # ]
 # #print(add_project_roles('test1',roles1))
 
-# links1 = [
-#     {'link':'https://sipb.mit.edu/'},
-#     {'link':'https://hwops.mit.edu/'}
-# ]
-# #print(add_project_links('test1',links1))
+links1 = [
+    {'link':'https://sipb.mit.edu/'},
+    {'link':'https://hwops.mit.edu/'}
+]
+update_project_links(1,links1)
 
 # comms1 = [
 #     {'commchannel':'sipb-hwops@mit.edu'},
