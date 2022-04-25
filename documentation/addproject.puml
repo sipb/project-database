@@ -1,0 +1,12 @@
+@startuml
+actor Requestor
+actor Approvers
+participant addproject.py
+participant performaddproject.py
+database Database
+
+Requestor -> addproject.py : Submit
+addproject.py -> performaddproject.py : Add project
+performaddproject.py -> Database : Add project with status "awaiting_approval"
+performaddproject.py -> Approvers : Send email
+@enduml

@@ -1,0 +1,18 @@
+@startuml
+actor Editor
+actor Approvers
+participant editproject.py
+participant performeditproject.py
+database Database
+Editor -> editproject.py : Submit
+editproject.py -> performeditproject.py : Edit project
+performeditproject.py -> Database : Update project
+
+alt Status is "rejected"
+    
+    performeditproject.py -> Database : Set status to "awaiting_approval"
+    performeditproject.py -> Approvers : Send email
+
+end
+
+@enduml

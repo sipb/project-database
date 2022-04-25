@@ -1,0 +1,27 @@
+@startuml
+actor Approver
+actor Requestor
+participant approveproject.py
+participant performapproveproject.py
+database Database
+
+Approver -> approveproject.py : Submit
+
+alt Project approved
+
+    approveproject.py -> performapproveproject.py : Approve project
+    performapproveproject.py -> Database : Update project
+    performapproveproject.py -> Database : Set status to "approved"
+    performapproveproject.py -> Requestor : Send approval email
+
+else Project rejected
+
+    approveproject.py -> performapproveproject.py : Reject project
+    performapproveproject.py -> Database : Update project
+    performapproveproject.py -> Database : Set status to "rejected"
+    performapproveproject.py -> Requestor : Send rejection email
+
+end
+
+
+@enduml
