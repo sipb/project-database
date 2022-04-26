@@ -673,3 +673,14 @@ def reject_project(
     
 # print(update_metadata(1, project_mod))
     
+# update_project1 = {
+# 'name': 'myproject',
+# 'description': 'something something something',
+# 'status': 'active',
+# 'links': [{'link':'http://link.com'}],
+# 'comm_channels': [{'commchannel':'sipb-hwops@mit.edu'}],
+# 'contacts': [{'email': 'markchil@mit.edu', 'type': 'primary'}],
+# 'roles': [{'role': 'support tech', 'description': 'do stuff', 'prereq': None}]
+# }
+
+# print(update_project(update_project1,3,'huydai'))
