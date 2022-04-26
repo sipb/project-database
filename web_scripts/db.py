@@ -716,5 +716,5 @@ def reject_project(
 
 # print(update_project(update_project1,3,'huydai'))
 
-reject_project(dict(),1,'huydai','it is bad')
-approve_project(dict(),3,'huydai','it is good')
+# reject_project(dict(),1,'huydai','it is bad')
+# approve_project(dict(),3,'huydai','it is good')
