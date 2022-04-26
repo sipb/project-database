@@ -574,7 +574,23 @@ def approve_project(
     approver_comments : str
         The approver's comments on the project.
     """
-    # TODO: this needs to be implemented!
+    creator = None
+    point_of_contacts = []
+    
+    # Change status to "approved"
+    metadata = get_project(project_id,True)[0] # Returns SQL object
+    metadata.approval = 'approved'
+    creator = metadata.creator # Set creator
+    session.commit()
+    
+    # Get point of contacts
+    contacts_lst = get_contacts(project_id)
+    for contact in contacts_lst:
+        point_of_contacts.append(contact.email)
+    
+    
+    # TODO: Send out email to project's creator and points of contacts
+    print(creator,point_of_contacts)
     pass
 
 
@@ -595,7 +611,22 @@ def reject_project(
     approver_comments : str
         The approver's comments on the project.
     """
-    # TODO: this needs to be implemented!
+    creator = None
+    point_of_contacts = []
+    
+    # Change status to "rejected"
+    metadata = get_project(project_id,True)[0] # Returns SQL object
+    metadata.approval = 'rejected'
+    creator = metadata.creator # Set creator
+    session.commit()
+    
+    # Get point of contacts
+    contacts_lst = get_contacts(project_id)
+    for contact in contacts_lst:
+        point_of_contacts.append(contact.email)
+        
+    # TODO: Send out email to project's creator and points of contacts
+    print(creator,point_of_contacts)
     pass
 
     
