@@ -586,7 +586,7 @@ def approve_project(
     # Get point of contacts
     contacts_lst = get_contacts(project_id)
     for contact in contacts_lst:
-        point_of_contacts.append(contact.email)
+        point_of_contacts.append(contact['email'])
     
     
     # TODO: Send out email to project's creator and points of contacts
@@ -623,7 +623,7 @@ def reject_project(
     # Get point of contacts
     contacts_lst = get_contacts(project_id)
     for contact in contacts_lst:
-        point_of_contacts.append(contact.email)
+        point_of_contacts.append(contact['email'])
         
     # TODO: Send out email to project's creator and points of contacts
     print(creator,point_of_contacts)
@@ -715,3 +715,6 @@ def reject_project(
 # }
 
 # print(update_project(update_project1,3,'huydai'))
+
+reject_project(dict(),1,'huydai','it is bad')
+approve_project(dict(),3,'huydai','it is good')
