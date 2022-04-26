@@ -113,7 +113,7 @@ def get_project_info(model, project_id, raw_input=False):
     if raw_input:
         return sql_result
     else:
-        return list_dict_convert(sql_result)
+        return list_dict_convert(sql_result,True)
 
 ## Shorthand functions to get all table entries associated with a project ID `id` 
 ## If `get_raw` is set to True, return SQL object instead of dictionary.
@@ -244,7 +244,7 @@ def add_project_metadata(args):
     Add a project with provided metadata to the database
     
     Requires: 
-        - args to have keys of 'name', 'status', 'description', and 'creator' with valid types
+        - args to have keys of 'name', 'status', 'description', 'creator' with valid types
         - status is either 'active' or 'inactive'
         
     Returns: 
@@ -267,6 +267,7 @@ def add_project_metadata(args):
     project.status = args['status']
     project.description = args['description']
     project.creator = args['creator']
+    project.revision_author = args['creator'] # By default the author is also the last revision author
     project.approval = 'awaiting_approval' # Projects are waiting to be approved by default
     db_add(project)
     return get_project_id(args['name'])
@@ -382,12 +383,12 @@ def add_project_comms(project_id, args):
         db_add(comm)
     return get_comm(project_id)
 
-def add_project(project, creator_kerberos):
+def add_project(project_info, creator_kerberos):
     """Add the given project to the database.
 
     Parameters
     ----------
-    proj : dict
+    project_info : dict
         The project info extracted from the form in performaddproject.html
     creator_kerberos : str
         The kerberos of the user who created the project.
@@ -398,28 +399,28 @@ def add_project(project, creator_kerberos):
         If success, return the project_id (primary key) for the newly-added project.
         Otherwise, return -1
     """
-    project_id = get_project_id(project['name'])
+    project_id = get_project_id(project_info['name'])
     if project_id:
         return -1  # Project already exists
     
     metadata = {
-        'name': project['name'],
-        'description': project['description'],
-        'status': project['status'],
+        'name': project_info['name'],
+        'description': project_info['description'],
+        'status': project_info['status'],
         'creator': creator_kerberos,
     }
     project_id = add_project_metadata(metadata)
-    add_project_links(project_id, project['links'])
-    add_project_comms(project_id, project['comm_channels'])
-    add_project_contacts(project_id, project['contacts'])
-    add_project_roles(project_id, project['roles'])
+    add_project_links(project_id, project_info['links'])
+    add_project_comms(project_id, project_info['comm_channels'])
+    add_project_contacts(project_id, project_info['contacts'])
+    add_project_roles(project_id, project_info['roles'])
     return project_id
     
 ## Update an existing project
 
 def update_project_metadata(project_id, args):
     """Update the metadata entries for a project in the database.
-    Only the name, description, and status can be changed.
+    Only the name, description, and revision_author can be changed.
 
     Parameters
     ----------
@@ -428,29 +429,20 @@ def update_project_metadata(project_id, args):
     args : dict
         Keys are fields in the Projects table, and values fit the
         right type and correct value according to schema.
-        
-    Returns
-    -------
-    changed_fields : set
-        Return the set of string fields which were changed for the project. 
-        If no fields change, return empty dictionary.
     """
-    allowed_fields = ['name','description','status']
-    changed_fields = set()
+    allowed_fields = ['name','description','revision_author']
     metadata = get_project(project_id,True)[0] # Returns SQL object
     
     for field in allowed_fields: # Only look for changes in the allowed fields
         if field in args and args[field] != getattr(metadata, field):
-            changed_fields.add(field)
             setattr(metadata, field, args[field]) 
     session.commit()
-    return changed_fields
 
 #################################################################################################
 ## Update Logic:
-##
-## For the other tables, we handle updating by deleting all current email entries and then adding
-## back provided ones in `args`.
+#################################################################################################
+## For tables outside of the original metadata, we handle updating by deleting all current email 
+## entries and then adding back provided ones in `args`.
 ##
 ## In the future, we may consider inserting the deleted entries into an archival table for logging
 ## / history purposes.
@@ -466,22 +458,14 @@ def update_project_contacts(project_id, args):
     args : dict
         - args is a list of dictionaries with keys 'type' and 'email' 
         - key 'type' is either 'primary' or 'secondary'
-    
-    Returns
-    -------
-    original_links : list
-        Return the list of entries that was replaced due to this
-        update operation
     """
     ## Delete current contact entries
     query_command = session.query(ContactEmails).filter_by(project_id=project_id)
-    original_contacts = list_dict_convert(query_command.all(), True)
     query_command.delete()
     session.commit()
-
+    
     ## Add the new contact list    
     add_project_contacts(project_id,args)   
-    return original_contacts
 
 def update_project_roles(project_id, args):
     """Update the roles entries for a project in the database.
@@ -493,22 +477,14 @@ def update_project_roles(project_id, args):
     args : dict
         - args is a list of dictionaries with keys 'role', 'description', and (optional) 'prereq' 
         - key 'type' is either 'primary' or 'secondary'
-        
-    Returns
-    -------
-    original_roles : list
-        Return the list of entries that was replaced due to this
-        update operation
     """
     ## Delete current roles entries
     query_command = session.query(Roles).filter_by(project_id=project_id)
-    original_roles = list_dict_convert(query_command.all(), True)
     query_command.delete()
     session.commit()
-
+    
     ## Add the new roles list    
     add_project_roles(project_id,args)   
-    return original_roles
 
 def update_project_links(project_id, args):
     """Update the links entries for a project in the database.
@@ -519,22 +495,67 @@ def update_project_links(project_id, args):
         ID of the project we want to modify
     args : dict
         - args is a list of dictionaries with keys 'link'
-        
-    Returns
-    -------
-    original_links : list
-        Return the list of entries that was replaced due to this
-        update operation
     """
     ## Delete current link entries
     query_command = session.query(Links).filter_by(project_id=project_id)
-    original_links = list_dict_convert(query_command.all(), True)
     query_command.delete()
     session.commit()
 
     ## Add the new link list    
-    add_project_links(project_id,args)   
-    return original_links
+    add_project_links(project_id,args)
+
+def update_project_comms(project_id, args):
+    """Update the communication channels entries for a project in the database.
+
+    Parameters
+    ----------
+    project_id : int
+        ID of the project we want to modify
+    args : dict
+        - args is a list of dictionaries with keys 'commchannel'
+    """
+    ## Delete current comm entries
+    query_command = session.query(CommChannels).filter_by(project_id=project_id)
+    query_command.delete()
+    session.commit()
+
+    ## Add the new comms list    
+    add_project_comms(project_id,args)   
+
+def update_project(project_info, project_id, editor_kerberos):
+    """Update the information for the given project in the database.
+    Parameters
+    ----------
+    project_info : dict
+        The project info extracted from the form.
+    project_id : int or str
+        The project ID for the existing project.
+    editor_kerberos : str
+        The kerberos of the user editing the project.
+        
+    Returns
+    -------
+    original_project : dict, int
+        Return -1 if there is no project with ID `project_id`.
+        Otherwise return a dictionary formatted like `project_info` 
+        representing the view of the project prior to making the update,
+    """
+    project_exists = True if get_project_name(project_id) else False
+    if not project_exists:
+        return -1 # There's no existing project with that ID
+    new_metadata = {
+        'name': project_info['name'], 
+        'description': project_info['description'],
+        'revision_author': editor_kerberos,
+        ## `creator` and `status` field is intentionally not supplied
+    }
+    orig_project = get_all_info_for_project(project_id)
+    update_project_metadata(project_id, new_metadata)
+    update_project_links(project_id, project_info['links'])
+    update_project_comms(project_id, project_info['comm_channels'])
+    update_project_contacts(project_id, project_info['contacts'])
+    update_project_roles(project_id, project_info['roles'])
+    return orig_project
 
 def approve_project(
     project_info, project_id, approver_kerberos, approver_comments

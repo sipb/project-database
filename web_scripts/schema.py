@@ -30,7 +30,7 @@ class Projects(SQLBase):
     status = db.Column(db.String(25), nullable=False) # Can be "active" or "inactive"
     approval = db.Column(db.String(25), nullable=False) # Can be "awaiting_approval" or "approved" or "rejected"
     creator = db.Column(db.String(50), nullable=False) # Kerb of user who registered the project
-    
+    revision_author = db.Column(db.String(50), nullable=False) # Kerb of user who last edited the project
 class ContactEmails(SQLBase):
     __tablename__ = "contactemails"
     id = sqlalchemy.Column(sqlalchemy.Integer(), nullable=False, primary_key=True, autoincrement=True)
