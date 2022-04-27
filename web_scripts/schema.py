@@ -40,6 +40,10 @@ class Projects(SQLBase):
     creator = db.Column(db.String(50), nullable=False)
 
 
+# Need to create Projects to use foreign key constraints:
+SQLBase.metadata.create_all(sqlengine)
+
+
 class ContactEmails(SQLBase):
     __tablename__ = "contactemails"
     id = sqlalchemy.Column(
