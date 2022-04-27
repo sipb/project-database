@@ -77,7 +77,7 @@ def main():
         raise ValueError('Unknown approval action!')
 
     if is_ok:
-        page = performutils.format_success_page(project_info, title)
+        page = performutils.format_success_page(project_id, title)
     else:
         page = performutils.format_failure_page(
             strutils.html_listify(status_messages), title

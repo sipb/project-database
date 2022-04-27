@@ -23,7 +23,6 @@ def main():
     """
     arguments = cgi.FieldStorage()
     project_info = formutils.args_to_dict(arguments)
-    project_info['approval'] = 'awaiting_approval'
     is_ok, status_messages = valutils.validate_add_project(project_info)
 
     if is_ok:
@@ -39,7 +38,7 @@ def main():
             status_messages = [status]
 
     if is_ok:
-        page = performutils.format_success_page(project_info, 'Add Project')
+        page = performutils.format_success_page(project_id, 'Add Project')
     else:
         page = performutils.format_failure_page(
             strutils.html_listify(status_messages), 'Add Project'

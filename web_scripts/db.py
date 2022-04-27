@@ -114,7 +114,7 @@ def get_project_info(model, project_id, raw_input=False):
     if raw_input:
         return sql_result
     else:
-        return list_dict_convert(sql_result,True)
+        return list_dict_convert(sql_result, True)
 
 
 # Shorthand functions to get all table entries associated with a project ID

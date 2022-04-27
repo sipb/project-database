@@ -1,14 +1,15 @@
 import authutils
+import db
 import templateutils
 
 
-def format_success_page(project_info, operation):
+def format_success_page(project_id, operation):
     """Format the success page.
 
     Parameters
     ----------
-    project_info : dict
-        The project info which was added to the database.
+    project_id : int
+        The ID for the project.
 
     Returns
     -------
@@ -17,6 +18,8 @@ def format_success_page(project_info, operation):
     """
     user = authutils.get_kerberos()
     jenv = templateutils.get_jenv()
+
+    project_info = db.get_all_info_for_project(project_id)
     project_info = authutils.enrich_project_list_with_permissions(
         user, [project_info]
     )[0]

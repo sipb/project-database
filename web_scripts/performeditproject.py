@@ -40,7 +40,7 @@ def main():
             status_messages = [status]
 
     if is_ok:
-        page = performutils.format_success_page(project_info, 'Edit Project')
+        page = performutils.format_success_page(project_id, 'Edit Project')
     else:
         page = performutils.format_failure_page(
             strutils.html_listify(status_messages), 'Edit Project'
