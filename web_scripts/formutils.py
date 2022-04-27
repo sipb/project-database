@@ -61,20 +61,19 @@ def get_role_ids(arguments):
 
     Returns
     -------
-    role_ids : list of str
-        The role IDs present in the arguments, in the order they are discovered
-        in.
+    role_ids : list of int
+        The sorted role IDs present in the arguments.
     """
     role_ids = set()
     for key in arguments.keys():
         # Check all fields so that we can catch mal-formed inputs:
         if key.startswith('role_name_'):
-            role_ids.add(key[len('role_name_'):])
+            role_ids.add(int(key[len('role_name_'):]))
         elif key.startswith('role_description_'):
-            role_ids.add(key[len('role_description_'):])
+            role_ids.add(int(key[len('role_description_'):]))
         elif key.startswith('role_prereqs_'):
-            role_ids.add(key[len('role_prereqs_'):])
-    return list(role_ids)
+            role_ids.add(int(key[len('role_prereqs_'):]))
+    return sorted(list(role_ids))
 
 
 def extract_roles(arguments):
