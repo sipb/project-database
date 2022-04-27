@@ -52,7 +52,7 @@ class ProjectsHistory(SQLBase):
     project_id = db.Column(
         db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
     )
-    name = db.Column(db.String(50), nullable=False, unique=True)
+    name = db.Column(db.String(50), nullable=False)
     description = db.Column(db.Text(), nullable=False)
     # status can be "active" or "inactive"
     status = db.Column(db.String(25), nullable=False)
