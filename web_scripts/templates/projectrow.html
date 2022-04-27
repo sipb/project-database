@@ -5,7 +5,7 @@
     <td>
         <ul>
             {% for link in project.links %}
-                <li>{{ link|urlize }}</li>
+                <li>{{ link.link|urlize }}</li>
             {% endfor %}
         </ul>
     </td>

@@ -15,7 +15,7 @@
 </p>
 <p>
     <label for="links">Link(s) (comma-separated):</label><br>
-    <input type="text" id="links" name="links" size="80" {% if project_info %}value="{{ project_info.links|join(', ') }}"{% endif %}>
+    <input type="text" id="links" name="links" size="80" {% if project_info %}value="{{ project_info.links|join(', ', attribute='link') }}"{% endif %}>
 </p>
 <p>
     <label for="comm_channels">Communication channel(s) (comma-separated):</label><br>
