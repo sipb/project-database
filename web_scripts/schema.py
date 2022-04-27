@@ -5,8 +5,8 @@ import sqlalchemy.ext.declarative
 import sqlalchemy.orm
 import creds
 
-DATABASE_NAME = "huydai+project-database"
-SQL_URL = "mysql://%s:%s@sql.mit.edu/%s" % (creds.user,creds.password,DATABASE_NAME)
+DATABASE_NAME = creds.database_name
+SQL_URL = "mysql://%s:%s@sql.mit.edu/%s" % (creds.user, creds.password, DATABASE_NAME)
 
 
 ##############################################################
