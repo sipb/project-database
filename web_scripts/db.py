@@ -284,8 +284,6 @@ def add_project_metadata(args):
     project.status = args['status']
     project.description = args['description']
     project.creator = args['creator']
-    # By default the author is also the last revision author
-    project.revision_author = args['creator']
     # Projects are waiting to be approved by default
     project.approval = 'awaiting_approval'
     db_add(project)
@@ -438,7 +436,7 @@ def add_project(project_info, creator_kerberos):
 
 def update_project_metadata(project_id, args):
     """Update the metadata entries for a project in the database.
-    Only the name, description, and revision_author can be changed.
+    Only the name, description, and status can be changed.
     Caller is responsible for committing the change.
 
     Parameters
@@ -449,7 +447,7 @@ def update_project_metadata(project_id, args):
         Keys are fields in the Projects table, and values fit the
         right type and correct value according to schema.
     """
-    allowed_fields = ['name', 'description', 'revision_author']
+    allowed_fields = ['name', 'description', 'status']
     metadata = get_project(project_id, True)[0]  # Returns SQL object
     
     for field in allowed_fields:  # Only look for changes in the allowed fields
@@ -576,8 +574,8 @@ def update_project(project_info, project_id, editor_kerberos):
     new_metadata = {
         'name': project_info['name'], 
         'description': project_info['description'],
-        'revision_author': editor_kerberos,
-        # `creator` and `status` field is intentionally not supplied
+        'status': project_info['status']
+        # `creator` and `approval` fields are intentionally not supplied
     }
     orig_project = get_all_info_for_project(project_id)
     update_project_metadata(project_id, new_metadata)
