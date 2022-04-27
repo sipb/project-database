@@ -41,7 +41,7 @@ class Projects(SQLBase):
 
 
 # Need to create Projects to use foreign key constraints:
-SQLBase.metadata.create_all(sqlengine)
+# SQLBase.metadata.create_all(sqlengine)
 
 
 class ContactEmails(SQLBase):
@@ -51,7 +51,7 @@ class ContactEmails(SQLBase):
         autoincrement=True
     )
     project_id = db.Column(
-        db.Integer(), db.ForeignKey('Projects.project_id'), nullable=False
+        db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
     )
     type = db.Column(
         db.String(25), nullable=False
@@ -66,7 +66,7 @@ class Roles(SQLBase):
         autoincrement=True
     )
     project_id = db.Column(
-        db.Integer(), db.ForeignKey('Projects.project_id'), nullable=False
+        db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
     )
     role = db.Column(
         db.String(50), nullable=False
@@ -82,7 +82,7 @@ class Links(SQLBase):
         autoincrement=True
     )
     project_id = db.Column(
-        db.Integer(), db.ForeignKey('Projects.project_id'), nullable=False
+        db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
     )
     link = db.Column(db.Text(), nullable=False)
 
@@ -94,7 +94,7 @@ class CommChannels(SQLBase):
         autoincrement=True
     )
     project_id = db.Column(
-        db.Integer(), db.ForeignKey('Projects.project_id'), nullable=False
+        db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
     )
     commchannel = db.Column(db.Text(), nullable=False)
 
