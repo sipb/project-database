@@ -23,6 +23,7 @@ def main():
     """
     arguments = cgi.FieldStorage()
     project_info = formutils.args_to_dict(arguments)
+    project_info['approval'] = 'awaiting_approval'
     is_ok, status_messages = valutils.validate_add_project(project_info)
 
     if is_ok:
