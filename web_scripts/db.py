@@ -610,6 +610,8 @@ def approve_project(
     # Change status to "approved"
     metadata = get_project(project_id, True)[0]  # Returns SQL object
     metadata.approval = 'approved'
+    metadata.approver = approver_kerberos
+    metadata.approver_comments = approver_comments
     creator = metadata.creator  # Set creator
     session.commit()
     
@@ -646,6 +648,8 @@ def reject_project(
     # Change status to "rejected"
     metadata = get_project(project_id, True)[0]  # Returns SQL object
     metadata.approval = 'rejected'
+    metadata.approver = approver_kerberos
+    metadata.approver_comments = approver_comments
     creator = metadata.creator  # Set creator
     session.commit()
     

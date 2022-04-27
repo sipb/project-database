@@ -38,10 +38,10 @@ class Projects(SQLBase):
     approval = db.Column(db.String(25), nullable=False)
     # Kerb of user who registered the project:
     creator = db.Column(db.String(50), nullable=False)
-
-
-# Need to create Projects to use foreign key constraints:
-# SQLBase.metadata.create_all(sqlengine)
+    # Kerb of user who approved the project:
+    approver = db.Column(db.String(50), nullable=False)
+    # Comments from user who approved the project:
+    approver_comments = db.Column(db.Text(), nullable=False)
 
 
 class ContactEmails(SQLBase):
