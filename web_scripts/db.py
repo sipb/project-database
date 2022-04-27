@@ -176,6 +176,30 @@ def get_project_approval_status(project_id):
     ).filter_by(project_id=project_id).scalar()
 
 
+def enrich_project_with_auxiliary_fields(project_info):
+    """Add the links, comm_channels, roles, and contacts info to a project_info
+    dict.
+
+    Parameters
+    ----------
+    project_info : dict
+        The project info. This dict will be updated in place.
+
+    Returns
+    -------
+    project_info : dict
+        The updated project info.
+    """
+    project_id = project_info['project_id']
+    project_info['links'] = get_links(project_id)
+    project_info['comm_channels'] = [
+        channel['commchannel'] for channel in get_comm(project_id)
+    ]
+    project_info['roles'] = get_roles(project_id)
+    project_info['contacts'] = get_contacts(project_id)
+    return project_info
+
+
 def get_all_info_for_project(project_id):
     """Get all of the information for a specific project.
 
@@ -189,17 +213,8 @@ def get_all_info_for_project(project_id):
     project_info : dict
         The information on the specified project.
     """
-    # May want to figure out a way to remove redundancy with
-    # get_all_project_info...
     project_info = get_project(project_id)[0]
-    project_info['links'] = [
-        link['link'] for link in get_links(project_id)
-    ]
-    project_info['comm_channels'] = [
-        channel['commchannel'] for channel in get_comm(project_id)
-    ]
-    project_info['roles'] = get_roles(project_id)
-    project_info['contacts'] = get_contacts(project_id)
+    project_info = enrich_project_with_auxiliary_fields(project_info)
 
     return project_info
 
@@ -240,14 +255,10 @@ def get_all_project_info(filter_method='approved', contact_email=None):
 
     project_list = list_dict_convert(projects)
     # There's probably a way to do this with joins...
-    for project in project_list:
-        project_id = project['project_id']
-        project['links'] = get_links(project_id)
-        project['comm_channels'] = [
-            channel['commchannel'] for channel in get_comm(project_id)
-        ]
-        project['roles'] = get_roles(project_id)
-        project['contacts'] = get_contacts(project_id)
+    project_list = [
+        enrich_project_with_auxiliary_fields(project_info)
+        for project_info in project_list
+    ]
         
     return project_list
 
