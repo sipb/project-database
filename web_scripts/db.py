@@ -314,9 +314,9 @@ def add_project_roles(project_id, args):
             roles associated with project in DB
     '''
     try:
-        args_lst = ['role','description'] # 'prereq' optional 
+        args_lst = ['role', 'description']  # 'prereq' optional 
         for dict in args:
-            assert check_object_params(dict,args_lst)
+            assert check_object_params(dict, args_lst)
     except AssertionError:
         return None
     
@@ -336,23 +336,16 @@ def add_project_links(project_id, args):
     
     Requires: 
         - project_id to be a valid project ID in the Links table
-        - args to be list of dictionaries with keys 'link'
+        - args to be list of str
         
     Returns: 
         - None if no project with that name or invalid arguments, otherwise 
             returns list of all links associated with project in DB
     '''
-    try:
-        args_lst = ['link'] 
-        for dict in args:
-            assert check_object_params(dict,args_lst)
-    except AssertionError:
-        return None
-    
     for entry in args:
         link = Links()
         link.project_id = project_id
-        link.link = entry['link']
+        link.link = entry
         db_add(link)
     return get_links(project_id)
 
@@ -363,23 +356,16 @@ def add_project_comms(project_id, args):
     
     Requires: 
         - project_id to be a valid project ID in the Comms table
-        - args to be list of dictionaries with keys 'commchannel'
+        - args to be list of str
         
     Returns: 
         - None if no project with that name or invalid arguments, otherwise 
             returns list of all communication channels associated with project in DB
     '''
-    try:
-        args_lst = ['commchannel'] 
-        for dict in args:
-            assert check_object_params(dict,args_lst)
-    except AssertionError:
-        return None
-    
     for entry in args:
         comm = CommChannels()
         comm.project_id = project_id
-        comm.commchannel = entry['commchannel']
+        comm.commchannel = entry
         db_add(comm)
     return get_comm(project_id)
 
