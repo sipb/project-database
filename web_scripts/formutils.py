@@ -111,6 +111,26 @@ def extract_roles(arguments):
     return roles
 
 
+def index_dictify_list(str_list, key):
+    """Convert a list of strings to a list of dicts with index fields.
+
+    Parameters
+    ----------
+    str_list : list of str
+        The strings to index-dictify.
+    key : str
+        The key to use for the values from str_list.
+
+    Returns
+    -------
+    dict_list : list of dict
+        The wrapped values from str_list.
+    """
+    return [
+        {key: value, 'index': index} for value, index in enumerate(str_list)
+    ]
+
+
 def args_to_dict(arguments):
     """Reformat the arguments from CGI into a dict.
 
@@ -128,12 +148,15 @@ def args_to_dict(arguments):
         'name': safe_cgi_field_get(arguments, 'name'),
         'description': safe_cgi_field_get(arguments, 'description'),
         'status': safe_cgi_field_get(arguments, 'status'),
-        'links': [
-            strutils.make_url_absolute(link)
-            for link in strutils.split_comma_sep(
-                safe_cgi_field_get(arguments, 'links')
-            )
-        ],
+        'links': index_dictify_list(
+            [
+                strutils.make_url_absolute(link)
+                for link in strutils.split_comma_sep(
+                    safe_cgi_field_get(arguments, 'links')
+                )
+            ],
+            'link'
+        ),
         'comm_channels': strutils.split_comma_sep(
             safe_cgi_field_get(arguments, 'comm_channels')
         ),

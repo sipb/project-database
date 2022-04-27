@@ -134,7 +134,7 @@ get_roles = lambda id, get_raw=False: get_project_info(
     Roles, id, get_raw, sort_by_index=True
 )
 get_links = lambda id, get_raw=False: get_project_info(
-    Links, id, get_raw
+    Links, id, get_raw, sort_by_index=True
 )
 get_comm = lambda id, get_raw=False: get_project_info(
     CommChannels, id, get_raw
@@ -365,16 +365,24 @@ def add_project_links(project_id, args):
     
     Requires: 
         - project_id to be a valid project ID in the Links table
-        - args to be list of str
+        - args to be list of dicts with keys 'link' and 'index'
         
     Returns: 
         - None if no project with that name or invalid arguments, otherwise 
             returns list of all links associated with project in DB
     '''
+    try:
+        args_lst = ['link', 'index']  # 'prereq' optional 
+        for dict in args:
+            assert check_object_params(dict, args_lst)
+    except AssertionError:
+        return None
+
     for entry in args:
         link = Links()
         link.project_id = project_id
-        link.link = entry
+        link.link = entry['link']
+        link.index = entry['index']
         db_add(link)
     return get_links(project_id)
 

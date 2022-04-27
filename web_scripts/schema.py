@@ -92,6 +92,8 @@ class Links(SQLBase):
         db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
     )
     link = db.Column(db.Text(), nullable=False)
+    # index sets the order which links are listed in:
+    index = db.Column(db.Integer(), nullable=False)
 
 
 class CommChannels(SQLBase):
