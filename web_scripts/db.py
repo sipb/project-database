@@ -107,6 +107,9 @@ def get_project_info(model, project_id, raw_input=False, sort_by_index=False):
     
     If `raw_input` is set to True, we will return the SQLobject instead. This
     allows for direct object modification
+
+    If `sort_by_index` is set to True, the results will be sorted by the index
+    column.
     
     Useful for building higher-level queries
     '''
@@ -137,7 +140,7 @@ get_links = lambda id, get_raw=False: get_project_info(
     Links, id, get_raw, sort_by_index=True
 )
 get_comm = lambda id, get_raw=False: get_project_info(
-    CommChannels, id, get_raw
+    CommChannels, id, get_raw, sort_by_index=True
 )
 
 
@@ -192,9 +195,7 @@ def enrich_project_with_auxiliary_fields(project_info):
     """
     project_id = project_info['project_id']
     project_info['links'] = get_links(project_id)
-    project_info['comm_channels'] = [
-        channel['commchannel'] for channel in get_comm(project_id)
-    ]
+    project_info['comm_channels'] = get_comm(project_id)
     project_info['roles'] = get_roles(project_id)
     project_info['contacts'] = get_contacts(project_id)
     return project_info
@@ -404,17 +405,25 @@ def add_project_comms(project_id, args):
     
     Requires: 
         - project_id to be a valid project ID in the Comms table
-        - args to be list of str
+        - args to be list of dicts with keys 'commchannel' and 'index'
         
     Returns: 
         - None if no project with that name or invalid arguments, otherwise 
             returns list of all communication channels associated with project
             in DB
     '''
+    try:
+        args_lst = ['commchannel', 'index']  # 'prereq' optional 
+        for dict in args:
+            assert check_object_params(dict, args_lst)
+    except AssertionError:
+        return None
+
     for entry in args:
         comm = CommChannels()
         comm.project_id = project_id
-        comm.commchannel = entry
+        comm.commchannel = entry['commchannel']
+        comm.index = entry['index']
         db_add(comm)
     return get_comm(project_id)
 

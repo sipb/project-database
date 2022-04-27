@@ -157,8 +157,11 @@ def args_to_dict(arguments):
             ],
             'link'
         ),
-        'comm_channels': strutils.split_comma_sep(
-            safe_cgi_field_get(arguments, 'comm_channels')
+        'comm_channels': index_dictify_list(
+            strutils.split_comma_sep(
+                safe_cgi_field_get(arguments, 'comm_channels')
+            ),
+            'commchannel'
         ),
         'contacts': contact_list_to_dict_list(
             strutils.split_comma_sep(

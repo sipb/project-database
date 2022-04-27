@@ -14,9 +14,9 @@
             {% for channel in project.comm_channels %}
                 <li>
                     {% if user %}
-                        {{ channel|urlize }}
+                        {{ channel.commchannel|urlize }}
                     {% else %}
-                        {{ channel|obfuscate_email }}
+                        {{ channel.commchannel|obfuscate_email }}
                     {% endif %}
                 </li>
             {% endfor %}

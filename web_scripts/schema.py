@@ -106,6 +106,8 @@ class CommChannels(SQLBase):
         db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
     )
     commchannel = db.Column(db.Text(), nullable=False)
+    # index sets the order which comm channels are listed in:
+    index = db.Column(db.Integer(), nullable=False)
 
 
 # Implement schema
