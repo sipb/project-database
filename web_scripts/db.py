@@ -242,9 +242,7 @@ def get_all_project_info(filter_method='approved', contact_email=None):
     # There's probably a way to do this with joins...
     for project in project_list:
         project_id = project['project_id']
-        project['links'] = [
-            link['link'] for link in get_links(project_id)
-        ]
+        project['links'] = get_links(project_id)
         project['comm_channels'] = [
             channel['commchannel'] for channel in get_comm(project_id)
         ]
