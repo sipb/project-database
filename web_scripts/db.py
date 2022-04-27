@@ -131,7 +131,7 @@ get_contacts = lambda id, get_raw=False: get_project_info(
     ContactEmails, id, get_raw, sort_by_index=True
 )
 get_roles = lambda id, get_raw=False: get_project_info(
-    Roles, id, get_raw
+    Roles, id, get_raw, sort_by_index=True
 )
 get_links = lambda id, get_raw=False: get_project_info(
     Links, id, get_raw
@@ -332,15 +332,15 @@ def add_project_roles(project_id, args):
     
     Requires: 
         - project_id to be a valid project ID in the Roles table
-        - args to be list of dictionaries with keys 'role','description', and
-            (optional) 'prereq' 
+        - args to be list of dictionaries with keys 'role', 'description',
+            'index', and (optional) 'prereq' 
         
     Returns: 
         - None if no project with that name or invalid arguments, otherwise
             returns list of all roles associated with project in DB
     '''
     try:
-        args_lst = ['role', 'description']  # 'prereq' optional 
+        args_lst = ['role', 'description', 'index']  # 'prereq' optional 
         for dict in args:
             assert check_object_params(dict, args_lst)
     except AssertionError:
@@ -351,6 +351,7 @@ def add_project_roles(project_id, args):
         role.project_id = project_id
         role.role = entry['role']
         role.description = entry['description']
+        role.index = entry['index']
         if 'prereq' in entry:
             role.prereq = entry['prereq']
         db_add(role)

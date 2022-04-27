@@ -92,7 +92,7 @@ def extract_roles(arguments):
     """
     role_ids = get_role_ids(arguments)
     roles = []
-    for role_id in role_ids:
+    for index, role_id in enumerate(role_ids):
         roles.append(
             {
                 'role': safe_cgi_field_get(
@@ -103,7 +103,8 @@ def extract_roles(arguments):
                 ),
                 'prereq': safe_cgi_field_get(
                     arguments, 'role_prereqs_' + role_id
-                )
+                ),
+                'index': index
             }
         )
         if len(roles[-1]['prereq']) == 0:

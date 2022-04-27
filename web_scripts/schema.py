@@ -78,6 +78,8 @@ class Roles(SQLBase):
     )
     description = db.Column(db.Text(), nullable=False)
     prereq = db.Column(db.Text(), nullable=True)
+    # index sets the order which roles are listed in:
+    index = db.Column(db.Integer(), nullable=False)
     
 
 class Links(SQLBase):
