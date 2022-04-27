@@ -1,6 +1,9 @@
 #!/usr/bin/python
 
-from schema import session, Projects, ContactEmails, Roles, Links, CommChannels
+import sqlalchemy as sa
+from schema import \
+    session, Projects, ContactEmails, Roles, Links, CommChannels, \
+    ProjectsHistory
 
 
 ##############################################################
@@ -264,6 +267,24 @@ def get_all_project_info(filter_method='approved', contact_email=None):
     return project_list
 
 
+def get_current_revision(project_id):
+    """Get the current revision ID for the given project.
+
+    Parameters
+    ----------
+    project_id : int
+        The project ID to get the current revision ID for.
+
+    Returns
+    -------
+    revision_id : int
+        The current revision's ID.
+    """
+    return session.query(
+        sa.func.max(ProjectsHistory.revision_id)
+    ).filter_by(project_id=project_id).one()[0]
+
+
 # Adding operations
 
 def add_project_metadata(args):
@@ -300,7 +321,22 @@ def add_project_metadata(args):
     # Projects are waiting to be approved by default
     project.approval = 'awaiting_approval'
     db_add(project)
-    return get_project_id(args['name'])
+
+    project_id = get_project_id(args['name'])
+
+    project_history = ProjectsHistory()
+    project_history.project_id = project_id
+    project_history.name = project.name
+    project_history.description = project.description
+    project_history.status = project.status
+    project_history.approval = project.approval
+    project_history.creator = project.creator
+    project_history.author = args['creator']
+    project_history.action = 'create'
+    project_history.revision_id = 0
+    db_add(project_history)
+
+    return project_id
 
 
 def add_project_contacts(project_id, args):
@@ -465,7 +501,7 @@ def add_project(project_info, creator_kerberos):
 
 # Update an existing project
 
-def update_project_metadata(project_id, args):
+def update_project_metadata(project_id, args, editor_kerberos):
     """Update the metadata entries for a project in the database.
     Only the name, description, and status can be changed.
     Caller is responsible for committing the change.
@@ -483,7 +519,19 @@ def update_project_metadata(project_id, args):
     
     for field in allowed_fields:  # Only look for changes in the allowed fields
         if field in args and args[field] != getattr(metadata, field):
-            setattr(metadata, field, args[field]) 
+            setattr(metadata, field, args[field])
+
+    project_history = ProjectsHistory()
+    project_history.project_id = project_id
+    project_history.name = metadata.name
+    project_history.description = metadata.description
+    project_history.status = metadata.status
+    project_history.approval = metadata.approval
+    project_history.creator = metadata.creator
+    project_history.author = editor_kerberos
+    project_history.action = 'update'
+    project_history.revision_id = get_current_revision(project_id) + 1
+    db_add(project_history)
 
 ###############################################################################
 # Update Logic:
@@ -609,7 +657,7 @@ def update_project(project_info, project_id, editor_kerberos):
         # `creator` and `approval` fields are intentionally not supplied
     }
     orig_project = get_all_info_for_project(project_id)
-    update_project_metadata(project_id, new_metadata)
+    update_project_metadata(project_id, new_metadata, editor_kerberos)
     update_project_links(project_id, project_info['links'])
     update_project_comms(project_id, project_info['comm_channels'])
     update_project_contacts(project_id, project_info['contacts'])
