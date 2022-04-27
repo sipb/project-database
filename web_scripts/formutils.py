@@ -127,7 +127,7 @@ def index_dictify_list(str_list, key):
         The wrapped values from str_list.
     """
     return [
-        {key: value, 'index': index} for value, index in enumerate(str_list)
+        {key: value, 'index': index} for index, value in enumerate(str_list)
     ]
 
 
