@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Edit History</title>
+    <meta charset="UTF-8">
+    <style>
+    td { padding: 5px; }
+    .header td { border: 2px solid black; }
+    .gone { border: 0; }
+    </style>
+</head>
+<body>
+    <h2>Edit History</h2>
+
+    {% include 'navigationlinks.html' %}
+
+    <table border="1">
+        <tr class="header">
+            <td>Revision ID</td>
+            <td>Action</td>
+            <td>Timestamp</td>
+            <td>Author</td>
+            <td>Project ID</td>
+            <td>Name</td>
+            <td>Description</td>
+            <td>Status</td>
+            <td>Approval</td>
+            <td>Creator</td>
+            <td>Approver</td>
+            <td>Approver Comments</td>
+        </tr>
+        {% for revision in project_history %}
+            <tr>
+                <td>{{ revision.revision_id }}</td>
+                <td>{{ revision.action }}</td>
+                <td>{{ revision.timestamp }}</td>
+                <td>{{ revision.author }}</td>
+                <td>{{ revision.project_id }}</td>
+                <td>{{ revision.name }}</td>
+                <td>{{ revision.description }}</td>
+                <td>{{ revision.status }}</td>
+                <td>{{ revision.approval }}</td>
+                <td>{{ revision.creator }}</td>
+                <td>{{ revision.approver }}</td>
+                <td>{{ revision.approver_comments }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

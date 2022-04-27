@@ -285,6 +285,24 @@ def get_current_revision(project_id):
     ).filter_by(project_id=project_id).one()[0]
 
 
+def get_project_history(project_id):
+    """Get all revisions for the given project.
+
+    Parameters
+    ----------
+    project_id : int
+        The project ID to fetch.
+
+    Returns
+    -------
+    project_history : list of dict
+        The project history.
+    """
+    return list_dict_convert(
+        session.query(ProjectsHistory).filter_by(project_id=project_id).all()
+    )
+
+
 # Adding operations
 
 def add_project_metadata(args):
