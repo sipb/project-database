@@ -53,10 +53,15 @@ class ContactEmails(SQLBase):
     project_id = db.Column(
         db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
     )
+    # type can be either "primary" or "secondary". By convention, there should
+    # be exactly one primary contact for each project.
     type = db.Column(
         db.String(25), nullable=False
-    )  # Can be either "primary" or "secondary"
+    )
     email = db.Column(db.String(50), nullable=False)
+    # index sets the order which contacts are listed in. By convention, the one
+    # primary contact should have index 0.
+    index = db.Column(db.Integer(), nullable=False)
 
 
 class Roles(SQLBase):

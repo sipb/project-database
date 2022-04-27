@@ -37,11 +37,15 @@ def contact_list_to_dict_list(contact_list):
     contact_dict_list : list of dict
         The formatted contact dicts with types assigned.
     """
-    result = [
-        {'email': contact, 'type': 'secondary'}
-        for contact in contact_list
-        if len(contact) > 0
-    ]
+    result = []
+    idx = 0
+    for contact in contact_list:
+        if len(contact) > 0:
+            result.append(
+                {'email': contact, 'type': 'secondary', 'index': idx}
+            )
+            idx += 1
+
     if len(result) > 0:
         result[0]['type'] = 'primary'
     return result

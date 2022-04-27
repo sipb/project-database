@@ -99,7 +99,7 @@ def get_projects_for_contact(email):
     ).filter(ContactEmails.email == email).all()
 
 
-def get_project_info(model, project_id, raw_input=False):
+def get_project_info(model, project_id, raw_input=False, sort_by_index=False):
     '''
     Given an SQL class model (e.g. ContactEmail, Roles, Links, etc.), query
     that table for all entries associated with project_id and return the result
@@ -110,7 +110,10 @@ def get_project_info(model, project_id, raw_input=False):
     
     Useful for building higher-level queries
     '''
-    sql_result = session.query(model).filter_by(project_id=project_id).all()
+    query = session.query(model).filter_by(project_id=project_id)
+    if sort_by_index:
+        query = query.order_by(model.index)
+    sql_result = query.all()
     if raw_input:
         return sql_result
     else:
@@ -125,7 +128,7 @@ get_project = lambda id, get_raw=False: get_project_info(
     Projects, id, get_raw
 )  # Return maximum 1 result
 get_contacts = lambda id, get_raw=False: get_project_info(
-    ContactEmails, id, get_raw
+    ContactEmails, id, get_raw, sort_by_index=True
 )
 get_roles = lambda id, get_raw=False: get_project_info(
     Roles, id, get_raw
@@ -305,7 +308,7 @@ def add_project_contacts(project_id, args):
         returns list of all emails associated with project in DB
     '''
     try:
-        args_lst = ['type', 'email']
+        args_lst = ['type', 'email', 'index']
         for dict in args:
             assert check_object_params(dict, args_lst)
             assert dict['type'] in ['primary', 'secondary']
@@ -317,6 +320,7 @@ def add_project_contacts(project_id, args):
         contact.project_id = project_id
         contact.type = entry['type']
         contact.email = entry['email']
+        contact.index = entry['index']
         db_add(contact)
     return get_contacts(project_id)
 
@@ -473,8 +477,8 @@ def update_project_contacts(project_id, args):
     ----------
     project_id : int
         ID of the project we want to modify
-    args : dict
-        - args is a list of dictionaries with keys 'type' and 'email' 
+    args : list of dict
+        - args is a list of dictionaries with keys 'type', 'email', and 'index'
         - key 'type' is either 'primary' or 'secondary'
     """
     # Delete current contact entries
