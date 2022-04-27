@@ -619,7 +619,7 @@ def approve_project(
         point_of_contacts.append(contact['email'])
     
     # TODO: Send out email to project's creator and points of contacts
-    print(creator, point_of_contacts)
+    # print(creator, point_of_contacts)
     pass
 
 
@@ -655,7 +655,7 @@ def reject_project(
         point_of_contacts.append(contact['email'])
         
     # TODO: Send out email to project's creator and points of contacts
-    print(creator, point_of_contacts)
+    # print(creator, point_of_contacts)
     pass
 
     
