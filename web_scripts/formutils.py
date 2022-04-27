@@ -95,13 +95,13 @@ def extract_roles(arguments):
         roles.append(
             {
                 'role': safe_cgi_field_get(
-                    arguments, 'role_name_' + role_id
+                    arguments, 'role_name_%d' % role_id
                 ),
                 'description': safe_cgi_field_get(
-                    arguments, 'role_description_' + role_id
+                    arguments, 'role_description_%d' % role_id
                 ),
                 'prereq': safe_cgi_field_get(
-                    arguments, 'role_prereqs_' + role_id
+                    arguments, 'role_prereqs_%d' % role_id
                 ),
                 'index': index
             }
