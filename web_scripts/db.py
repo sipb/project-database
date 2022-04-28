@@ -934,9 +934,7 @@ def unreject_project(project_info, project_id, editor_kerberos):
     """
     # Change status to "rejected"
     new_metadata = {
-        'approval': 'awaiting_approval',
-        'approver': None,
-        'approver_comments': None
+        'approval': 'awaiting_approval'
     }
     update_project_metadata(project_id, new_metadata, editor_kerberos)
     session.commit()
