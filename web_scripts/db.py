@@ -919,6 +919,28 @@ def reject_project(
     update_project_metadata(project_id, new_metadata, approver_kerberos)
     session.commit()
 
+
+def unreject_project(project_info, project_id, editor_kerberos):
+    """Set a project back to "awaiting_approval"
+
+    Parameters
+    ----------
+    project_info : dict
+        The project info extracted from the form.
+    project_id : int or str
+        The project ID for the existing project.
+    editor_kerberos : str
+        The kerberos of the user editing the project.
+    """
+    # Change status to "rejected"
+    new_metadata = {
+        'approval': 'awaiting_approval',
+        'approver': None,
+        'approver_comments': None
+    }
+    update_project_metadata(project_id, new_metadata, editor_kerberos)
+    session.commit()
+
     
 ######################################################################
 # Testing Code 
