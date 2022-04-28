@@ -54,37 +54,7 @@ class Projects(SQLBase):
     approver_comments = db.Column(db.Text(), nullable=True)
 
 
-# class ProjectsHistory(SQLBase):
-#     __tablename__ = 'projectshistory'
-#     id = db.Column(
-#         db.Integer(), nullable=False, primary_key=True, autoincrement=True
-#     )
-#     project_id = db.Column(
-#         db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
-#     )
-#     name = db.Column(db.String(50), nullable=False)
-#     description = db.Column(db.Text(), nullable=False)
-#     # status can be "active" or "inactive"
-#     status = db.Column(db.String(25), nullable=False)
-#     # approval can be "awaiting_approval" or "approved" or "rejected"
-#     approval = db.Column(db.String(25), nullable=False)
-#     # Kerb of user who registered the project:
-#     creator = db.Column(db.String(50), nullable=False)
-#     # Kerb of user who approved the project:
-#     approver = db.Column(db.String(50), nullable=True)
-#     # Comments from user who approved the project:
-#     approver_comments = db.Column(db.Text(), nullable=True)
-
-#     author = db.Column(db.String(50), nullable=False)
-#     # action can be 'create', 'update', 'delete'
-#     action = db.Column(db.String(25), nullable=False)
-#     revision_id = db.Column(db.Integer(), nullable=False)
-#     timestamp = db.Column(
-#         db.TIMESTAMP, nullable=False, server_default=db.func.now()
-#     )
-
-
-class ProjectsHistory(Projects, HistoryMixin):
+class ProjectsHistory(SQLBase, HistoryMixin):
     __tablename__ = 'projectshistory'
     id = db.Column(
         db.Integer(), nullable=False, primary_key=True, autoincrement=True
@@ -92,6 +62,13 @@ class ProjectsHistory(Projects, HistoryMixin):
     project_id = db.Column(
         db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
     )
+    name = db.Column(db.String(50), nullable=False)
+    description = db.Column(db.Text(), nullable=False)
+    status = db.Column(db.String(25), nullable=False)
+    approval = db.Column(db.String(25), nullable=False)
+    creator = db.Column(db.String(50), nullable=False)
+    approver = db.Column(db.String(50), nullable=True)
+    approver_comments = db.Column(db.Text(), nullable=True)
 
 
 class ContactEmails(SQLBase):
