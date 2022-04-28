@@ -193,3 +193,12 @@ class CommChannelsHistory(SQLBase, CommChannelsBase, HistoryMixin):
 
 # Implement schema
 SQLBase.metadata.create_all(sqlengine)
+
+# Define data structure to help with history generation:
+CLASS_TO_HISTORY_CLASS_MAP = {
+    Projects: ProjectsHistory,
+    ContactEmails: ContactEmailsHistory,
+    Roles: RolesHistory,
+    Links: LinksHistory,
+    CommChannels: CommChannelsHistory
+}

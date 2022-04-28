@@ -4,7 +4,7 @@ import sqlalchemy as sa
 from schema import \
     session, Projects, ContactEmails, Roles, Links, CommChannels, \
     ProjectsHistory, ContactEmailsHistory, RolesHistory, LinksHistory, \
-    CommChannelsHistory
+    CommChannelsHistory, CLASS_TO_HISTORY_CLASS_MAP
 
 
 ##############################################################
@@ -13,13 +13,57 @@ from schema import \
 
 # General Purpose Functions
 
-def db_add(x):
-    '''Add an object defined by the Schema to the database
+def make_history_entry(x, author_kerberos, action, revision_id):
+    """Make a Schema object for the history table representing the added
+    object.
+
+    Parameters
+    ----------
+    x : SQLBase
+        The row object.
+    author_kerberos : str
+        The kerb of the author of the entry.
+    action : str
+        The action (create, update, delete) being performed.
+    revision_id : int
+        The revision ID to associate with the action.
+
+    Returns
+    -------
+    x_history : SQLBase
+        The history row object.
+    """
+    x_history = CLASS_TO_HISTORY_CLASS_MAP[type(x)]()
+    for key in x.__table__.columns.keys():
+        setattr(x_history, key, getattr(x, key))
+    x_history.author = author_kerberos
+    x_history.action = action
+    x_history.revision_id = revision_id
+    return x_history
+
+
+def db_add(x, author_kerberos, action, revision_id):
+    '''Add an object defined by the Schema to the database, including history
+    logging.
 
     Caller is responsible for committing the change. (This allows transactions
     to succeed/fail together.)
     '''
     session.add(x)
+    x_history = make_history_entry(x, author_kerberos, action, revision_id)
+    session.add(x_history)
+
+
+def db_delete(x, author_kerberos, revision_id):
+    """Delete an object specified by the Schema from the database, including
+    history logging.
+
+    Caller is responsible for committing the change. (This allows transactions
+    to succeed/fail together.)
+    """
+    x_history = make_history_entry(x, author_kerberos, 'delete', revision_id)
+    session.delete(x)
+    session.add(x_history)
 
 
 def list_dict_convert(query_res_lst, remove_sql_ref=False):
@@ -34,7 +78,8 @@ def list_dict_convert(query_res_lst, remove_sql_ref=False):
     Safety: For value safety this function gets the shallow copy
     of each entry's dictionary representation
     
-    Source: https://stackoverflow.com/questions/1958219/how-to-convert-sqlalchemy-row-object-to-a-python-dict
+    Source:
+    https://stackoverflow.com/questions/1958219/how-to-convert-sqlalchemy-row-object-to-a-python-dict
     '''
     if remove_sql_ref:
         converted_lst = []
@@ -361,21 +406,9 @@ def add_project_metadata(args):
     project.creator = args['creator']
     # Projects are waiting to be approved by default
     project.approval = 'awaiting_approval'
-    db_add(project)
+    db_add(project, args['creator'], 'create', 0)
 
     project_id = get_project_id(args['name'])
-
-    project_history = ProjectsHistory()
-    project_history.project_id = project_id
-    project_history.name = project.name
-    project_history.description = project.description
-    project_history.status = project.status
-    project_history.approval = project.approval
-    project_history.creator = project.creator
-    project_history.author = args['creator']
-    project_history.action = 'create'
-    project_history.revision_id = 0
-    db_add(project_history)
 
     return project_id
 
@@ -410,17 +443,7 @@ def add_project_contacts(
         contact.type = entry['type']
         contact.email = entry['email']
         contact.index = entry['index']
-        db_add(contact)
-
-        contact_history = ContactEmailsHistory()
-        contact_history.project_id = project_id
-        contact_history.type = contact.type
-        contact_history.email = contact.email
-        contact_history.index = contact.index
-        contact_history.author = author_kerberos
-        contact_history.action = action
-        contact_history.revision_id = revision_id
-        db_add(contact_history)
+        db_add(contact, author_kerberos, action, revision_id)
 
     return get_contacts(project_id)
 
@@ -456,18 +479,7 @@ def add_project_roles(
         role.index = entry['index']
         if 'prereq' in entry:
             role.prereq = entry['prereq']
-        db_add(role)
-
-        role_history = RolesHistory()
-        role_history.project_id = role.project_id
-        role_history.role = role.role
-        role_history.description = role.description
-        role_history.index = role.index
-        role_history.prereq = role.prereq
-        role_history.author = author_kerberos
-        role_history.action = action
-        role_history.revision_id = revision_id
-        db_add(role_history)
+        db_add(role, author_kerberos, action, revision_id)
 
     return get_roles(project_id)
 
@@ -499,16 +511,7 @@ def add_project_links(
         link.project_id = project_id
         link.link = entry['link']
         link.index = entry['index']
-        db_add(link)
-
-        link_history = LinksHistory()
-        link_history.project_id = link.project_id
-        link_history.link = link.link
-        link_history.index = link.index
-        link_history.author = author_kerberos
-        link_history.action = action
-        link_history.revision_id = revision_id
-        db_add(link_history)
+        db_add(link, author_kerberos, action, revision_id)
 
     return get_links(project_id)
 
@@ -542,16 +545,7 @@ def add_project_comms(
         comm.project_id = project_id
         comm.commchannel = entry['commchannel']
         comm.index = entry['index']
-        db_add(comm)
-
-        comm_history = CommChannelsHistory()
-        comm_history.project_id = project_id
-        comm_history.commchannel = comm.commchannel
-        comm_history.index = comm.index
-        comm_history.author = author_kerberos
-        comm_history.action = action
-        comm_history.revision_id = revision_id
-        db_add(comm_history)
+        db_add(comm, author_kerberos, action, revision_id)
 
     return get_comm(project_id)
 
@@ -634,7 +628,7 @@ def update_project_metadata(project_id, args, editor_kerberos):
     project_history.author = editor_kerberos
     project_history.action = 'update'
     project_history.revision_id = revision_id
-    db_add(project_history)
+    session.add(project_history)
 
     return revision_id
 
@@ -662,22 +656,10 @@ def update_project_contacts(project_id, args, editor_kerberos, revision_id):
         - key 'type' is either 'primary' or 'secondary'
     """
     # Delete current contact entries, logging the deletions:
-    query_command = session.query(ContactEmails).filter_by(
+    for contact in session.query(ContactEmails).filter_by(
         project_id=project_id
-    )
-
-    for contact in query_command.all():
-        contact_history = ContactEmailsHistory()
-        contact_history.project_id = project_id
-        contact_history.type = contact.type
-        contact_history.email = contact.email
-        contact_history.index = contact.index
-        contact_history.author = editor_kerberos
-        contact_history.action = 'delete'
-        contact_history.revision_id = revision_id
-        db_add(contact_history)
-
-    query_command.delete()
+    ).all():
+        db_delete(contact, editor_kerberos, revision_id)
     
     # Add the new contact list    
     add_project_contacts(
@@ -700,21 +682,8 @@ def update_project_roles(project_id, args, editor_kerberos, revision_id):
         - key 'type' is either 'primary' or 'secondary'
     """
     # Delete current roles entries
-    query_command = session.query(Roles).filter_by(project_id=project_id)
-
-    for role in query_command.all():
-        role_history = RolesHistory()
-        role_history.project_id = role.project_id
-        role_history.role = role.role
-        role_history.description = role.description
-        role_history.prereq = role.prereq
-        role_history.index = role.index
-        role_history.author = editor_kerberos
-        role_history.action = 'delete'
-        role_history.revision_id = revision_id
-        db_add(role_history)
-
-    query_command.delete()
+    for role in session.query(Roles).filter_by(project_id=project_id).all():
+        db_delete(role, editor_kerberos, revision_id)
     
     # Add the new roles list    
     add_project_roles(
@@ -735,19 +704,8 @@ def update_project_links(project_id, args, editor_kerberos, revision_id):
         - args is a list of dictionaries with keys 'link'
     """
     # Delete current link entries
-    query_command = session.query(Links).filter_by(project_id=project_id)
-
-    for link in query_command.all():
-        link_history = LinksHistory()
-        link_history.project_id = project_id
-        link_history.link = link.link
-        link_history.index = link.index
-        link_history.author = editor_kerberos
-        link_history.action = 'delete'
-        link_history.revision_id = revision_id
-        db_add(link_history)
-
-    query_command.delete()
+    for link in session.query(Links).filter_by(project_id=project_id).all():
+        db_delete(link, editor_kerberos, revision_id)
 
     # Add the new link list    
     add_project_links(
@@ -768,21 +726,10 @@ def update_project_comms(project_id, args, editor_kerberos, revision_id):
         - args is a list of dictionaries with keys 'commchannel'
     """
     # Delete current comm entries
-    query_command = session.query(CommChannels).filter_by(
+    for comm in session.query(CommChannels).filter_by(
         project_id=project_id
-    )
-
-    for comm in query_command.all():
-        comm_history = CommChannelsHistory()
-        comm_history.project_id = project_id
-        comm_history.commchannel = comm.commchannel
-        comm_history.index = comm.index
-        comm_history.author = editor_kerberos
-        comm_history.action = 'delete'
-        comm_history.revision_id = revision_id
-        db_add(comm_history)
-
-    query_command.delete()
+    ).all():
+        db_delete(comm, editor_kerberos, revision_id)
 
     # Add the new comms list    
     add_project_comms(
