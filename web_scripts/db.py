@@ -553,6 +553,8 @@ def update_project_metadata(project_id, args, editor_kerberos):
         project_history.status = metadata.status
         project_history.approval = metadata.approval
         project_history.creator = metadata.creator
+        project_history.approver = metadata.approver
+        project_history.approver_comments = metadata.approver_comments
         project_history.author = editor_kerberos
         project_history.action = 'update'
         project_history.revision_id = get_current_revision(project_id) + 1
