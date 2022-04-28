@@ -168,8 +168,8 @@ def db_update(
         The revision ID to associate with the action.
     """
     # Determine what the index of each key is:
-    current_key_idx_map = make_key_idx_map(current_x)
-    new_key_idx_map = make_key_idx_map(new_x)
+    current_key_idx_map = make_key_idx_map(current_x, match_key)
+    new_key_idx_map = make_key_idx_map(new_x, match_key)
 
     # Delete the entries which appear in current_x but not new_x:
     for key, idx in current_key_idx_map.items():
