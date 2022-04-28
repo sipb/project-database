@@ -24,6 +24,17 @@ session = db.orm.sessionmaker(bind=sqlengine)()  # main object used for queries
 # Implement schema
 SQLBase.metadata.create_all(sqlengine)
 
+# Strategy: Every table has a version which stores the current state, and a
+# separate "history table" which contains the edit history. This is done to
+# ensure that it is easy to make queries against the current state without
+# having to understand the history tracking mechanism. To implement this, every
+# table has a "Base" which inherits from object and defines all columns. The
+# main table then inherits from the "Base" class and SQLBase. The history table
+# then inherits from the "Base" class, SQLBase, and the HistoryMixin which adds
+# the columns needed for edit logging. (Columns which have different
+# constraints in the main table vs. the history table are defined in the
+# subclasses.) 
+
 
 class HistoryMixin(object):
     author = db.Column(db.String(50), nullable=False)
@@ -38,6 +49,7 @@ class HistoryMixin(object):
 class ProjectsBase(object):
     # project_id and name must be defined in subclasses, as they have special
     # constraints.
+
     description = db.Column(db.Text(), nullable=False)
     # status can be "active" or "inactive"
     status = db.Column(db.String(25), nullable=False)
@@ -59,27 +71,6 @@ class Projects(SQLBase, ProjectsBase):
     name = db.Column(db.String(50), nullable=False, unique=True)
 
 
-# class Projects(SQLBase):
-#     __tablename__ = "projects"
-#     project_id = db.Column(
-#         db.Integer(), nullable=False, primary_key=True, autoincrement=True
-#     )
-#     name = db.Column(db.String(50), nullable=False, unique=True)
-#     description = db.Column(db.Text(), nullable=False)
-#     # status can be "active" or "inactive"
-#     status = db.Column(db.String(25), nullable=False)
-#     # approval can be "awaiting_approval" or "approved" or "rejected"
-#     approval = db.Column(db.String(25), nullable=False)
-#     # Kerb of user who registered the project:
-#     creator = db.Column(db.String(50), nullable=False)
-#     # Kerb of user who approved the project:
-#     approver = db.Column(db.String(50), nullable=True)
-#     # Comments from user who approved the project:
-#     approver_comments = db.Column(db.Text(), nullable=True)
-
-
-# TODO: It feels like there should be a way to do this without so much
-# copy-paste...
 class ProjectsHistory(SQLBase, ProjectsBase, HistoryMixin):
     __tablename__ = 'projectshistory'
     id = db.Column(
@@ -91,25 +82,7 @@ class ProjectsHistory(SQLBase, ProjectsBase, HistoryMixin):
     name = db.Column(db.String(50), nullable=False)
 
 
-# class ProjectsHistory(SQLBase, HistoryMixin):
-#     __tablename__ = 'projectshistory'
-#     id = db.Column(
-#         db.Integer(), nullable=False, primary_key=True, autoincrement=True
-#     )
-#     project_id = db.Column(
-#         db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
-#     )
-#     name = db.Column(db.String(50), nullable=False)
-#     description = db.Column(db.Text(), nullable=False)
-#     status = db.Column(db.String(25), nullable=False)
-#     approval = db.Column(db.String(25), nullable=False)
-#     creator = db.Column(db.String(50), nullable=False)
-#     approver = db.Column(db.String(50), nullable=True)
-#     approver_comments = db.Column(db.Text(), nullable=True)
-
-
-class ContactEmails(SQLBase):
-    __tablename__ = "contactemails"
+class ContactEmailsBase(object):
     id = db.Column(
         db.Integer(), nullable=False, primary_key=True, autoincrement=True
     )
@@ -125,21 +98,15 @@ class ContactEmails(SQLBase):
     index = db.Column(db.Integer(), nullable=False)
 
 
-class ContactEmailsHistory(SQLBase, HistoryMixin):
+class ContactEmails(SQLBase, ContactEmailsBase):
+    __tablename__ = "contactemails"
+
+
+class ContactEmailsHistory(SQLBase, ContactEmailsBase, HistoryMixin):
     __tablename__ = 'contactemailshistory'
-    id = db.Column(
-        db.Integer(), nullable=False, primary_key=True, autoincrement=True
-    )
-    project_id = db.Column(
-        db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
-    )
-    type = db.Column(db.String(25), nullable=False)
-    email = db.Column(db.String(50), nullable=False)
-    index = db.Column(db.Integer(), nullable=False)
 
 
-class Roles(SQLBase):
-    __tablename__ = "roles"
+class RolesBase(object):
     id = sqlalchemy.Column(
         sqlalchemy.Integer(), nullable=False, primary_key=True,
         autoincrement=True
@@ -154,22 +121,15 @@ class Roles(SQLBase):
     index = db.Column(db.Integer(), nullable=False)
 
 
-class RolesHistory(SQLBase, HistoryMixin):
-    __tablename__ = 'roleshistory'
-    id = db.Column(
-        db.Integer(), nullable=False, primary_key=True, autoincrement=True
-    )
-    project_id = db.Column(
-        db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
-    )
-    role = db.Column(db.String(50), nullable=False)
-    description = db.Column(db.Text(), nullable=False)
-    prereq = db.Column(db.Text(), nullable=True)
-    index = db.Column(db.Integer(), nullable=False)
-    
+class Roles(SQLBase, RolesBase):
+    __tablename__ = "roles"
 
-class Links(SQLBase):
-    __tablename__ = "links"
+
+class RolesHistory(SQLBase, RolesBase, HistoryMixin):
+    __tablename__ = 'roleshistory'
+
+
+class LinksBase(object):
     id = db.Column(
         db.Integer(), nullable=False, primary_key=True,
         autoincrement=True
@@ -182,22 +142,17 @@ class Links(SQLBase):
     index = db.Column(db.Integer(), nullable=False)
 
 
-class LinksHistory(SQLBase, HistoryMixin):
+class Links(SQLBase, LinksBase):
+    __tablename__ = "links"
+
+
+class LinksHistory(SQLBase, LinksBase, HistoryMixin):
     __tablename__ = 'linkshistory'
+
+
+class CommChannelsBase(object):
     id = db.Column(
-        db.Integer(), nullable=False, primary_key=True, autoincrement=True
-    )
-    project_id = db.Column(
-        db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
-    )
-    link = db.Column(db.Text(), nullable=False)
-    index = db.Column(db.Integer(), nullable=False)
-
-
-class CommChannels(SQLBase):
-    __tablename__ = "commchannels"
-    id = sqlalchemy.Column(
-        sqlalchemy.Integer(), nullable=False, primary_key=True,
+        db.Integer(), nullable=False, primary_key=True,
         autoincrement=True
     )
     project_id = db.Column(
@@ -208,17 +163,12 @@ class CommChannels(SQLBase):
     index = db.Column(db.Integer(), nullable=False)
 
 
-class CommChannelsHistory(SQLBase, HistoryMixin):
+class CommChannels(SQLBase, CommChannelsBase):
+    __tablename__ = "commchannels"
+    
+
+class CommChannelsHistory(SQLBase, CommChannelsBase, HistoryMixin):
     __tablename__ = 'commchannelshistory'
-    id = sqlalchemy.Column(
-        sqlalchemy.Integer(), nullable=False, primary_key=True,
-        autoincrement=True
-    )
-    project_id = db.Column(
-        db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
-    )
-    commchannel = db.Column(db.Text(), nullable=False)
-    index = db.Column(db.Integer(), nullable=False)
 
 
 # Implement schema
