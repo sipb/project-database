@@ -77,21 +77,43 @@ class ProjectsHistory(SQLBase):
 class ContactEmails(SQLBase):
     __tablename__ = "contactemails"
     id = db.Column(
-        db.Integer(), nullable=False, primary_key=True,
-        autoincrement=True
+        db.Integer(), nullable=False, primary_key=True, autoincrement=True
     )
     project_id = db.Column(
         db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
     )
     # type can be either "primary" or "secondary". By convention, there should
     # be exactly one primary contact for each project.
-    type = db.Column(
-        db.String(25), nullable=False
-    )
+    type = db.Column(db.String(25), nullable=False)
     email = db.Column(db.String(50), nullable=False)
     # index sets the order which contacts are listed in. By convention, the one
     # primary contact should have index 0.
     index = db.Column(db.Integer(), nullable=False)
+
+
+class ContactEmailsHistory(SQLBase):
+    __tablename__ = 'contactemailshistory'
+    id = db.Column(
+        db.Integer(), nullable=False, primary_key=True, autoincrement=True
+    )
+    project_id = db.Column(
+        db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
+    )
+    type = db.Column(db.String(25), nullable=False)
+    email = db.Column(db.String(50), nullable=False)
+    index = db.Column(db.Integer(), nullable=False)
+
+    author = db.Column(db.String(50), nullable=False)
+    action = db.Column(db.String(25), nullable=False)
+    # Every revision_id in this table should have a corresponding entry in the
+    # ProjectsHistory table.
+    revision_id = db.Column(
+        db.Integer(), db.ForeignKey(ProjectsHistory.revision_id),
+        nullable=False
+    )
+    timestamp = db.Column(
+        db.TIMESTAMP, nullable=False, server_default=db.func.now()
+    )
 
 
 class Roles(SQLBase):

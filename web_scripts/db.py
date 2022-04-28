@@ -3,7 +3,7 @@
 import sqlalchemy as sa
 from schema import \
     session, Projects, ContactEmails, Roles, Links, CommChannels, \
-    ProjectsHistory
+    ProjectsHistory, ContactEmailsHistory
 
 
 ##############################################################
@@ -357,7 +357,9 @@ def add_project_metadata(args):
     return project_id
 
 
-def add_project_contacts(project_id, args):
+def add_project_contacts(
+    project_id, args, author_kerberos, action='create', revision_id=0
+):
     '''
     Add a list of emails associated with a project to the database. Caller is
     responsible for committing the change.
@@ -386,6 +388,17 @@ def add_project_contacts(project_id, args):
         contact.email = entry['email']
         contact.index = entry['index']
         db_add(contact)
+
+        contact_history = ContactEmailsHistory()
+        contact_history.project_id = project_id
+        contact_history.type = contact.type
+        contact_history.email = contact.email
+        contact_history.index = contact.index
+        contact_history.author = author_kerberos
+        contact_history.action = action
+        contact_history.revision_id = revision_id
+        db_add(contact_history)
+
     return get_contacts(project_id)
 
 
@@ -511,7 +524,9 @@ def add_project(project_info, creator_kerberos):
     project_id = add_project_metadata(metadata)
     add_project_links(project_id, project_info['links'])
     add_project_comms(project_id, project_info['comm_channels'])
-    add_project_contacts(project_id, project_info['contacts'])
+    add_project_contacts(
+        project_id, project_info['contacts'], creator_kerberos
+    )
     add_project_roles(project_id, project_info['roles'])
     session.commit()
     return project_id
@@ -567,7 +582,7 @@ def update_project_metadata(project_id, args, editor_kerberos):
 ###############################################################################
 
 
-def update_project_contacts(project_id, args):
+def update_project_contacts(project_id, args, editor_kerberos):
     """Update the contact email entries for a project in the database.
     Caller is responsible for committing the change.
 
@@ -579,14 +594,31 @@ def update_project_contacts(project_id, args):
         - args is a list of dictionaries with keys 'type', 'email', and 'index'
         - key 'type' is either 'primary' or 'secondary'
     """
-    # Delete current contact entries
+    revision_id = get_current_revision(project_id)
+
+    # Delete current contact entries, logging the deletions:
     query_command = session.query(ContactEmails).filter_by(
         project_id=project_id
     )
+
+    for contact in query_command.all():
+        contact_history = ContactEmailsHistory()
+        contact_history.project_id = project_id
+        contact_history.type = contact.type
+        contact_history.email = contact.email
+        contact_history.index = contact.index
+        contact_history.author = editor_kerberos
+        contact_history.action = 'delete'
+        contact_history.revision_id = revision_id
+        db_add(contact_history)
+
     query_command.delete()
     
     # Add the new contact list    
-    add_project_contacts(project_id, args)   
+    add_project_contacts(
+        project_id, args, editor_kerberos, action='update',
+        revision_id=revision_id
+    )
 
 
 def update_project_roles(project_id, args):
@@ -683,7 +715,9 @@ def update_project(project_info, project_id, editor_kerberos):
     update_project_metadata(project_id, new_metadata, editor_kerberos)
     update_project_links(project_id, project_info['links'])
     update_project_comms(project_id, project_info['comm_channels'])
-    update_project_contacts(project_id, project_info['contacts'])
+    update_project_contacts(
+        project_id, project_info['contacts'], editor_kerberos
+    )
     update_project_roles(project_id, project_info['roles'])
     session.commit()
     return orig_project
