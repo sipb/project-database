@@ -79,10 +79,10 @@
                 <td>
                     <dl>
                         {% for role in revision.roles %}
-                            {% if contact.action == 'delete' %}
+                            {% if role.action == 'delete' %}
                                 -
                                 <del>
-                            {% elif contact.action == 'create' %}
+                            {% elif role.action == 'create' %}
                                 +
                                 <ins>
                             {% else %}
@@ -99,9 +99,9 @@
                                     <i>Prereqs:</i> {{ role.prereq }}
                                 {% endif %}
                             </dd>
-                            {% if contact.action == 'delete' %}
+                            {% if role.action == 'delete' %}
                                 </del>
-                            {% elif contact.action == 'create' %}
+                            {% elif role.action == 'create' %}
                                 </ins>
                             {% endif %}
                         {% endfor %}
