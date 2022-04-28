@@ -753,14 +753,17 @@ def reject_project(
     point_of_contacts = []
     
     # Change status to "rejected"
-    metadata = get_project(project_id, True)[0]  # Returns SQL object
-    metadata.approval = 'rejected'
-    metadata.approver = approver_kerberos
-    metadata.approver_comments = approver_comments
-    creator = metadata.creator  # Set creator
+    new_metadata = {
+        'approval': 'rejected',
+        'approver': approver_kerberos,
+        'approver_comments': approver_comments
+    }
+    update_project_metadata(project_id, new_metadata, approver_kerberos)
     session.commit()
-    
+
     # Get point of contacts
+    metadata = get_project(project_id, True)[0]  # Returns SQL object
+    creator = metadata.creator  # Set creator
     contacts_lst = get_contacts(project_id)
     for contact in contacts_lst:
         point_of_contacts.append(contact['email'])
