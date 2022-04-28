@@ -36,6 +36,12 @@ def make_history_entry(x, author_kerberos, action, revision_id):
     x_history = CLASS_TO_HISTORY_CLASS_MAP[type(x)]()
     for key in x.__table__.columns.keys():
         setattr(x_history, key, getattr(x, key))
+
+    # Handle edge case of project creation, where project_id is not available
+    # in x:
+    if (type(x) == Projects) and (x.project_id is None):
+        x_history.project_id = get_project_id(x.name)
+
     x_history.author = author_kerberos
     x_history.action = action
     x_history.revision_id = revision_id
