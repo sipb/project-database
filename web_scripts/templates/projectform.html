@@ -38,6 +38,11 @@
     <input type="button" value="Add another role" onclick="add_role()">
 </p>
 {% if can_approve %}
+    <p>Project creator: {{ project_info.creator }}</p>
+    {% if project_info.approver_comments %}
+        <p>Project was previously reviewed by {{ project_info.approver }}. Previous comments:</p>
+        <p>{{ project_info.approver_comments }}</p>
+    {% endif %}
     <p>
         <label>This project should be:</label>
         <input type="radio" id="approved" name="approval_action" value="approved" checked>
