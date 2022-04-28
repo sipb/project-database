@@ -107,10 +107,7 @@ class ContactEmailsHistory(SQLBase):
     action = db.Column(db.String(25), nullable=False)
     # Every revision_id in this table should have a corresponding entry in the
     # ProjectsHistory table.
-    revision_id = db.Column(
-        db.Integer(), db.ForeignKey(ProjectsHistory.revision_id),
-        nullable=False
-    )
+    revision_id = db.Column(db.Integer(), nullable=False)
     timestamp = db.Column(
         db.TIMESTAMP, nullable=False, server_default=db.func.now()
     )
