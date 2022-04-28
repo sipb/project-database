@@ -174,7 +174,7 @@ def db_update(
     # Delete the entries which appear in current_x but not new_x:
     for key, idx in current_key_idx_map.items():
         if key not in new_key_idx_map:
-            db_delete(current_x[idx])
+            db_delete(current_x[idx], author_kerberos, revision_id)
 
     # Add entries which appear in new_x but not current_x, update entries which
     # appear in both:
