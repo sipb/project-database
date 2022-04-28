@@ -41,7 +41,7 @@
     <p>Project creator: {{ project_info.creator }}</p>
     {% if project_info.approver_comments %}
         <p>Project was previously reviewed by {{ project_info.approver }}. Previous comments:</p>
-        <p>{{ project_info.approver_comments }}</p>
+        <blockquote>{{ project_info.approver_comments }}</blockquote>
     {% endif %}
     <p>
         <label>This project should be:</label>
