@@ -538,27 +538,23 @@ def update_project_metadata(project_id, args, editor_kerberos):
     ]
     metadata = get_project(project_id, True)[0]  # Returns SQL object
     
-    changed = False
     for field in allowed_fields:  # Only look for changes in the allowed fields
         if (field in args) and (args[field] != getattr(metadata, field)):
             setattr(metadata, field, args[field])
-            changed = True
 
-    # Only make a log entry if something actually changed:
-    if changed:
-        project_history = ProjectsHistory()
-        project_history.project_id = project_id
-        project_history.name = metadata.name
-        project_history.description = metadata.description
-        project_history.status = metadata.status
-        project_history.approval = metadata.approval
-        project_history.creator = metadata.creator
-        project_history.approver = metadata.approver
-        project_history.approver_comments = metadata.approver_comments
-        project_history.author = editor_kerberos
-        project_history.action = 'update'
-        project_history.revision_id = get_current_revision(project_id) + 1
-        db_add(project_history)
+    project_history = ProjectsHistory()
+    project_history.project_id = project_id
+    project_history.name = metadata.name
+    project_history.description = metadata.description
+    project_history.status = metadata.status
+    project_history.approval = metadata.approval
+    project_history.creator = metadata.creator
+    project_history.approver = metadata.approver
+    project_history.approver_comments = metadata.approver_comments
+    project_history.author = editor_kerberos
+    project_history.action = 'update'
+    project_history.revision_id = get_current_revision(project_id) + 1
+    db_add(project_history)
 
 ###############################################################################
 # Update Logic:
