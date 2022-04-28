@@ -3,6 +3,22 @@ import db
 import strutils
 
 
+def all_unique(vals):
+    """Check if all entries in a list are unique.
+
+    Parameters
+    ----------
+    vals : list
+        The values
+
+    Returns
+    -------
+    result : bool
+        Whether or not all of the values in vals are unique.
+    """
+    return len(set(vals)) == len(vals)
+
+
 def validate_add_permission():
     """Check if the user has permission to add projects.
 
@@ -185,6 +201,30 @@ def validate_project_contact_addresses(contacts):
     return is_ok, status_messages
 
 
+def validate_project_contacts_unique(contacts):
+    """Check if the project contact addresses are all unique.
+
+    Parameters
+    ----------
+    contacts : list of dict
+        The list of contacts.
+
+    Returns
+    -------
+    is_ok : bool
+        Whether or not the validation was passed.
+    status_messages : list of str
+        A list of status messages.
+    """
+    is_ok = all_unique([contact['email'] for contact in contacts])
+    if is_ok:
+        status_messages = []
+    else:
+        status_messages = ['Contact emails must be unique.']
+
+    return is_ok, status_messages
+
+
 def validate_project_contacts(contacts):
     """Check if the project contacts field is valid.
 
@@ -214,10 +254,14 @@ def validate_project_contacts(contacts):
         is_ok &= addresses_ok
         status_messages.extend(addresses_msgs)
 
+        unique_ok, unique_msgs = validate_project_contacts_unique(contacts)
+        is_ok &= unique_ok
+        status_messages.extend(unique_msgs)
+
     return is_ok, status_messages
 
 
-def validate_project_roles(roles):
+def validate_project_role_fields(roles):
     """Check if the project roles all have names and descriptions.
 
     Parameters
@@ -239,6 +283,109 @@ def validate_project_roles(roles):
             is_ok = False
             status_messages = ['Each role must have a name and a description!']
             break
+    return is_ok, status_messages
+
+
+def validate_project_roles_unique(roles):
+    """Check if the project roles are all unique.
+
+    Parameters
+    ----------
+    roles : list of dict
+        The list of roles.
+
+    Returns
+    -------
+    is_ok : bool
+        Whether or not the validation was passed.
+    status_messages : list of str
+        A list of status messages.
+    """
+    is_ok = all_unique([role['role'] for role in roles])
+    if is_ok:
+        status_messages = []
+    else:
+        status_messages = ['Role names must be unique.']
+
+    return is_ok, status_messages
+
+
+def validate_project_roles(roles):
+    """Check if the project roles are valid.
+
+    Parameters
+    ----------
+    roles : list of dict
+        The list of roles.
+
+    Returns
+    -------
+    is_ok : bool
+        Whether or not the validation was passed.
+    status_messages : list of str
+        A list of status messages.
+    """
+    is_ok = True
+    status_messages = []
+
+    fields_ok, fields_msgs = validate_project_role_fields(roles)
+    is_ok &= fields_ok
+    status_messages.extend(fields_msgs)
+
+    unique_ok, unique_msgs = validate_project_roles_unique(roles)
+    is_ok &= unique_ok
+    status_messages.extend(unique_msgs)
+
+    return is_ok, status_messages
+
+
+def validate_project_links(links):
+    """Check if the project links are all unique.
+
+    Parameters
+    ----------
+    links : list of dict
+        The list of links.
+
+    Returns
+    -------
+    is_ok : bool
+        Whether or not the validation was passed.
+    status_messages : list of str
+        A list of status messages.
+    """
+    is_ok = all_unique([link['link'] for link in links])
+    if is_ok:
+        status_messages = []
+    else:
+        status_messages = ['Links must be unique.']
+
+    return is_ok, status_messages
+
+
+def validate_project_comm_channels(comm_channels):
+    """Check if the project comm channels are all unique.
+
+    Parameters
+    ----------
+    comm_channels : list of dict
+        The list of comm channels.
+
+    Returns
+    -------
+    is_ok : bool
+        Whether or not the validation was passed.
+    status_messages : list of str
+        A list of status messages.
+    """
+    is_ok = all_unique(
+        [comm_channel['commchannel'] for comm_channel in comm_channels]
+    )
+    if is_ok:
+        status_messages = []
+    else:
+        status_messages = ['Comm channels must be unique.']
+
     return is_ok, status_messages
 
 
@@ -281,6 +428,16 @@ def validate_project_info(project_info, previous_name=None):
     roles_ok, roles_msgs = validate_project_roles(project_info['roles'])
     is_ok &= roles_ok
     status_messages.extend(roles_msgs)
+
+    links_ok, links_msgs = validate_project_links(project_info['links'])
+    is_ok &= links_ok
+    status_messages.extend(links_msgs)
+
+    comms_ok, comms_msgs = validate_project_comm_channels(
+        project_info['comm_channels']
+    )
+    is_ok &= comms_ok
+    status_messages.extend(comms_msgs)
 
     # TODO: this currently allows links, comm channels, and roles to be empty.
     # Do we want to require any of those at project creation time?
