@@ -532,7 +532,10 @@ def update_project_metadata(project_id, args, editor_kerberos):
         Keys are fields in the Projects table, and values fit the
         right type and correct value according to schema.
     """
-    allowed_fields = ['name', 'description', 'status']
+    allowed_fields = [
+        'name', 'description', 'status', 'approval', 'approver',
+        'approver_comments'
+    ]
     metadata = get_project(project_id, True)[0]  # Returns SQL object
     
     for field in allowed_fields:  # Only look for changes in the allowed fields
@@ -705,14 +708,17 @@ def approve_project(
     point_of_contacts = []
     
     # Change status to "approved"
-    metadata = get_project(project_id, True)[0]  # Returns SQL object
-    metadata.approval = 'approved'
-    metadata.approver = approver_kerberos
-    metadata.approver_comments = approver_comments
-    creator = metadata.creator  # Set creator
+    new_metadata = {
+        'approval': 'approved',
+        'approver': approver_kerberos,
+        'approver_comments': approver_comments
+    }
+    update_project_metadata(project_id, new_metadata, approver_kerberos)
     session.commit()
     
     # Get point of contacts
+    metadata = get_project(project_id, True)[0]  # Returns SQL object
+    creator = metadata.creator  # Get creator
     contacts_lst = get_contacts(project_id)
     for contact in contacts_lst:
         point_of_contacts.append(contact['email'])
