@@ -117,7 +117,6 @@ def db_update_record(current_x, new_x, author_kerberos, revision_id):
             (field != 'id') and
             (getattr(current_x, field) != getattr(new_x, field))
         ):
-            raise ValueError('Field %s differs' % (field))
             setattr(current_x, field, getattr(new_x, field))
             changed = True
 

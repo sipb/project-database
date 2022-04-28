@@ -31,7 +31,7 @@
 <div id="roles_container"></div>
 {% if project_info %}
     {% for role in project_info.roles %}
-        <script type="text/javascript">add_role("{{ role.role|escapejs }}", "{{ role.description|escapejs }}", "{{ role.prereq|escapejs }}");</script>
+        <script type="text/javascript">add_role("{{ role.role|escapejs }}", "{{ role.description|escapejs }}", "{% if role.prereq %}{{ role.prereq|escapejs }}{% endif %}");</script>
     {% endfor %}
 {% endif %}
 <p>
