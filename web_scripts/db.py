@@ -620,6 +620,8 @@ def update_project_metadata(project_id, args, editor_kerberos):
         if (field in args) and (args[field] != getattr(metadata, field)):
             setattr(metadata, field, args[field])
 
+    revision_id = get_current_revision(project_id) + 1
+
     project_history = ProjectsHistory()
     project_history.project_id = project_id
     project_history.name = metadata.name
@@ -631,8 +633,10 @@ def update_project_metadata(project_id, args, editor_kerberos):
     project_history.approver_comments = metadata.approver_comments
     project_history.author = editor_kerberos
     project_history.action = 'update'
-    project_history.revision_id = get_current_revision(project_id) + 1
+    project_history.revision_id = revision_id
     db_add(project_history)
+
+    return revision_id
 
 ###############################################################################
 # Update Logic:
@@ -645,7 +649,7 @@ def update_project_metadata(project_id, args, editor_kerberos):
 ###############################################################################
 
 
-def update_project_contacts(project_id, args, editor_kerberos):
+def update_project_contacts(project_id, args, editor_kerberos, revision_id):
     """Update the contact email entries for a project in the database.
     Caller is responsible for committing the change.
 
@@ -657,8 +661,6 @@ def update_project_contacts(project_id, args, editor_kerberos):
         - args is a list of dictionaries with keys 'type', 'email', and 'index'
         - key 'type' is either 'primary' or 'secondary'
     """
-    revision_id = get_current_revision(project_id)
-
     # Delete current contact entries, logging the deletions:
     query_command = session.query(ContactEmails).filter_by(
         project_id=project_id
@@ -684,7 +686,7 @@ def update_project_contacts(project_id, args, editor_kerberos):
     )
 
 
-def update_project_roles(project_id, args, editor_kerberos):
+def update_project_roles(project_id, args, editor_kerberos, revision_id):
     """Update the roles entries for a project in the database.
     Caller is responsible for committing the change.
 
@@ -697,8 +699,6 @@ def update_project_roles(project_id, args, editor_kerberos):
             (optional) 'prereq' 
         - key 'type' is either 'primary' or 'secondary'
     """
-    revision_id = get_current_revision(project_id)
-
     # Delete current roles entries
     query_command = session.query(Roles).filter_by(project_id=project_id)
 
@@ -723,7 +723,7 @@ def update_project_roles(project_id, args, editor_kerberos):
     )
 
 
-def update_project_links(project_id, args, editor_kerberos):
+def update_project_links(project_id, args, editor_kerberos, revision_id):
     """Update the links entries for a project in the database.
     Caller is responsible for committing the change.
 
@@ -734,8 +734,6 @@ def update_project_links(project_id, args, editor_kerberos):
     args : dict
         - args is a list of dictionaries with keys 'link'
     """
-    revision_id = get_current_revision(project_id)
-
     # Delete current link entries
     query_command = session.query(Links).filter_by(project_id=project_id)
 
@@ -758,7 +756,7 @@ def update_project_links(project_id, args, editor_kerberos):
     )
 
 
-def update_project_comms(project_id, args, editor_kerberos):
+def update_project_comms(project_id, args, editor_kerberos, revision_id):
     """Update the communication channels entries for a project in the database.
     Caller is responsible for committing the change.
 
@@ -769,8 +767,6 @@ def update_project_comms(project_id, args, editor_kerberos):
     args : dict
         - args is a list of dictionaries with keys 'commchannel'
     """
-    revision_id = get_current_revision(project_id)
-
     # Delete current comm entries
     query_command = session.query(CommChannels).filter_by(
         project_id=project_id
@@ -825,15 +821,21 @@ def update_project(project_info, project_id, editor_kerberos):
         # `creator` and `approval` fields are intentionally not supplied
     }
     orig_project = get_all_info_for_project(project_id)
-    update_project_metadata(project_id, new_metadata, editor_kerberos)
-    update_project_links(project_id, project_info['links'], editor_kerberos)
+    revision_id = update_project_metadata(
+        project_id, new_metadata, editor_kerberos
+    )
+    update_project_links(
+        project_id, project_info['links'], editor_kerberos, revision_id
+    )
     update_project_comms(
-        project_id, project_info['comm_channels'], editor_kerberos
+        project_id, project_info['comm_channels'], editor_kerberos, revision_id
     )
     update_project_contacts(
-        project_id, project_info['contacts'], editor_kerberos
+        project_id, project_info['contacts'], editor_kerberos, revision_id
     )
-    update_project_roles(project_id, project_info['roles'], editor_kerberos)
+    update_project_roles(
+        project_id, project_info['roles'], editor_kerberos, revision_id
+    )
     session.commit()
     return orig_project
 
