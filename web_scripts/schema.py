@@ -35,8 +35,7 @@ class HistoryMixin(object):
     )
 
 
-class Projects(SQLBase):
-    __tablename__ = "projects"
+class ProjectsBase(object):
     project_id = db.Column(
         db.Integer(), nullable=False, primary_key=True, autoincrement=True
     )
@@ -54,9 +53,32 @@ class Projects(SQLBase):
     approver_comments = db.Column(db.Text(), nullable=True)
 
 
+class Projects(SQLBase, ProjectsBase):
+    __tablename__ = 'projects'
+
+
+# class Projects(SQLBase):
+#     __tablename__ = "projects"
+#     project_id = db.Column(
+#         db.Integer(), nullable=False, primary_key=True, autoincrement=True
+#     )
+#     name = db.Column(db.String(50), nullable=False, unique=True)
+#     description = db.Column(db.Text(), nullable=False)
+#     # status can be "active" or "inactive"
+#     status = db.Column(db.String(25), nullable=False)
+#     # approval can be "awaiting_approval" or "approved" or "rejected"
+#     approval = db.Column(db.String(25), nullable=False)
+#     # Kerb of user who registered the project:
+#     creator = db.Column(db.String(50), nullable=False)
+#     # Kerb of user who approved the project:
+#     approver = db.Column(db.String(50), nullable=True)
+#     # Comments from user who approved the project:
+#     approver_comments = db.Column(db.Text(), nullable=True)
+
+
 # TODO: It feels like there should be a way to do this without so much
 # copy-paste...
-class ProjectsHistory(SQLBase, HistoryMixin):
+class ProjectsHistory(SQLBase, ProjectsBase, HistoryMixin):
     __tablename__ = 'projectshistory'
     id = db.Column(
         db.Integer(), nullable=False, primary_key=True, autoincrement=True
@@ -64,13 +86,23 @@ class ProjectsHistory(SQLBase, HistoryMixin):
     project_id = db.Column(
         db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
     )
-    name = db.Column(db.String(50), nullable=False)
-    description = db.Column(db.Text(), nullable=False)
-    status = db.Column(db.String(25), nullable=False)
-    approval = db.Column(db.String(25), nullable=False)
-    creator = db.Column(db.String(50), nullable=False)
-    approver = db.Column(db.String(50), nullable=True)
-    approver_comments = db.Column(db.Text(), nullable=True)
+
+
+# class ProjectsHistory(SQLBase, HistoryMixin):
+#     __tablename__ = 'projectshistory'
+#     id = db.Column(
+#         db.Integer(), nullable=False, primary_key=True, autoincrement=True
+#     )
+#     project_id = db.Column(
+#         db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
+#     )
+#     name = db.Column(db.String(50), nullable=False)
+#     description = db.Column(db.Text(), nullable=False)
+#     status = db.Column(db.String(25), nullable=False)
+#     approval = db.Column(db.String(25), nullable=False)
+#     creator = db.Column(db.String(50), nullable=False)
+#     approver = db.Column(db.String(50), nullable=True)
+#     approver_comments = db.Column(db.Text(), nullable=True)
 
 
 class ContactEmails(SQLBase):
