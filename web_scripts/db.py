@@ -544,6 +544,11 @@ def form_contact_row(project_id, entry):
         ID of the project.
     entry : dict
         The contact details. Shall have keys 'type', 'email', and 'index.'
+
+    Returns
+    -------
+    contact : SQLBase
+        The row object.
     """
     contact = ContactEmails()
     contact.project_id = int(project_id)
@@ -593,6 +598,32 @@ def add_project_contacts(
     return get_contacts(project_id)
 
 
+def form_role_row(project_id, entry):
+    """Form a role row object.
+
+    Parameters
+    ----------
+    project_id : int
+        ID of the project.
+    entry : dict
+        The role details. Shall have keys 'role', 'description', 'index', and
+        (optionally) 'prereq'.
+
+    Returns
+    -------
+    role : SQLBase
+        The row object.
+    """
+    role = Roles()
+    role.project_id = int(project_id)
+    role.role = entry['role']
+    role.description = entry['description']
+    role.index = entry['index']
+    if 'prereq' in entry:
+        role.prereq = entry['prereq']
+    return role
+
+
 def add_project_roles(
     project_id, args, author_kerberos, action='create', revision_id=0
 ):
@@ -626,13 +657,7 @@ def add_project_roles(
         return None
     
     for entry in args:
-        role = Roles()
-        role.project_id = project_id
-        role.role = entry['role']
-        role.description = entry['description']
-        role.index = entry['index']
-        if 'prereq' in entry:
-            role.prereq = entry['prereq']
+        role = form_role_row(project_id, entry)
         db_add(role, author_kerberos, action, revision_id)
 
     return get_roles(project_id)
@@ -806,16 +831,6 @@ def update_project_metadata(project_id, args, editor_kerberos):
 
     return revision_id
 
-###############################################################################
-# Update Logic:
-###############################################################################
-# For tables outside of the original metadata, we handle updating by deleting
-# all current email entries and then adding back provided ones in `args`.
-#
-# In the future, we may consider inserting the deleted entries into an archival
-# table for logging / history purposes.
-###############################################################################
-
 
 def update_project_contacts(project_id, args, editor_kerberos, revision_id):
     """Update the contact email entries for a project in the database.
@@ -843,18 +858,6 @@ def update_project_contacts(project_id, args, editor_kerberos, revision_id):
         current_contacts, new_contacts, 'email', editor_kerberos, revision_id
     )
 
-    # # Delete current contact entries, logging the deletions:
-    # for contact in session.query(ContactEmails).filter_by(
-    #     project_id=project_id
-    # ).all():
-    #     db_delete(contact, editor_kerberos, revision_id)
-    
-    # # Add the new contact list    
-    # add_project_contacts(
-    #     project_id, args, editor_kerberos, action='create',
-    #     revision_id=revision_id
-    # )
-
 
 def update_project_roles(project_id, args, editor_kerberos, revision_id):
     """Update the roles entries for a project in the database.
@@ -873,14 +876,14 @@ def update_project_roles(project_id, args, editor_kerberos, revision_id):
     revision_id : int
         The revision ID associated with the edit.
     """
-    # Delete current roles entries
-    for role in session.query(Roles).filter_by(project_id=project_id).all():
-        db_delete(role, editor_kerberos, revision_id)
-    
-    # Add the new roles list    
-    add_project_roles(
-        project_id, args, editor_kerberos, action='create',
-        revision_id=revision_id
+    current_roles = get_roles(project_id, get_raw=True)
+
+    new_roles = []
+    for entry in args:
+        new_roles.append(form_role_row(project_id, entry))
+
+    db_update(
+        current_roles, new_roles, 'role', editor_kerberos, revision_id
     )
 
 
