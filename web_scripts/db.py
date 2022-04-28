@@ -298,9 +298,16 @@ def get_project_history(project_id):
     project_history : list of dict
         The project history.
     """
-    return list_dict_convert(
+    project_history = list_dict_convert(
         session.query(ProjectsHistory).filter_by(project_id=project_id).all()
     )
+    for revision in project_history:
+        revision['contacts'] = list_dict_convert(
+            session.query(ContactEmailsHistory).filter_by(
+                project_id=project_id, revision_id=revision['revision_id']
+            ).all()
+        )
+    return project_history
 
 
 # Adding operations
