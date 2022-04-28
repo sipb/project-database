@@ -3,7 +3,7 @@
 import sqlalchemy as sa
 from schema import \
     session, Projects, ContactEmails, Roles, Links, CommChannels, \
-    ProjectsHistory, ContactEmailsHistory, RolesHistory
+    ProjectsHistory, ContactEmailsHistory, RolesHistory, LinksHistory
 
 
 ##############################################################
@@ -312,6 +312,11 @@ def get_project_history(project_id):
                 project_id=project_id, revision_id=revision['revision_id']
             ).all()
         )
+        revision['links'] = list_dict_convert(
+            session.query(LinksHistory).filter_by(
+                project_id=project_id, revision_id=revision['revision_id']
+            ).all()
+        )
     return project_history
 
 
@@ -461,7 +466,9 @@ def add_project_roles(
     return get_roles(project_id)
 
 
-def add_project_links(project_id, args):
+def add_project_links(
+    project_id, args, author_kerberos, action='create', revision_id=0
+):
     '''
     Add a list of website links associated with a project to the database.
     Caller is responsible for committing the change.
@@ -487,6 +494,16 @@ def add_project_links(project_id, args):
         link.link = entry['link']
         link.index = entry['index']
         db_add(link)
+
+        link_history = LinksHistory()
+        link_history.project_id = link.project_id
+        link_history.link = link.link
+        link_history.index = link.index
+        link_history.author = author_kerberos
+        link_history.action = action
+        link_history.revision_id = revision_id
+        db_add(link_history)
+
     return get_links(project_id)
 
 
@@ -548,7 +565,7 @@ def add_project(project_info, creator_kerberos):
         'creator': creator_kerberos,
     }
     project_id = add_project_metadata(metadata)
-    add_project_links(project_id, project_info['links'])
+    add_project_links(project_id, project_info['links'], creator_kerberos)
     add_project_comms(project_id, project_info['comm_channels'])
     add_project_contacts(
         project_id, project_info['contacts'], creator_kerberos
@@ -642,7 +659,7 @@ def update_project_contacts(project_id, args, editor_kerberos):
     
     # Add the new contact list    
     add_project_contacts(
-        project_id, args, editor_kerberos, action='update',
+        project_id, args, editor_kerberos, action='create',
         revision_id=revision_id
     )
 
@@ -681,12 +698,12 @@ def update_project_roles(project_id, args, editor_kerberos):
     
     # Add the new roles list    
     add_project_roles(
-        project_id, args, editor_kerberos, action='update',
+        project_id, args, editor_kerberos, action='create',
         revision_id=revision_id
     )
 
 
-def update_project_links(project_id, args):
+def update_project_links(project_id, args, editor_kerberos):
     """Update the links entries for a project in the database.
     Caller is responsible for committing the change.
 
@@ -697,12 +714,28 @@ def update_project_links(project_id, args):
     args : dict
         - args is a list of dictionaries with keys 'link'
     """
+    revision_id = get_current_revision(project_id)
+
     # Delete current link entries
     query_command = session.query(Links).filter_by(project_id=project_id)
+
+    for link in query_command.all():
+        link_history = LinksHistory()
+        link_history.project_id = project_id
+        link_history.link = link.link
+        link_history.index = link.index
+        link_history.author = editor_kerberos
+        link_history.action = 'delete'
+        link_history.revision_id = revision_id
+        db_add(link_history)
+
     query_command.delete()
 
     # Add the new link list    
-    add_project_links(project_id, args)
+    add_project_links(
+        project_id, args, editor_kerberos, action='create',
+        revision_id=revision_id
+    )
 
 
 def update_project_comms(project_id, args):
@@ -757,7 +790,7 @@ def update_project(project_info, project_id, editor_kerberos):
     }
     orig_project = get_all_info_for_project(project_id)
     update_project_metadata(project_id, new_metadata, editor_kerberos)
-    update_project_links(project_id, project_info['links'])
+    update_project_links(project_id, project_info['links'], editor_kerberos)
     update_project_comms(project_id, project_info['comm_channels'])
     update_project_contacts(
         project_id, project_info['contacts'], editor_kerberos

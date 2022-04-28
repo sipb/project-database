@@ -154,8 +154,8 @@ class RolesHistory(SQLBase):
 
 class Links(SQLBase):
     __tablename__ = "links"
-    id = sqlalchemy.Column(
-        sqlalchemy.Integer(), nullable=False, primary_key=True,
+    id = db.Column(
+        db.Integer(), nullable=False, primary_key=True,
         autoincrement=True
     )
     project_id = db.Column(
@@ -164,6 +164,27 @@ class Links(SQLBase):
     link = db.Column(db.Text(), nullable=False)
     # index sets the order which links are listed in:
     index = db.Column(db.Integer(), nullable=False)
+
+
+class LinksHistory(SQLBase):
+    __tablename__ = 'linkshistory'
+    id = db.Column(
+        db.Integer(), nullable=False, primary_key=True, autoincrement=True
+    )
+    project_id = db.Column(
+        db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
+    )
+    link = db.Column(db.Text(), nullable=False)
+    index = db.Column(db.Integer(), nullable=False)
+
+    author = db.Column(db.String(50), nullable=False)
+    action = db.Column(db.String(25), nullable=False)
+    # Every revision_id in this table should have a corresponding entry in the
+    # ProjectsHistory table.
+    revision_id = db.Column(db.Integer(), nullable=False)
+    timestamp = db.Column(
+        db.TIMESTAMP, nullable=False, server_default=db.func.now()
+    )
 
 
 class CommChannels(SQLBase):

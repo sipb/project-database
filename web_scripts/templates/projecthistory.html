@@ -30,6 +30,7 @@
             <td>Approver Comments</td>
             <td>Contact(s)</td>
             <td>Role(s)</td>
+            <td>Link(s)</td>
         </tr>
         {% for revision in project_history %}
             <tr>
@@ -77,6 +78,11 @@
                             </dd>
                         {% endfor %}
                     </dl>
+                </td>
+                <td>
+                    {% for link in revision.links %}
+                        <li>{{ link.action }} {{link.index }} {{ link.link|urlize }}</li>
+                    {% endfor %}
                 </td>
             </tr>
         {% endfor %}
