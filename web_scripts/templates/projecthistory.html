@@ -80,15 +80,20 @@
                     <dl>
                         {% for role in revision.roles %}
                             {% if role.action == 'delete' %}
-                                -
                                 <del>
                             {% elif role.action == 'create' %}
-                                +
                                 <ins>
-                            {% else %}
-                                m
                             {% endif %}
-                            <dt>{{ role.index }} {{ role.role }}</dt>
+                            <dt>
+                                {% if role.action == 'delete' %}
+                                    -
+                                {% elif role.action == 'create' %}
+                                    +
+                                {% else %}
+                                    m
+                                {% endif %}
+                                {{ role.index }} {{ role.role }}
+                            </dt>
                             <dd>
                                 <i>Description:</i> {{ role.description }}
                             </dd>
@@ -109,17 +114,47 @@
                 </td>
                 <td>
                     {% for link in revision.links %}
-                        <li>{{ link.action }} {{ link.index }} {{ link.link|urlize }}</li>
+                        <li>
+                            {% if link.action == 'delete' %}
+                                -
+                                <del>
+                            {% elif link.action == 'create' %}
+                                +
+                                <ins>
+                            {% else %}
+                                m
+                            {% endif %}
+                            {{ link.index }} {{ link.link|urlize }}
+                            {% if link.action == 'delete' %}
+                                </del>
+                            {% elif link.action == 'create' %}
+                                </ins>
+                            {% endif %}
+                        </li>
                     {% endfor %}
                 </td>
                 <td>
                     {% for channel in revision.comm_channels %}
                         <li>
-                            {{ channel.action }} {{ channel.index }}
+                            {% if channel.action == 'delete' %}
+                                -
+                                <del>
+                            {% elif channel.action == 'create' %}
+                                +
+                                <ins>
+                            {% else %}
+                                m
+                            {% endif %}
+                            {{ channel.index }}
                             {% if user %}
                                 {{ channel.commchannel|urlize }}
                             {% else %}
                                 {{ channel.commchannel|obfuscate_email }}
+                            {% endif %}
+                            {% if channel.action == 'delete' %}
+                                </del>
+                            {% elif channel.action == 'create' %}
+                                </ins>
                             {% endif %}
                         </li>
                     {% endfor %}
