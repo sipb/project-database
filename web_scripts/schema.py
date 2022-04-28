@@ -84,7 +84,7 @@ class Projects(SQLBase):
 #     )
 
 
-class ProjectHistory(Projects, HistoryMixin):
+class ProjectsHistory(Projects, HistoryMixin):
     __tablename__ = 'projectshistory'
     id = db.Column(
         db.Integer(), nullable=False, primary_key=True, autoincrement=True
