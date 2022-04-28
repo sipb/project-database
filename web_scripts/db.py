@@ -663,6 +663,28 @@ def add_project_roles(
     return get_roles(project_id)
 
 
+def form_link_row(project_id, entry):
+    """Form a link row object.
+
+    Parameters
+    ----------
+    project_id : int
+        ID of the project.
+    entry : dict
+        The link details. Shall have keys 'link' and 'index'.
+
+    Returns
+    -------
+    link : SQLBase
+        The row object.
+    """
+    link = Links()
+    link.project_id = int(project_id)
+    link.link = entry['link']
+    link.index = entry['index']
+    return link
+
+
 def add_project_links(
     project_id, args, author_kerberos, action='create', revision_id=0
 ):
@@ -695,10 +717,7 @@ def add_project_links(
         return None
 
     for entry in args:
-        link = Links()
-        link.project_id = project_id
-        link.link = entry['link']
-        link.index = entry['index']
+        link = form_link_row(project_id, entry)
         db_add(link, author_kerberos, action, revision_id)
 
     return get_links(project_id)
@@ -902,15 +921,13 @@ def update_project_links(project_id, args, editor_kerberos, revision_id):
     revision_id : int
         The revision ID associated with the edit.
     """
-    # Delete current link entries
-    for link in session.query(Links).filter_by(project_id=project_id).all():
-        db_delete(link, editor_kerberos, revision_id)
+    current_links = get_links(project_id, get_raw=True)
 
-    # Add the new link list    
-    add_project_links(
-        project_id, args, editor_kerberos, action='create',
-        revision_id=revision_id
-    )
+    new_links = []
+    for entry in args:
+        new_links.append(form_link_row(project_id, entry))
+
+    db_update(current_links, new_links, 'link', editor_kerberos, revision_id)
 
 
 def update_project_comms(project_id, args, editor_kerberos, revision_id):
