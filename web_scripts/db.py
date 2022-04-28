@@ -117,9 +117,7 @@ def db_update_record(current_x, new_x, author_kerberos, revision_id):
             (field != 'id') and
             (getattr(current_x, field) != getattr(new_x, field))
         ):
-            raise ValueError('Field %s changed from %d to %d!' % (field, getattr(current_x, field), getattr(new_x, field)))
             setattr(current_x, field, getattr(new_x, field))
-
             changed = True
 
     action = 'update' if changed else 'same'
@@ -548,7 +546,7 @@ def form_contact_row(project_id, entry):
         The contact details. Shall have keys 'type', 'email', and 'index.'
     """
     contact = ContactEmails()
-    contact.project_id = project_id
+    contact.project_id = int(project_id)
     contact.type = entry['type']
     contact.email = entry['email']
     contact.index = entry['index']
