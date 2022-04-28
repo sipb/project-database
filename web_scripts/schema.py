@@ -54,6 +54,8 @@ class Projects(SQLBase):
     approver_comments = db.Column(db.Text(), nullable=True)
 
 
+# TODO: It feels like there should be a way to do this without so much
+# copy-paste...
 class ProjectsHistory(SQLBase, HistoryMixin):
     __tablename__ = 'projectshistory'
     id = db.Column(
@@ -88,7 +90,7 @@ class ContactEmails(SQLBase):
     index = db.Column(db.Integer(), nullable=False)
 
 
-class ContactEmailsHistory(SQLBase):
+class ContactEmailsHistory(SQLBase, HistoryMixin):
     __tablename__ = 'contactemailshistory'
     id = db.Column(
         db.Integer(), nullable=False, primary_key=True, autoincrement=True
@@ -99,15 +101,6 @@ class ContactEmailsHistory(SQLBase):
     type = db.Column(db.String(25), nullable=False)
     email = db.Column(db.String(50), nullable=False)
     index = db.Column(db.Integer(), nullable=False)
-
-    author = db.Column(db.String(50), nullable=False)
-    action = db.Column(db.String(25), nullable=False)
-    # Every revision_id in this table should have a corresponding entry in the
-    # ProjectsHistory table.
-    revision_id = db.Column(db.Integer(), nullable=False)
-    timestamp = db.Column(
-        db.TIMESTAMP, nullable=False, server_default=db.func.now()
-    )
 
 
 class Roles(SQLBase):
@@ -126,7 +119,7 @@ class Roles(SQLBase):
     index = db.Column(db.Integer(), nullable=False)
 
 
-class RolesHistory(SQLBase):
+class RolesHistory(SQLBase, HistoryMixin):
     __tablename__ = 'roleshistory'
     id = db.Column(
         db.Integer(), nullable=False, primary_key=True, autoincrement=True
@@ -138,15 +131,6 @@ class RolesHistory(SQLBase):
     description = db.Column(db.Text(), nullable=False)
     prereq = db.Column(db.Text(), nullable=True)
     index = db.Column(db.Integer(), nullable=False)
-
-    author = db.Column(db.String(50), nullable=False)
-    action = db.Column(db.String(25), nullable=False)
-    # Every revision_id in this table should have a corresponding entry in the
-    # ProjectsHistory table.
-    revision_id = db.Column(db.Integer(), nullable=False)
-    timestamp = db.Column(
-        db.TIMESTAMP, nullable=False, server_default=db.func.now()
-    )
     
 
 class Links(SQLBase):
@@ -163,7 +147,7 @@ class Links(SQLBase):
     index = db.Column(db.Integer(), nullable=False)
 
 
-class LinksHistory(SQLBase):
+class LinksHistory(SQLBase, HistoryMixin):
     __tablename__ = 'linkshistory'
     id = db.Column(
         db.Integer(), nullable=False, primary_key=True, autoincrement=True
@@ -173,15 +157,6 @@ class LinksHistory(SQLBase):
     )
     link = db.Column(db.Text(), nullable=False)
     index = db.Column(db.Integer(), nullable=False)
-
-    author = db.Column(db.String(50), nullable=False)
-    action = db.Column(db.String(25), nullable=False)
-    # Every revision_id in this table should have a corresponding entry in the
-    # ProjectsHistory table.
-    revision_id = db.Column(db.Integer(), nullable=False)
-    timestamp = db.Column(
-        db.TIMESTAMP, nullable=False, server_default=db.func.now()
-    )
 
 
 class CommChannels(SQLBase):
@@ -198,7 +173,7 @@ class CommChannels(SQLBase):
     index = db.Column(db.Integer(), nullable=False)
 
 
-class CommChannelsHistory(SQLBase):
+class CommChannelsHistory(SQLBase, HistoryMixin):
     __tablename__ = 'commchannelshistory'
     id = sqlalchemy.Column(
         sqlalchemy.Integer(), nullable=False, primary_key=True,
@@ -209,15 +184,6 @@ class CommChannelsHistory(SQLBase):
     )
     commchannel = db.Column(db.Text(), nullable=False)
     index = db.Column(db.Integer(), nullable=False)
-
-    author = db.Column(db.String(50), nullable=False)
-    action = db.Column(db.String(25), nullable=False)
-    # Every revision_id in this table should have a corresponding entry in the
-    # ProjectsHistory table.
-    revision_id = db.Column(db.Integer(), nullable=False)
-    timestamp = db.Column(
-        db.TIMESTAMP, nullable=False, server_default=db.func.now()
-    )
 
 
 # Implement schema
