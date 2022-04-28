@@ -36,9 +36,7 @@ class HistoryMixin(object):
 
 
 class ProjectsBase(object):
-    project_id = db.Column(
-        db.Integer(), nullable=False, primary_key=True, autoincrement=True
-    )
+    # project_id must be defined in subclasses.
     name = db.Column(db.String(50), nullable=False, unique=True)
     description = db.Column(db.Text(), nullable=False)
     # status can be "active" or "inactive"
@@ -55,6 +53,9 @@ class ProjectsBase(object):
 
 class Projects(SQLBase, ProjectsBase):
     __tablename__ = 'projects'
+    project_id = db.Column(
+        db.Integer(), nullable=False, primary_key=True, autoincrement=True
+    )
 
 
 # class Projects(SQLBase):
