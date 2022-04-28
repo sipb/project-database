@@ -29,6 +29,7 @@
             <td>Approver</td>
             <td>Approver Comments</td>
             <td>Contact(s)</td>
+            <td>Role(s)</td>
         </tr>
         {% for revision in project_history %}
             <tr>
@@ -46,19 +47,36 @@
                 <td>{{ revision.approver_comments }}</td>
                 <td>
                     <ul>
-                        {% for entry in revision.contacts %}
+                        {% for contact in revision.contacts %}
                             <li>
-                                {{ entry.action }}
-                                {{ entry.index }}
+                                {{ contact.action }}
+                                {{ contact.index }}
                                 {% if user %}
-                                    {{ entry.email|urlize }}
+                                    {{ contact.email|urlize }}
                                 {% else %}
-                                    {{ entry.email|obfuscate_email }}
+                                    {{ contact.email|obfuscate_email }}
                                 {% endif %}
-                                ({{ entry.type}})
+                                ({{ contact.type}})
                             </li>
                         {% endfor %}
                     </ul>
+                </td>
+                <td>
+                    <dl>
+                        {% for role in revision.roles}
+                            <dt>{{ role.action }} {{ role.index }} {{ role.role }}</dt>
+                            <dd>
+                                <i>Description:</i> {{ role.description }}
+                            </dd>
+                            <dd>
+                                {% if role.prereq == None %}
+                                    <i>Prereqs:</i> none
+                                {% else %}
+                                    <i>Prereqs:</i> {{ role.prereq }}
+                                {% endif %}
+                            </dd>
+                        {% endfor %}
+                    </dl>
                 </td>
             </tr>
         {% endfor %}

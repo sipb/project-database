@@ -3,7 +3,7 @@
 import sqlalchemy as sa
 from schema import \
     session, Projects, ContactEmails, Roles, Links, CommChannels, \
-    ProjectsHistory, ContactEmailsHistory
+    ProjectsHistory, ContactEmailsHistory, RolesHistory
 
 
 ##############################################################
@@ -307,6 +307,11 @@ def get_project_history(project_id):
                 project_id=project_id, revision_id=revision['revision_id']
             ).all()
         )
+        revision['roles'] = list_dict_convert(
+            session.query(RolesHistory).filter_by(
+                project_id=project_id, revision_id=revision['revision_id']
+            ).all()
+        )
     return project_history
 
 
@@ -409,7 +414,9 @@ def add_project_contacts(
     return get_contacts(project_id)
 
 
-def add_project_roles(project_id, args):
+def add_project_roles(
+    project_id, args, author_kerberos, action='create', revision_id=0
+):
     '''
     Add a list of roles associated with a project to the database. Caller is
     responsible for committing the change.
@@ -439,6 +446,18 @@ def add_project_roles(project_id, args):
         if 'prereq' in entry:
             role.prereq = entry['prereq']
         db_add(role)
+
+        role_history = RolesHistory()
+        role_history.project_id = role.project_id
+        role_history.role = role.role
+        role_history.description = role.description
+        role_history.index = role.index
+        role_history.prereq = role.prereq
+        role_history.author = author_kerberos
+        role_history.action = action
+        role_history.revision_id = revision_id
+        db_add(role_history)
+
     return get_roles(project_id)
 
 
@@ -534,7 +553,7 @@ def add_project(project_info, creator_kerberos):
     add_project_contacts(
         project_id, project_info['contacts'], creator_kerberos
     )
-    add_project_roles(project_id, project_info['roles'])
+    add_project_roles(project_id, project_info['roles'], creator_kerberos)
     session.commit()
     return project_id
 
@@ -628,7 +647,7 @@ def update_project_contacts(project_id, args, editor_kerberos):
     )
 
 
-def update_project_roles(project_id, args):
+def update_project_roles(project_id, args, editor_kerberos):
     """Update the roles entries for a project in the database.
     Caller is responsible for committing the change.
 
@@ -641,12 +660,30 @@ def update_project_roles(project_id, args):
             (optional) 'prereq' 
         - key 'type' is either 'primary' or 'secondary'
     """
+    revision_id = get_current_revision(project_id)
+
     # Delete current roles entries
     query_command = session.query(Roles).filter_by(project_id=project_id)
+
+    for role in query_command.all():
+        role_history = RolesHistory()
+        role_history.project_id = role.project_id
+        role_history.role = role.role
+        role_history.description = role.description
+        role_history.prereq = role.prereq
+        role_history.index = role.index
+        role_history.author = editor_kerberos
+        role_history.action = 'delete'
+        role_history.revision_id = revision_id
+        db_add(role_history)
+
     query_command.delete()
     
     # Add the new roles list    
-    add_project_roles(project_id, args)   
+    add_project_roles(
+        project_id, args, editor_kerberos, action='update',
+        revision_id=revision_id
+    )
 
 
 def update_project_links(project_id, args):
@@ -725,7 +762,7 @@ def update_project(project_info, project_id, editor_kerberos):
     update_project_contacts(
         project_id, project_info['contacts'], editor_kerberos
     )
-    update_project_roles(project_id, project_info['roles'])
+    update_project_roles(project_id, project_info['roles'], editor_kerberos)
     session.commit()
     return orig_project
 
