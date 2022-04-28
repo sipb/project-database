@@ -1,6 +1,8 @@
 import smtplib
 from email.mime.text import MIMEText
 
+import db
+
 
 def send(recipient, sender, subject, message):
     msg = MIMEText(message)
@@ -29,7 +31,7 @@ def send_approve_message(project_info, approver_kerberos, approver_comments):
     # TODO: Not implemented yet!
 
     # Get point of contacts
-    point_of_contacts = [project_info['creator']]
+    point_of_contacts = [db.get_project_creator(project_info['project_id'])]
     contacts_lst = project_info['contacts']
     for contact in contacts_lst:
         point_of_contacts.append(contact['email'])
@@ -46,7 +48,7 @@ def send_reject_message(project_info, approver_kerberos, approver_comments):
     # TODO: Not implemented yet!
 
     # Get point of contacts
-    point_of_contacts = [project_info['creator']]
+    point_of_contacts = [db.get_project_creator(project_info['project_id'])]
     contacts_lst = project_info['contacts']
     for contact in contacts_lst:
         point_of_contacts.append(contact['email'])
