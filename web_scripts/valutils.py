@@ -3,19 +3,23 @@ import db
 import strutils
 
 
-def all_unique(vals):
+def all_unique(vals, ignore_case=True):
     """Check if all entries in a list are unique.
 
     Parameters
     ----------
-    vals : list
+    vals : list of str
         The values
+    ignore_case : bool, optional
+        Whether or not to ignore case. Default is True.
 
     Returns
     -------
     result : bool
         Whether or not all of the values in vals are unique.
     """
+    if ignore_case:
+        vals = [val.lower() for val in vals]
     return len(set(vals)) == len(vals)
 
 
