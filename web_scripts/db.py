@@ -51,12 +51,23 @@ def make_history_entry(x, author_kerberos, action, revision_id):
 
 
 def db_add(x, author_kerberos, action, revision_id):
-    '''Add an object defined by the Schema to the database, including history
+    """Add an object defined by the Schema to the database, including history
     logging.
 
     Caller is responsible for committing the change. (This allows transactions
     to succeed/fail together.)
-    '''
+
+    Parameters
+    ----------
+    x : SQLBase
+        The row object to add.
+    author_kerberos : str
+        The kerb of the author of the entry.
+    action : str
+        The action (create, update, delete) being performed.
+    revision_id : int
+        The revision ID to associate with the action.
+    """
     session.add(x)
     x_history = make_history_entry(x, author_kerberos, action, revision_id)
     session.add(x_history)
@@ -68,6 +79,15 @@ def db_delete(x, author_kerberos, revision_id):
 
     Caller is responsible for committing the change. (This allows transactions
     to succeed/fail together.)
+
+    Parameters
+    ----------
+    x : SQLBase
+        The row object to delete.
+    author_kerberos : str
+        The kerb of the author of the entry.
+    revision_id : int
+        The revision ID to associate with the action.
     """
     x_history = make_history_entry(x, author_kerberos, 'delete', revision_id)
     session.delete(x)
@@ -75,8 +95,7 @@ def db_delete(x, author_kerberos, revision_id):
 
 
 def list_dict_convert(query_res_lst, remove_sql_ref=False):
-    '''
-    Given a list which contains query results from SQLalchemy,
+    """Given a list which contains query results from SQLalchemy,
     return a list of their Python dictionary representation
     
     If `remove_sql_ref` set to True, the `_sa_instance_state`
@@ -88,7 +107,7 @@ def list_dict_convert(query_res_lst, remove_sql_ref=False):
     
     Source:
     https://stackoverflow.com/questions/1958219/how-to-convert-sqlalchemy-row-object-to-a-python-dict
-    '''
+    """
     if remove_sql_ref:
         converted_lst = []
         for entry in query_res_lst:
@@ -101,9 +120,8 @@ def list_dict_convert(query_res_lst, remove_sql_ref=False):
 
 
 def check_object_params(dict, req_params):
-    '''
-    Check if a given dictionary has all of the keys defined in req_params (lst)
-    '''
+    """Check if a given dictionary has all of the keys defined in req_params (lst)
+    """
     res = True
     for param in req_params:
         if param not in dict:
@@ -114,7 +132,8 @@ def check_object_params(dict, req_params):
 # Get Functions
 
 def get_all_projects():
-    '''Get metadata all of projects in database'''
+    """Get metadata all of projects in database
+    """
     return session.query(Projects).all()
 
 
@@ -157,8 +176,7 @@ def get_projects_for_contact(email):
 
 
 def get_project_info(model, project_id, raw_input=False, sort_by_index=False):
-    '''
-    Given an SQL class model (e.g. ContactEmail, Roles, Links, etc.), query
+    """Given an SQL class model (e.g. ContactEmail, Roles, Links, etc.), query
     that table for all entries associated with project_id and return the result
     in the form of list of dictionaries
     
@@ -169,7 +187,7 @@ def get_project_info(model, project_id, raw_input=False, sort_by_index=False):
     column.
     
     Useful for building higher-level queries
-    '''
+    """
     query = session.query(model).filter_by(project_id=project_id)
     if sort_by_index:
         query = query.order_by(model.index)
@@ -183,6 +201,7 @@ def get_project_info(model, project_id, raw_input=False, sort_by_index=False):
 # Shorthand functions to get all table entries associated with a project ID
 # `id` 
 # If `get_raw` is set to True, return SQL object instead of dictionary.
+# Tables which have an index column are sorted by the index.
 
 get_project = lambda id, get_raw=False: get_project_info(
     Projects, id, get_raw
@@ -202,10 +221,9 @@ get_comm = lambda id, get_raw=False: get_project_info(
 
 
 def get_project_id(name):
-    '''
-    Get the ID of a project with `name`, if it exists
+    """Get the ID of a project with `name`, if it exists
     Otherwise returns None
-    '''
+    """
     return session.query(Projects.project_id).filter_by(name=name).scalar()
 
 
@@ -382,19 +400,21 @@ def get_project_history(project_id):
 # Adding operations
 
 def add_project_metadata(args):
-    '''
-    Add a project with provided metadata to the database. Caller is responsible
-    for committing the change.
-    
-    Requires: 
-        - args to have keys of 'name', 'status', 'description', 'creator' with
-            valid types
-        - status is either 'active' or 'inactive'
-        
-    Returns: 
-        - project_id associated with newly created project, None if project
-            already exists or invalid arguments
-    '''
+    """Add a project with provided metadata to the database. Caller is
+    responsible for committing the change.
+
+    Parameters
+    ----------
+    args : dict
+        The project metadata to add. This shall have the keys 'name', 'status',
+        'description', and 'creator'. args['status'] shall be one of 'active'
+        and 'inactive'.
+
+    Returns
+    -------
+    project_id : int or None
+        The ID of the newly-created project, or None if the operation failed.
+    """
     try:
         args_lst = ['name', 'status', 'description', 'creator']
         assert check_object_params(args, args_lst)
@@ -424,19 +444,27 @@ def add_project_metadata(args):
 def add_project_contacts(
     project_id, args, author_kerberos, action='create', revision_id=0
 ):
-    '''
-    Add a list of emails associated with a project to the database. Caller is
-    responsible for committing the change.
-    
-    Requires: 
-        - project_id to be a valid project ID in the Contacts table
-        - args to be list of dictionaries with keys 'type','email' 
-        - key 'type' is either 'primary' or 'secondary'
-        
-    Returns: 
-        - None if no project with that name or invalid arguments, otherwise 
-        returns list of all emails associated with project in DB
-    '''
+    """Add a list of emails associated with a project to the database. Caller
+    is responsible for committing the change.
+
+    Parameters
+    ----------
+    project_id : int
+        The ID of the project to add contacts to.
+    args : list of dict
+        The contacts to add. Each entry shall have keys 'type' and 'email'.
+    author_kerberos : str
+        The kerb of the user adding the contacts.
+    action : {'create', 'update', 'delete'}, optional
+        The action being taken. Default is 'create'.
+    revision_id : int, optional 
+        The revision ID. Default is 0.
+
+    Returns
+    -------
+    contacts : list of dict or None
+        The contacts for the project, or None if the operation failed.
+    """
     try:
         args_lst = ['type', 'email', 'index']
         for dict in args:
@@ -459,19 +487,28 @@ def add_project_contacts(
 def add_project_roles(
     project_id, args, author_kerberos, action='create', revision_id=0
 ):
-    '''
-    Add a list of roles associated with a project to the database. Caller is
+    """Add a list of roles associated with a project to the database. Caller is
     responsible for committing the change.
-    
-    Requires: 
-        - project_id to be a valid project ID in the Roles table
-        - args to be list of dictionaries with keys 'role', 'description',
-            'index', and (optional) 'prereq' 
-        
-    Returns: 
-        - None if no project with that name or invalid arguments, otherwise
-            returns list of all roles associated with project in DB
-    '''
+
+    Parameters
+    ----------
+    project_id : int
+        The ID of the project to add contacts to.
+    args : list of dict
+        The roles to add. Each entry shall have keys 'role', 'description',
+        'index', and (optionally) 'prereq'.
+    author_kerberos : str
+        The kerb of the user adding the roles.
+    action : {'create', 'update', 'delete'}, optional
+        The action being taken. Default is 'create'.
+    revision_id : int, optional 
+        The revision ID. Default is 0.
+
+    Returns
+    -------
+    roles : list of dict or None
+        The roles for the project, or None if the operation failed.
+    """
     try:
         args_lst = ['role', 'description', 'index']  # 'prereq' optional 
         for dict in args:
@@ -495,18 +532,27 @@ def add_project_roles(
 def add_project_links(
     project_id, args, author_kerberos, action='create', revision_id=0
 ):
-    '''
-    Add a list of website links associated with a project to the database.
+    """Add a list of website links associated with a project to the database.
     Caller is responsible for committing the change.
-    
-    Requires: 
-        - project_id to be a valid project ID in the Links table
-        - args to be list of dicts with keys 'link' and 'index'
-        
-    Returns: 
-        - None if no project with that name or invalid arguments, otherwise 
-            returns list of all links associated with project in DB
-    '''
+
+    Parameters
+    ----------
+    project_id : int
+        The ID of the project to add contacts to.
+    args : list of dict
+        The links to add. Each entry shall have keys 'link' and 'index'.
+    author_kerberos : str
+        The kerb of the user adding the links.
+    action : {'create', 'update', 'delete'}, optional
+        The action being taken. Default is 'create'.
+    revision_id : int, optional 
+        The revision ID. Default is 0.
+
+    Returns
+    -------
+    links : list of dict or None
+        The links for the project, or None if the operation failed.
+    """
     try:
         args_lst = ['link', 'index']  # 'prereq' optional 
         for dict in args:
@@ -527,20 +573,28 @@ def add_project_links(
 def add_project_comms(
     project_id, args, author_kerberos, action='create', revision_id=0
 ):
-    '''
-    Add a list of communication channels associated with a project to the
+    """Add a list of communication channels associated with a project to the
     database CommChannels can be text description rather than just HTML links.
     Caller is responsible for committing the change.
     
-    Requires: 
-        - project_id to be a valid project ID in the Comms table
-        - args to be list of dicts with keys 'commchannel' and 'index'
-        
-    Returns: 
-        - None if no project with that name or invalid arguments, otherwise 
-            returns list of all communication channels associated with project
-            in DB
-    '''
+    Parameters
+    ----------
+    project_id : int
+        The ID of the project to add contacts to.
+    args : list of dict
+        The comms to add. Each entry shall have keys 'commchannel' and 'index'.
+    author_kerberos : str
+        The kerb of the user adding the comms.
+    action : {'create', 'update', 'delete'}, optional
+        The action being taken. Default is 'create'.
+    revision_id : int, optional 
+        The revision ID. Default is 0.
+
+    Returns
+    -------
+    comms : list of dict or None
+        The comms for the project, or None if the operation failed.
+    """
     try:
         args_lst = ['commchannel', 'index']  # 'prereq' optional 
         for dict in args:
@@ -611,6 +665,8 @@ def update_project_metadata(project_id, args, editor_kerberos):
     args : dict
         Keys are fields in the Projects table, and values fit the
         right type and correct value according to schema.
+    editor_kerberos : str
+        The kerb of the user making the edit.
     """
     allowed_fields = [
         'name', 'description', 'status', 'approval', 'approver',
@@ -624,6 +680,7 @@ def update_project_metadata(project_id, args, editor_kerberos):
 
     revision_id = get_current_revision(project_id) + 1
 
+    # Log the changes
     project_history = ProjectsHistory()
     project_history.project_id = project_id
     project_history.name = metadata.name
@@ -661,7 +718,11 @@ def update_project_contacts(project_id, args, editor_kerberos, revision_id):
         ID of the project we want to modify
     args : list of dict
         - args is a list of dictionaries with keys 'type', 'email', and 'index'
-        - key 'type' is either 'primary' or 'secondary'
+        - 'type' is either 'primary' or 'secondary'
+    editor_kerberos : str
+        The kerb of the user making the edit.
+    revision_id : int
+        The revision ID associated with the edit.
     """
     # Delete current contact entries, logging the deletions:
     for contact in session.query(ContactEmails).filter_by(
@@ -687,7 +748,11 @@ def update_project_roles(project_id, args, editor_kerberos, revision_id):
     args : dict
         - args is a list of dictionaries with keys 'role', 'description', and
             (optional) 'prereq' 
-        - key 'type' is either 'primary' or 'secondary'
+        - 'type' is either 'primary' or 'secondary'
+    editor_kerberos : str
+        The kerb of the user making the edit.
+    revision_id : int
+        The revision ID associated with the edit.
     """
     # Delete current roles entries
     for role in session.query(Roles).filter_by(project_id=project_id).all():
@@ -710,6 +775,10 @@ def update_project_links(project_id, args, editor_kerberos, revision_id):
         ID of the project we want to modify
     args : dict
         - args is a list of dictionaries with keys 'link'
+    editor_kerberos : str
+        The kerb of the user making the edit.
+    revision_id : int
+        The revision ID associated with the edit.
     """
     # Delete current link entries
     for link in session.query(Links).filter_by(project_id=project_id).all():
@@ -732,6 +801,10 @@ def update_project_comms(project_id, args, editor_kerberos, revision_id):
         ID of the project we want to modify
     args : dict
         - args is a list of dictionaries with keys 'commchannel'
+    editor_kerberos : str
+        The kerb of the user making the edit.
+    revision_id : int
+        The revision ID associated with the edit.
     """
     # Delete current comm entries
     for comm in session.query(CommChannels).filter_by(
@@ -824,6 +897,8 @@ def approve_project(
     update_project_metadata(project_id, new_metadata, approver_kerberos)
     session.commit()
     
+    # TODO: email logic should probably live separately to keep the db module
+    # single-responsibility.
     # Get point of contacts
     metadata = get_project(project_id, True)[0]  # Returns SQL object
     creator = metadata.creator  # Get creator
@@ -865,6 +940,8 @@ def reject_project(
     update_project_metadata(project_id, new_metadata, approver_kerberos)
     session.commit()
 
+    # TODO: email logic should probably live separately to keep the db module
+    # single-responsibility.
     # Get point of contacts
     metadata = get_project(project_id, True)[0]  # Returns SQL object
     creator = metadata.creator  # Set creator
