@@ -51,6 +51,15 @@
                     <ul>
                         {% for contact in revision.contacts %}
                             <li>
+                                {% if contact.action == 'delete' %}
+                                    -
+                                    <del>
+                                {% elif contact.action == 'create' %}
+                                    +
+                                    <ins>
+                                {% else %}
+                                    m
+                                {% endif %}
                                 {{ contact.action }}
                                 {{ contact.index }}
                                 {% if user %}
@@ -59,6 +68,11 @@
                                     {{ contact.email|obfuscate_email }}
                                 {% endif %}
                                 ({{ contact.type}})
+                                {% if contact.action == 'delete' %}
+                                    </del>
+                                {% elif contact.action == 'create' %}
+                                    </ins>
+                                {% endif %}
                             </li>
                         {% endfor %}
                     </ul>
