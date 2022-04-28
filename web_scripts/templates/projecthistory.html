@@ -60,7 +60,6 @@
                                 {% else %}
                                     m
                                 {% endif %}
-                                {{ contact.action }}
                                 {{ contact.index }}
                                 {% if user %}
                                     {{ contact.email|urlize }}
@@ -80,7 +79,16 @@
                 <td>
                     <dl>
                         {% for role in revision.roles %}
-                            <dt>{{ role.action }} {{ role.index }} {{ role.role }}</dt>
+                            {% if contact.action == 'delete' %}
+                                -
+                                <del>
+                            {% elif contact.action == 'create' %}
+                                +
+                                <ins>
+                            {% else %}
+                                m
+                            {% endif %}
+                            <dt>{{ role.index }} {{ role.role }}</dt>
                             <dd>
                                 <i>Description:</i> {{ role.description }}
                             </dd>
@@ -91,6 +99,11 @@
                                     <i>Prereqs:</i> {{ role.prereq }}
                                 {% endif %}
                             </dd>
+                            {% if contact.action == 'delete' %}
+                                </del>
+                            {% elif contact.action == 'create' %}
+                                </ins>
+                            {% endif %}
                         {% endfor %}
                     </dl>
                 </td>
