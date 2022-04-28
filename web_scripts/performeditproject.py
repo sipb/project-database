@@ -39,6 +39,9 @@ def main():
             status += traceback.format_exc()
             status_messages = [status]
 
+    # TODO: when updating a rejected project, the status should be changed to
+    # "awaiting_approval" and an email should be sent to the approvers.
+
     if is_ok:
         page = performutils.format_success_page(project_id, 'Edit Project')
     else:
