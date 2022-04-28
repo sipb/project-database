@@ -31,6 +31,7 @@
             <td>Contact(s)</td>
             <td>Role(s)</td>
             <td>Link(s)</td>
+            <td>Communication Channel(s)</td>
         </tr>
         {% for revision in project_history %}
             <tr>
@@ -81,7 +82,19 @@
                 </td>
                 <td>
                     {% for link in revision.links %}
-                        <li>{{ link.action }} {{link.index }} {{ link.link|urlize }}</li>
+                        <li>{{ link.action }} {{ link.index }} {{ link.link|urlize }}</li>
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for channel in revision.comm_channels %}
+                        <li>
+                            {{ channel.action }} {{ channel.index }}
+                            {% if user %}
+                                {{ channel.commchannel|urlize }}
+                            {% else %}
+                                {{ channel.commchannel|obfuscate_email }}
+                            {% endif %}
+                        </li>
                     {% endfor %}
                 </td>
             </tr>

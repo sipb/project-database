@@ -201,5 +201,27 @@ class CommChannels(SQLBase):
     index = db.Column(db.Integer(), nullable=False)
 
 
+class CommChannelsHistory(SQLBase):
+    __tablename__ = 'commchannelshistory'
+    id = sqlalchemy.Column(
+        sqlalchemy.Integer(), nullable=False, primary_key=True,
+        autoincrement=True
+    )
+    project_id = db.Column(
+        db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
+    )
+    commchannel = db.Column(db.Text(), nullable=False)
+    index = db.Column(db.Integer(), nullable=False)
+
+    author = db.Column(db.String(50), nullable=False)
+    action = db.Column(db.String(25), nullable=False)
+    # Every revision_id in this table should have a corresponding entry in the
+    # ProjectsHistory table.
+    revision_id = db.Column(db.Integer(), nullable=False)
+    timestamp = db.Column(
+        db.TIMESTAMP, nullable=False, server_default=db.func.now()
+    )
+
+
 # Implement schema
 SQLBase.metadata.create_all(sqlengine)

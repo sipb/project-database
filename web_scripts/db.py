@@ -3,7 +3,8 @@
 import sqlalchemy as sa
 from schema import \
     session, Projects, ContactEmails, Roles, Links, CommChannels, \
-    ProjectsHistory, ContactEmailsHistory, RolesHistory, LinksHistory
+    ProjectsHistory, ContactEmailsHistory, RolesHistory, LinksHistory, \
+    CommChannelsHistory
 
 
 ##############################################################
@@ -317,6 +318,11 @@ def get_project_history(project_id):
                 project_id=project_id, revision_id=revision['revision_id']
             ).all()
         )
+        revision['comm_channels'] = list_dict_convert(
+            session.query(CommChannelsHistory).filter_by(
+                project_id=project_id, revision_id=revision['revision_id']
+            ).all()
+        )
     return project_history
 
 
@@ -507,7 +513,9 @@ def add_project_links(
     return get_links(project_id)
 
 
-def add_project_comms(project_id, args):
+def add_project_comms(
+    project_id, args, author_kerberos, action='create', revision_id=0
+):
     '''
     Add a list of communication channels associated with a project to the
     database CommChannels can be text description rather than just HTML links.
@@ -535,6 +543,16 @@ def add_project_comms(project_id, args):
         comm.commchannel = entry['commchannel']
         comm.index = entry['index']
         db_add(comm)
+
+        comm_history = CommChannelsHistory()
+        comm_history.project_id = project_id
+        comm_history.commchannel = comm.commchannel
+        comm_history.index = comm.index
+        comm_history.author = author_kerberos
+        comm_history.action = action
+        comm_history.revision_id = revision_id
+        db_add(comm_history)
+
     return get_comm(project_id)
 
 
@@ -566,7 +584,9 @@ def add_project(project_info, creator_kerberos):
     }
     project_id = add_project_metadata(metadata)
     add_project_links(project_id, project_info['links'], creator_kerberos)
-    add_project_comms(project_id, project_info['comm_channels'])
+    add_project_comms(
+        project_id, project_info['comm_channels'], creator_kerberos
+    )
     add_project_contacts(
         project_id, project_info['contacts'], creator_kerberos
     )
@@ -738,7 +758,7 @@ def update_project_links(project_id, args, editor_kerberos):
     )
 
 
-def update_project_comms(project_id, args):
+def update_project_comms(project_id, args, editor_kerberos):
     """Update the communication channels entries for a project in the database.
     Caller is responsible for committing the change.
 
@@ -749,14 +769,30 @@ def update_project_comms(project_id, args):
     args : dict
         - args is a list of dictionaries with keys 'commchannel'
     """
+    revision_id = get_current_revision(project_id)
+
     # Delete current comm entries
     query_command = session.query(CommChannels).filter_by(
         project_id=project_id
     )
+
+    for comm in query_command.all():
+        comm_history = CommChannelsHistory()
+        comm_history.project_id = project_id
+        comm_history.commchannel = comm.commchannel
+        comm_history.index = comm.index
+        comm_history.author = editor_kerberos
+        comm_history.action = 'delete'
+        comm_history.revision_id = revision_id
+        db_add(comm_history)
+
     query_command.delete()
 
     # Add the new comms list    
-    add_project_comms(project_id, args)
+    add_project_comms(
+        project_id, args, editor_kerberos, action='create',
+        revision_id=revision_id
+    )
 
 
 def update_project(project_info, project_id, editor_kerberos):
@@ -791,7 +827,9 @@ def update_project(project_info, project_id, editor_kerberos):
     orig_project = get_all_info_for_project(project_id)
     update_project_metadata(project_id, new_metadata, editor_kerberos)
     update_project_links(project_id, project_info['links'], editor_kerberos)
-    update_project_comms(project_id, project_info['comm_channels'])
+    update_project_comms(
+        project_id, project_info['comm_channels'], editor_kerberos
+    )
     update_project_contacts(
         project_id, project_info['contacts'], editor_kerberos
     )
