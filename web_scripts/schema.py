@@ -76,18 +76,19 @@ class ProjectsHistory(SQLBase, ProjectsBase, HistoryMixin):
     id = db.Column(
         db.Integer(), nullable=False, primary_key=True, autoincrement=True
     )
-    project_id = db.Column(
-        db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
-    )
     name = db.Column(db.String(50), nullable=False)
+
+    # Foreign key constraint requires special handling.
+    @sqlalchemy.ext.declarative.declared_attr
+    def project_id(cls):
+        return db.Column(
+            db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
+        )
 
 
 class ContactEmailsBase(object):
     id = db.Column(
         db.Integer(), nullable=False, primary_key=True, autoincrement=True
-    )
-    project_id = db.Column(
-        db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
     )
     # type can be either "primary" or "secondary". By convention, there should
     # be exactly one primary contact for each project.
@@ -96,6 +97,13 @@ class ContactEmailsBase(object):
     # index sets the order which contacts are listed in. By convention, the one
     # primary contact should have index 0.
     index = db.Column(db.Integer(), nullable=False)
+
+    # Foreign key constraint requires special handling.
+    @sqlalchemy.ext.declarative.declared_attr
+    def project_id(cls):
+        return db.Column(
+            db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
+        )
 
 
 class ContactEmails(SQLBase, ContactEmailsBase):
@@ -111,14 +119,18 @@ class RolesBase(object):
         sqlalchemy.Integer(), nullable=False, primary_key=True,
         autoincrement=True
     )
-    project_id = db.Column(
-        db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
-    )
     role = db.Column(db.String(50), nullable=False)
     description = db.Column(db.Text(), nullable=False)
     prereq = db.Column(db.Text(), nullable=True)
     # index sets the order which roles are listed in:
     index = db.Column(db.Integer(), nullable=False)
+
+    # Foreign key constraint requires special handling.
+    @sqlalchemy.ext.declarative.declared_attr
+    def project_id(cls):
+        return db.Column(
+            db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
+        )
 
 
 class Roles(SQLBase, RolesBase):
@@ -134,12 +146,16 @@ class LinksBase(object):
         db.Integer(), nullable=False, primary_key=True,
         autoincrement=True
     )
-    project_id = db.Column(
-        db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
-    )
     link = db.Column(db.Text(), nullable=False)
     # index sets the order which links are listed in:
     index = db.Column(db.Integer(), nullable=False)
+
+    # Foreign key constraint requires special handling.
+    @sqlalchemy.ext.declarative.declared_attr
+    def project_id(cls):
+        return db.Column(
+            db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
+        )
 
 
 class Links(SQLBase, LinksBase):
@@ -155,12 +171,16 @@ class CommChannelsBase(object):
         db.Integer(), nullable=False, primary_key=True,
         autoincrement=True
     )
-    project_id = db.Column(
-        db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
-    )
     commchannel = db.Column(db.Text(), nullable=False)
     # index sets the order which comm channels are listed in:
     index = db.Column(db.Integer(), nullable=False)
+
+    # Foreign key constraint requires special handling.
+    @sqlalchemy.ext.declarative.declared_attr
+    def project_id(cls):
+        return db.Column(
+            db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
+        )
 
 
 class CommChannels(SQLBase, CommChannelsBase):
