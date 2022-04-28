@@ -94,6 +94,100 @@ def db_delete(x, author_kerberos, revision_id):
     session.add(x_history)
 
 
+def db_update_record(current_x, new_x, author_kerberos, revision_id):
+    """Update the database to reflect new values for a given row.
+
+    Caller is responsible for committing the change. (This allows transactions
+    to succeed/fail together.)
+
+    Parameters
+    ----------
+    current_x : SQLBase
+        The current row.
+    new_x : SQLBase
+        The new row.
+    author_kerberos : str
+        The kerb of the author of the entry.
+    revision_id : int
+        The revision ID to associate with the action.
+    """
+    changed = False
+    for field in current_x.__table__.columns.keys():
+        if (
+            (field != 'id') and
+            (getattr(current_x, field) != getattr(new_x, field))
+        ):
+            setattr(current_x, field, getattr(new_x, field))
+            changed = True
+
+    action = 'update' if changed else 'same'
+    x_history = make_history_entry(
+        current_x, author_kerberos, action, revision_id
+    )
+    session.add(x_history)
+
+
+def make_key_idx_map(x, match_key):
+    """Make a dict which maps key strings to indices in the list of records.
+
+    Parameters
+    ----------
+    x : list of SQLBase
+        List of records.
+    match_key : str
+        The key to match records on.
+
+    Returns
+    -------
+    key_idx_map : dict
+        Dict mapping keys to indices in x.
+    """
+    return {getattr(x_val, match_key): idx for idx, x_val in enumerate(x)}
+
+
+def db_update(
+    current_x, new_x, match_key, author_kerberos, revision_id
+):
+    """Update a set of rows to match the new version, tracking
+    create/update/delete relationships.
+
+    Caller is responsible for committing the change. (This allows transactions
+    to succeed/fail together.)
+
+    Parameters
+    ----------
+    current_x : list of SQLBase
+        The rows as they currently existing in the database.
+    new_x : list of SQLBase
+        The new entries to put in the database.
+    match_key : str
+        The column to match on.
+    author_kerberos : str
+        The kerb of the author of the entry.
+    revision_id : int
+        The revision ID to associate with the action.
+    """
+    # Determine what the index of each key is:
+    current_key_idx_map = make_key_idx_map(current_x)
+    new_key_idx_map = make_key_idx_map(new_x)
+
+    # Delete the entries which appear in current_x but not new_x:
+    for key, idx in current_key_idx_map.items():
+        if key not in new_key_idx_map:
+            db_delete(current_x[idx])
+
+    # Add entries which appear in new_x but not current_x, update entries which
+    # appear in both:
+    for key, idx in new_key_idx_map.items():
+        if key in current_key_idx_map:
+            db_update_record(
+                current_x[current_key_idx_map[key]], new_x[idx],
+                author_kerberos, revision_id
+            )
+        else:
+            db_add(new_x[idx], author_kerberos, 'create', revision_id)
+
+
 def list_dict_convert(query_res_lst, remove_sql_ref=False):
     """Given a list which contains query results from SQLalchemy,
     return a list of their Python dictionary representation
@@ -441,6 +535,24 @@ def add_project_metadata(args):
     return project_id
 
 
+def form_contact_row(project_id, entry):
+    """Form a contact row object.
+
+    Parameters
+    ----------
+    project_id : int
+        ID of the project.
+    entry : dict
+        The contact details. Shall have keys 'type', 'email', and 'index.'
+    """
+    contact = ContactEmails()
+    contact.project_id = project_id
+    contact.type = entry['type']
+    contact.email = entry['email']
+    contact.index = entry['index']
+    return contact
+
+
 def add_project_contacts(
     project_id, args, author_kerberos, action='create', revision_id=0
 ):
@@ -452,7 +564,8 @@ def add_project_contacts(
     project_id : int
         The ID of the project to add contacts to.
     args : list of dict
-        The contacts to add. Each entry shall have keys 'type' and 'email'.
+        The contacts to add. Each entry shall have keys 'type', 'email', and
+        'index'.
     author_kerberos : str
         The kerb of the user adding the contacts.
     action : {'create', 'update', 'delete'}, optional
@@ -474,11 +587,7 @@ def add_project_contacts(
         return None
     
     for entry in args:
-        contact = ContactEmails()
-        contact.project_id = project_id
-        contact.type = entry['type']
-        contact.email = entry['email']
-        contact.index = entry['index']
+        contact = form_contact_row(project_id, entry)
         db_add(contact, author_kerberos, action, revision_id)
 
     return get_contacts(project_id)
@@ -724,17 +833,27 @@ def update_project_contacts(project_id, args, editor_kerberos, revision_id):
     revision_id : int
         The revision ID associated with the edit.
     """
-    # Delete current contact entries, logging the deletions:
-    for contact in session.query(ContactEmails).filter_by(
-        project_id=project_id
-    ).all():
-        db_delete(contact, editor_kerberos, revision_id)
-    
-    # Add the new contact list    
-    add_project_contacts(
-        project_id, args, editor_kerberos, action='create',
-        revision_id=revision_id
+    current_contacts = get_contacts(project_id, get_raw=True)
+
+    new_contacts = []
+    for entry in args:
+        new_contacts.append(form_contact_row(project_id, entry))
+
+    db_update(
+        current_contacts, new_contacts, 'email', editor_kerberos, revision_id
     )
+
+    # # Delete current contact entries, logging the deletions:
+    # for contact in session.query(ContactEmails).filter_by(
+    #     project_id=project_id
+    # ).all():
+    #     db_delete(contact, editor_kerberos, revision_id)
+    
+    # # Add the new contact list    
+    # add_project_contacts(
+    #     project_id, args, editor_kerberos, action='create',
+    #     revision_id=revision_id
+    # )
 
 
 def update_project_roles(project_id, args, editor_kerberos, revision_id):

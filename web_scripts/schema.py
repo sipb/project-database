@@ -38,7 +38,7 @@ SQLBase.metadata.create_all(sqlengine)
 
 class HistoryMixin(object):
     author = db.Column(db.String(50), nullable=False)
-    # action can be 'create', 'update', 'delete'
+    # action can be 'create', 'update', 'delete', 'same'
     action = db.Column(db.String(25), nullable=False)
     revision_id = db.Column(db.Integer(), nullable=False)
     timestamp = db.Column(

@@ -57,7 +57,7 @@
                                 {% elif contact.action == 'create' %}
                                     +
                                     <ins>
-                                {% else %}
+                                {% elif contact.action == 'update' %}
                                     m
                                 {% endif %}
                                 {{ contact.index }}
@@ -89,7 +89,7 @@
                                     -
                                 {% elif role.action == 'create' %}
                                     +
-                                {% else %}
+                                {% elif role.action == 'update' %}
                                     m
                                 {% endif %}
                                 {{ role.index }} {{ role.role }}
@@ -121,7 +121,7 @@
                             {% elif link.action == 'create' %}
                                 +
                                 <ins>
-                            {% else %}
+                            {% elif link.action == 'update' %}
                                 m
                             {% endif %}
                             {{ link.index }} {{ link.link|urlize }}
@@ -142,7 +142,7 @@
                             {% elif channel.action == 'create' %}
                                 +
                                 <ins>
-                            {% else %}
+                            {% elif channel.action == 'update' %}
                                 m
                             {% endif %}
                             {{ channel.index }}
