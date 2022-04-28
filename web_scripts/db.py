@@ -871,8 +871,7 @@ def update_project(project_info, project_id, editor_kerberos):
 def approve_project(
     project_info, project_id, approver_kerberos, approver_comments
 ):
-    """Approve a project. This should update the database and send an email to
-    the project's creator and points-of-contact.
+    """Approve a project.
 
     Parameters
     ----------
@@ -885,9 +884,6 @@ def approve_project(
     approver_comments : str
         The approver's comments on the project.
     """
-    creator = None
-    point_of_contacts = []
-    
     # Change status to "approved"
     new_metadata = {
         'approval': 'approved',
@@ -896,26 +892,12 @@ def approve_project(
     }
     update_project_metadata(project_id, new_metadata, approver_kerberos)
     session.commit()
-    
-    # TODO: email logic should probably live separately to keep the db module
-    # single-responsibility.
-    # Get point of contacts
-    metadata = get_project(project_id, True)[0]  # Returns SQL object
-    creator = metadata.creator  # Get creator
-    contacts_lst = get_contacts(project_id)
-    for contact in contacts_lst:
-        point_of_contacts.append(contact['email'])
-    
-    # TODO: Send out email to project's creator and points of contacts
-    # print(creator, point_of_contacts)
-    pass
 
 
 def reject_project(
     project_info, project_id, approver_kerberos, approver_comments
 ):
-    """Reject a project. This should update the database and send an email to
-    the project's creator and points-of-contact.
+    """Reject a project.
 
     Parameters
     ----------
@@ -928,9 +910,6 @@ def reject_project(
     approver_comments : str
         The approver's comments on the project.
     """
-    creator = None
-    point_of_contacts = []
-    
     # Change status to "rejected"
     new_metadata = {
         'approval': 'rejected',
@@ -939,19 +918,6 @@ def reject_project(
     }
     update_project_metadata(project_id, new_metadata, approver_kerberos)
     session.commit()
-
-    # TODO: email logic should probably live separately to keep the db module
-    # single-responsibility.
-    # Get point of contacts
-    metadata = get_project(project_id, True)[0]  # Returns SQL object
-    creator = metadata.creator  # Set creator
-    contacts_lst = get_contacts(project_id)
-    for contact in contacts_lst:
-        point_of_contacts.append(contact['email'])
-        
-    # TODO: Send out email to project's creator and points of contacts
-    # print(creator, point_of_contacts)
-    pass
 
     
 ######################################################################

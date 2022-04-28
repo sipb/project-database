@@ -6,11 +6,12 @@ import traceback
 import cgi
 
 import authutils
+import db
 import formutils
+import mail
 import performutils
 import strutils
 import valutils
-import db
 
 # TODO: May want to turn error listing off once stable?
 import cgitb
@@ -39,6 +40,7 @@ def main():
 
     if is_ok:
         page = performutils.format_success_page(project_id, 'Add Project')
+        mail.send_to_approvers(project_info)
     else:
         page = performutils.format_failure_page(
             strutils.html_listify(status_messages), 'Add Project'

@@ -5,11 +5,12 @@ import cgi
 import traceback
 
 import authutils
+import db
 import formutils
+import mail
 import performutils
 import strutils
 import valutils
-import db
 
 # TODO: May want to turn error listing off once stable?
 import cgitb
@@ -26,6 +27,7 @@ def main():
     approver_comments = formutils.safe_cgi_field_get(
         arguments, 'approver_comments'
     )
+    approver_kerberos = authutils.get_kerberos()
     is_ok, status_messages = valutils.validate_project_id(project_id)
     if is_ok:
         is_ok, status_messages = valutils.validate_approve_project(
@@ -48,10 +50,12 @@ def main():
     if is_ok:
         if approval_action == 'approved':
             action = db.approve_project
+            mail_action = mail.send_approve_message
             action_name = 'approve_project'
             project_info['approval'] = 'approved'
         elif approval_action == 'rejected':
             action = db.reject_project
+            mail_action = mail.send_reject_message
             action_name = 'reject_project'
             project_info['approval'] = 'rejected'
         else:
@@ -59,8 +63,7 @@ def main():
 
         try:
             action(
-                project_info, project_id, authutils.get_kerberos(),
-                approver_comments
+                project_info, project_id, approver_kerberos, approver_comments
             )
         except Exception:
             is_ok = False
@@ -78,6 +81,7 @@ def main():
 
     if is_ok:
         page = performutils.format_success_page(project_id, title)
+        mail_action(project_info, approver_kerberos, approver_comments)
     else:
         page = performutils.format_failure_page(
             strutils.html_listify(status_messages), title
