@@ -36,8 +36,8 @@ class HistoryMixin(object):
 
 
 class ProjectsBase(object):
-    # project_id must be defined in subclasses.
-    name = db.Column(db.String(50), nullable=False, unique=True)
+    # project_id and name must be defined in subclasses, as they have special
+    # constraints.
     description = db.Column(db.Text(), nullable=False)
     # status can be "active" or "inactive"
     status = db.Column(db.String(25), nullable=False)
@@ -56,6 +56,7 @@ class Projects(SQLBase, ProjectsBase):
     project_id = db.Column(
         db.Integer(), nullable=False, primary_key=True, autoincrement=True
     )
+    name = db.Column(db.String(50), nullable=False, unique=True)
 
 
 # class Projects(SQLBase):
@@ -87,6 +88,7 @@ class ProjectsHistory(SQLBase, ProjectsBase, HistoryMixin):
     project_id = db.Column(
         db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
     )
+    name = db.Column(db.String(50), nullable=False)
 
 
 # class ProjectsHistory(SQLBase, HistoryMixin):
