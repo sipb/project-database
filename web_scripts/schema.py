@@ -43,6 +43,22 @@ class HistoryMixin(object):
         db.TIMESTAMP, nullable=False, server_default=db.func.now()
     )
 
+    @sqlalchemy.orm.validates('author')
+    def validate_author(self, key, author):
+        if len(author) > self.author.type.length:
+            raise ValueError(
+                'Value of "%s" for key "author" is too long!' % author
+            )
+        return author
+
+    @sqlalchemy.orm.validates('action')
+    def validate_action(self, key, action):
+        if action not in ['create', 'update', 'delete', 'same']:
+            raise ValueError(
+                'Value of "%s" for key "action" is invalid!' % action
+            )
+        return action
+
 
 class ProjectsBase(object):
     # project_id and name must be defined in subclasses, as they have special
@@ -59,6 +75,46 @@ class ProjectsBase(object):
     approver = db.Column(db.String(50), nullable=True)
     # Comments from user who approved the project:
     approver_comments = db.Column(db.Text(), nullable=True)
+
+    @sqlalchemy.orm.validates('status')
+    def validate_status(self, key, status):
+        if status not in ['active', 'inactive']:
+            raise ValueError(
+                'Value of "%s" for key "status" is invalid!' % status
+            )
+        return status
+
+    @sqlalchemy.orm.validates('approval')
+    def validate_approval(self, key, approval):
+        if approval not in ['awaiting_approval', 'approved', 'rejected']:
+            raise ValueError(
+                'Value of "%s" for key "approval" in invalid!' % approval
+            )
+        return approval
+
+    @sqlalchemy.orm.validates('creator')
+    def validate_creator(self, key, creator):
+        if len(creator) > self.creator.type.length:
+            raise ValueError(
+                'Value of "%s" for key "creator" is too long!' % creator
+            )
+        return creator
+
+    @sqlalchemy.orm.validates('approver')
+    def validate_approver(self, key, approver):
+        if len(approver) > self.approver.type.length:
+            raise ValueError(
+                'Value of "%s" for key "approver" is too long!' % approver
+            )
+        return approver
+
+    @sqlalchemy.orm.validates('name')
+    def validate_name(self, key, name):
+        if len(name) > self.name.type.length:
+            raise ValueError(
+                'Value of "%s" for key "name" is too long!' % name
+            )
+        return name
 
 
 class Projects(SQLBase, ProjectsBase):
@@ -103,6 +159,22 @@ class ContactEmailsBase(object):
             db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
         )
 
+    @sqlalchemy.orm.validates('type')
+    def validate_type(self, key, type):
+        if type not in ['primary', 'secondary']:
+            raise ValueError(
+                'Value of "%s" for key "type" is invalid!' % type
+            )
+        return type
+
+    @sqlalchemy.orm.validates('email')
+    def validate_email(self, key, email):
+        if len(email) > self.email.type.length:
+            raise ValueError(
+                'Value of "%s" for key "email" is too long!' % email
+            )
+        return email
+
 
 class ContactEmails(SQLBase, ContactEmailsBase):
     __tablename__ = "contactemails"
@@ -129,6 +201,14 @@ class RolesBase(object):
         return db.Column(
             db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
         )
+
+    @sqlalchemy.orm.validates('role')
+    def validate_role(self, key, role):
+        if len(role) > self.role.type.length:
+            raise ValueError(
+                'Value of "%s" for key "role" is too long!' % role
+            )
+        return role
 
 
 class Roles(SQLBase, RolesBase):
