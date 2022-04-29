@@ -723,6 +723,28 @@ def add_project_links(
     return get_links(project_id)
 
 
+def form_comms_row(project_id, entry):
+    """Form a comms row object.
+
+    Parameters
+    ----------
+    project_id : int
+        ID of the project.
+    entry : dict
+        The link details. Shall have keys 'commchannel' and 'index'.
+
+    Returns
+    -------
+    comm : SQLBase
+        The row object.
+    """
+    comm = CommChannels()
+    comm.project_id = int(project_id)
+    comm.commchannel = entry['commchannel']
+    comm.index = entry['index']
+    return comm
+
+
 def add_project_comms(
     project_id, args, author_kerberos, action='create', revision_id=0
 ):
@@ -756,10 +778,7 @@ def add_project_comms(
         return None
 
     for entry in args:
-        comm = CommChannels()
-        comm.project_id = project_id
-        comm.commchannel = entry['commchannel']
-        comm.index = entry['index']
+        comm = form_comms_row(project_id, entry)
         db_add(comm, author_kerberos, action, revision_id)
 
     return get_comm(project_id)
@@ -945,16 +964,14 @@ def update_project_comms(project_id, args, editor_kerberos, revision_id):
     revision_id : int
         The revision ID associated with the edit.
     """
-    # Delete current comm entries
-    for comm in session.query(CommChannels).filter_by(
-        project_id=project_id
-    ).all():
-        db_delete(comm, editor_kerberos, revision_id)
+    current_comms = get_comm(project_id, get_raw=True)
 
-    # Add the new comms list    
-    add_project_comms(
-        project_id, args, editor_kerberos, action='create',
-        revision_id=revision_id
+    new_comms = []
+    for entry in args:
+        new_comms.append(form_comms_row(project_id, entry))
+
+    db_update(
+        current_comms, new_comms, 'commchannel', editor_kerberos, revision_id
     )
 
 
