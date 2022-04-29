@@ -102,7 +102,10 @@ class ProjectsBase(object):
 
     @sqlalchemy.orm.validates('approver')
     def validate_approver(self, key, approver):
-        if len(approver) > self.__table__.columns[key].type.length:
+        if (
+            (approver is not None) and
+            (len(approver) > self.__table__.columns[key].type.length)
+        ):
             raise ValueError(
                 'Value of "%s" for key "approver" is too long!' % approver
             )

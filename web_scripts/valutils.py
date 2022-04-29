@@ -69,6 +69,7 @@ def validate_project_name_text(name):
         A list of status messages.
     """
     max_len = schema.Projects.__table__.columns['name'].type.length
+
     if len(name) < 1:
         name_ok = False
         status_messages = ['Project name must be non-empty!']
