@@ -607,17 +607,13 @@ def add_project_metadata(args):
     project_id : int or None
         The ID of the newly-created project, or None if the operation failed.
     """
-    try:
-        args_lst = ['name', 'status', 'description', 'creator']
-        assert check_object_params(args, args_lst)
-        assert args['status'] in ['active', 'inactive']
-    except AssertionError:
-        return None
+    args_lst = ['name', 'status', 'description', 'creator']
+    assert check_object_params(args, args_lst)
+    assert args['status'] in ['active', 'inactive']
     
     # Check if project already exists
     exists = True if get_project_id(args['name']) else False
-    if exists:
-        return None
+    assert not exists
 
     project = Projects()
     project.name = args['name']
@@ -631,6 +627,60 @@ def add_project_metadata(args):
     project_id = get_project_id(args['name'])
 
     return project_id
+
+
+def add_project_table(
+    get_current_fn, form_row_fn, validate_fn, project_id, args,
+    author_kerberos, action='create', revision_id=0
+):
+    """Add entries for a project to a given table. Caller is responsible for
+    committing the change.
+
+    Parameters
+    ----------
+    get_current_fn : callable
+        Function which returns the current rows associated with the project.
+    form_row_fn : callable
+        Function which forms a row object given a dict.
+    validate_fn : callable
+        Function which validates a list of dicts.
+    project_id : int
+        The ID of the project to operate on.
+    args : list of dict
+        The new rows.
+    author_kerberos : str
+        The kerb of the user adding the rows.
+    action : {'create', 'update', 'delete'}, optional
+        The action being taken. Default is 'create'.
+    revision_id : int, optional 
+        The revision ID. Default is 0.
+
+    Returns
+    -------
+    rows : list of dict
+        The rows for the project.
+    """
+    validate_fn(args)
+
+    for entry in args:
+        row = form_row_fn(project_id, entry)
+        db_add(row, author_kerberos, action, revision_id)
+
+    return get_current_fn(project_id)
+
+
+def validate_contacts(args):
+    """Validate a list of contacts. Raises AssertionError if invalid.
+
+    Parameters
+    ----------
+    args : list of dict
+        The contacts to validate.
+    """
+    args_lst = ['type', 'email', 'index']
+    for dict in args:
+        assert check_object_params(dict, args_lst)
+        assert dict['type'] in ['primary', 'secondary']
 
 
 def add_project_contacts(
@@ -655,22 +705,26 @@ def add_project_contacts(
 
     Returns
     -------
-    contacts : list of dict or None
-        The contacts for the project, or None if the operation failed.
+    contacts : list of dict
+        The contacts for the project.
     """
-    try:
-        args_lst = ['type', 'email', 'index']
-        for dict in args:
-            assert check_object_params(dict, args_lst)
-            assert dict['type'] in ['primary', 'secondary']
-    except AssertionError:
-        return None
-    
-    for entry in args:
-        contact = form_contact_row(project_id, entry)
-        db_add(contact, author_kerberos, action, revision_id)
+    return add_project_table(
+        get_contacts, form_contact_row, validate_contacts, project_id, args,
+        author_kerberos, action=action, revision_id=revision_id
+    )
 
-    return get_contacts(project_id)
+
+def validate_roles(args):
+    """Validate a list of roles. Raises AssertionError if invalid.
+
+    Parameters
+    ----------
+    args : list of dict
+        The roles to validate.
+    """
+    args_lst = ['role', 'description', 'index']  # 'prereq' optional 
+    for dict in args:
+        assert check_object_params(dict, args_lst)
 
 
 def add_project_roles(
@@ -695,21 +749,26 @@ def add_project_roles(
 
     Returns
     -------
-    roles : list of dict or None
-        The roles for the project, or None if the operation failed.
+    roles : list of dict
+        The roles for the project.
     """
-    try:
-        args_lst = ['role', 'description', 'index']  # 'prereq' optional 
-        for dict in args:
-            assert check_object_params(dict, args_lst)
-    except AssertionError:
-        return None
-    
-    for entry in args:
-        role = form_role_row(project_id, entry)
-        db_add(role, author_kerberos, action, revision_id)
+    return add_project_table(
+        get_roles, form_role_row, validate_roles, project_id, args,
+        author_kerberos, action=action, revision_id=revision_id
+    )
 
-    return get_roles(project_id)
+
+def validate_links(args):
+    """Validate a list of links. Raises AssertionError if invalid.
+
+    Parameters
+    ----------
+    args : list of dict
+        The links to validate.
+    """
+    args_lst = ['link', 'index']
+    for dict in args:
+        assert check_object_params(dict, args_lst)
 
 
 def add_project_links(
@@ -733,21 +792,26 @@ def add_project_links(
 
     Returns
     -------
-    links : list of dict or None
-        The links for the project, or None if the operation failed.
+    links : list of dict
+        The links for the project.
     """
-    try:
-        args_lst = ['link', 'index']  # 'prereq' optional 
-        for dict in args:
-            assert check_object_params(dict, args_lst)
-    except AssertionError:
-        return None
+    return add_project_table(
+        get_links, form_link_row, validate_links, project_id, args,
+        author_kerberos, action=action, revision_id=revision_id
+    )
 
-    for entry in args:
-        link = form_link_row(project_id, entry)
-        db_add(link, author_kerberos, action, revision_id)
 
-    return get_links(project_id)
+def validate_comms(args):
+    """Validate a list of comm channels. Raises AssertionError if invalid.
+
+    Parameters
+    ----------
+    args : list of dict
+        The comms to validate.
+    """
+    args_lst = ['commchannel', 'index']
+    for dict in args:
+        assert check_object_params(dict, args_lst)
 
 
 def add_project_comms(
@@ -772,25 +836,19 @@ def add_project_comms(
 
     Returns
     -------
-    comms : list of dict or None
-        The comms for the project, or None if the operation failed.
+    comms : list of dict
+        The comms for the project.
     """
-    try:
-        args_lst = ['commchannel', 'index']  # 'prereq' optional 
-        for dict in args:
-            assert check_object_params(dict, args_lst)
-    except AssertionError:
-        return None
-
-    for entry in args:
-        comm = form_comms_row(project_id, entry)
-        db_add(comm, author_kerberos, action, revision_id)
-
-    return get_comm(project_id)
+    return add_project_table(
+        get_comm, form_comms_row, validate_comms, project_id, args,
+        author_kerberos, action=action, revision_id=revision_id
+    )
 
 
 def add_project(project_info, creator_kerberos):
     """Add the given project to the database and commits the change.
+
+    Raises ValueError if project with the given name already exists.
 
     Parameters
     ----------
@@ -803,11 +861,11 @@ def add_project(project_info, creator_kerberos):
     -------
     project_id : int
         If success, return the project_id (primary key) for the newly-added
-        project. Otherwise, return -1
+        project.
     """
     project_id = get_project_id(project_info['name'])
     if project_id:
-        return -1  # Project already exists
+        raise ValueError('Project with that name already exists!')
     
     metadata = {
         'name': project_info['name'],
@@ -1013,13 +1071,12 @@ def update_project(project_info, project_id, editor_kerberos):
     Returns
     -------
     original_project : dict, int
-        Return -1 if there is no project with ID `project_id`.
-        Otherwise return a dictionary formatted like `project_info` 
-        representing the view of the project prior to making the update,
+        Return a dictionary formatted like `project_info` representing the view
+        of the project prior to making the update.
     """
     project_exists = True if get_project_name(project_id) else False
     if not project_exists:
-        return -1  # There's no existing project with that ID
+        raise ValueError('No project with id %d exists!' % int(project_id))
     new_metadata = {
         'name': project_info['name'], 
         'description': project_info['description'],
