@@ -1,5 +1,6 @@
 import authutils
 import db
+import schema
 import strutils
 
 # This module contains functions to validate data. Any function starting with
@@ -67,11 +68,19 @@ def validate_project_name_text(name):
     status_messages : list of str
         A list of status messages.
     """
-    name_ok = len(name) >= 1
-    if name_ok:
-        status_messages = []
-    else:
+    max_len = schema.Projects.__table__.columns['name'].type.length
+    if len(name) < 1:
+        name_ok = False
         status_messages = ['Project name must be non-empty!']
+    elif len(name) > max_len:
+        name_ok = False
+        status_messages = [
+            'Project name must be less than %d characters!' % max_len
+        ]
+    else:
+        name_ok = True
+        status_messages = []
+
     return name_ok, status_messages
 
 
@@ -193,6 +202,8 @@ def validate_project_contact_addresses(contacts):
     status_messages : list of str
         A list of status messages.
     """
+    max_len = schema.ContactEmails.__table__.columns['email'].type.length
+
     is_ok = True
     status_messages = []
 
@@ -202,6 +213,14 @@ def validate_project_contact_addresses(contacts):
             is_ok = False
             status_messages.append(
                 '"%s" is not an mit.edu email address!' % contact['email']
+            )
+
+        if len(contact['email']) > max_len:
+            is_ok = False
+            status_messages.append(
+                '"%s" is too long (%d character limit)!' % (
+                    contact['email'], max_len
+                )
             )
 
         if strutils.is_plain_mit_email(contact['email']):
@@ -293,12 +312,21 @@ def validate_project_role_fields(roles):
     status_messages : list of str
         A list of status messages.
     """
+    max_len = schema.Roles.__table__.columns['role'].type.length
+
     is_ok = True
     status_messages = []
     for role in roles:
         if (len(role['role']) == 0) or (len(role['description']) == 0):
             is_ok = False
             status_messages = ['Each role must have a name and a description!']
+            break
+
+        if len(role['role']) > max_len:
+            is_ok = False
+            status_messages = [
+                'Role names can be no longer than %d characters!' % max_len
+            ]
             break
     return is_ok, status_messages
 
