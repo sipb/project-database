@@ -139,3 +139,20 @@ def make_url_absolute(url):
     ):
         url = 'http://' + url
     return url
+
+
+def decode_utf_nested_dict_list(args):
+    """Decode all strings in a nested list of dicts.
+    """
+    if type(args) == dict:
+        return {
+            key: decode_utf_nested_dict_list(value)
+            for key, value in args.items()
+        }
+    elif type(args) == list:
+        return [decode_utf_nested_dict_list(value) for value in args]
+    else:
+        try:
+            return args.decode('utf-8')
+        except AttributeError:
+            return args

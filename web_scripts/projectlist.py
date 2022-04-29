@@ -6,6 +6,7 @@ import cgi
 import authutils
 import db
 import formutils
+import strutils
 import templateutils
 
 # TODO: May want to turn error listing off once stable?
@@ -32,6 +33,7 @@ def format_project_list(project_list, filter_method, contact_email):
     project_list = authutils.enrich_project_list_with_permissions(
         user, project_list
     )
+    project_list = strutils.decode_utf_nested_dict_list(project_list)
     authlink = authutils.get_auth_url(True)
     deauthlink = authutils.get_auth_url(False)
     can_add = authutils.can_add(user)

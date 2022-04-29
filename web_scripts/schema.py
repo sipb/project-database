@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 import sqlalchemy as db
 import sqlalchemy.ext.declarative
 import sqlalchemy.orm
@@ -28,12 +26,12 @@ SQLBase.metadata.create_all(sqlengine)
 # separate "history table" which contains the edit history. This is done to
 # ensure that it is easy to make queries against the current state without
 # having to understand the history tracking mechanism. To implement this, every
-# table has a "Base" which inherits from object and defines all columns. The
-# main table then inherits from the "Base" class and SQLBase. The history table
-# then inherits from the "Base" class, SQLBase, and the HistoryMixin which adds
-# the columns needed for edit logging. (Columns which have different
-# constraints in the main table vs. the history table are defined in the
-# subclasses.) 
+# table has a "Base" which is a mixin (i.e., it inherits from object, NOT
+# SQLBase) and defines all columns. The main table then inherits from the
+# "Base" mixin and SQLBase. The history table then inherits from the "Base"
+# mixin, SQLBase, and the HistoryMixin which adds the columns needed for edit
+# logging. (Columns which have different constraints in the main table vs. the
+# history table must be defined in the subclasses.) 
 
 
 class HistoryMixin(object):
@@ -48,7 +46,7 @@ class HistoryMixin(object):
 
 class ProjectsBase(object):
     # project_id and name must be defined in subclasses, as they have special
-    # constraints.
+    # constraints which differ between the main table and the history table.
 
     description = db.Column(db.Text(), nullable=False)
     # status can be "active" or "inactive"
