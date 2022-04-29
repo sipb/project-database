@@ -1,7 +1,14 @@
 <tr>
     <td>{{ project.name  }}</td>
     <td>{{ project.description }}</td>
-    <td>{{ project.status }}</td>
+    <td>
+        {{ project.status }}
+        {% if project.approval == 'awaiting_approval' %}
+            (awaiting approval)
+        {% elif project.approva == 'rejected' %}
+            (rejected)
+        {% endif %}
+    </td>
     <td>
         <ul>
             {% for link in project.links %}
