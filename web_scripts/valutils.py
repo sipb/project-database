@@ -2,6 +2,16 @@ import authutils
 import db
 import strutils
 
+# This module contains functions to validate data. Any function starting with
+# "validate_" shall return a bool (with True indicating that the condition is
+# satisfied) and a list of str containing any error messages. The list shall be
+# empty if the bool is True and shall have one or more entries if the bool is
+# False. This interface does not define the input arguments, as these vary
+# depending on what is to be validated.
+#
+# Functions which do NOT start with "validate_" are helper functions, and do
+# not need to adhere to the interface defined above.
+
 
 def all_unique(vals, ignore_case=True):
     """Check if all entries in a list are unique.
@@ -94,6 +104,8 @@ def validate_project_name(name, previous_name=None):
     ----------
     name : str
         The proposed project name.
+    previous_name : str, optional
+        The previous name of the project (if this is an edit and not an add).
 
     Returns
     -------
@@ -166,7 +178,8 @@ def validate_project_contacts_nonempty(contacts):
 
 
 def validate_project_contact_addresses(contacts):
-    """Check if the project contact addresses are all MIT addresses.
+    """Check if the project contact addresses are all MIT addresses, and at
+    least one is of the form <username>@mit.edu.
 
     Parameters
     ----------
@@ -291,7 +304,7 @@ def validate_project_role_fields(roles):
 
 
 def validate_project_roles_unique(roles):
-    """Check if the project roles are all unique.
+    """Check if the project role names are all unique.
 
     Parameters
     ----------
@@ -400,6 +413,8 @@ def validate_project_info(project_info, previous_name=None):
     ----------
     project_info : dict
         The project info extracted from the form.
+    previous_name : str, optional
+        The previous name of the project (if this is an edit and not an add).
 
     Returns
     -------
