@@ -40,13 +40,13 @@ def main():
             status_messages = [status]
 
     if is_ok:
-        page = performutils.format_success_page(project_id, 'Edit Project')
-
         # When updating a rejected project, change status to
         # "awaiting_approval" and email the approvers:
         if db.get_project_approval_status(project_id) == 'rejected':
             db.unreject_project(project_info, project_id, editor_kerberos)
             mail.send_to_approvers(project_info)
+
+        page = performutils.format_success_page(project_id, 'Edit Project')
     else:
         page = performutils.format_failure_page(
             strutils.html_listify(status_messages), 'Edit Project'
