@@ -45,7 +45,7 @@ class HistoryMixin(object):
 
     @sqlalchemy.orm.validates('author')
     def validate_author(self, key, author):
-        if len(author) > self.author.type.length:
+        if len(author) > self.__table__.columns[key].type.length:
             raise ValueError(
                 'Value of "%s" for key "author" is too long!' % author
             )
@@ -94,7 +94,7 @@ class ProjectsBase(object):
 
     @sqlalchemy.orm.validates('creator')
     def validate_creator(self, key, creator):
-        if len(creator) > self.creator.type.length:
+        if len(creator) > self.__table__.columns[key].type.length:
             raise ValueError(
                 'Value of "%s" for key "creator" is too long!' % creator
             )
@@ -102,7 +102,7 @@ class ProjectsBase(object):
 
     @sqlalchemy.orm.validates('approver')
     def validate_approver(self, key, approver):
-        if len(approver) > self.approver.type.length:
+        if len(approver) > self.__table__.columns[key].type.length:
             raise ValueError(
                 'Value of "%s" for key "approver" is too long!' % approver
             )
@@ -110,7 +110,7 @@ class ProjectsBase(object):
 
     @sqlalchemy.orm.validates('name')
     def validate_name(self, key, name):
-        if len(name) > self.name.type.length:
+        if len(name) > self.__table__.columns[key].type.length:
             raise ValueError(
                 'Value of "%s" for key "name" is too long!' % name
             )
@@ -169,7 +169,7 @@ class ContactEmailsBase(object):
 
     @sqlalchemy.orm.validates('email')
     def validate_email(self, key, email):
-        if len(email) > self.email.type.length:
+        if len(email) > self.__table__.columns[key].type.length:
             raise ValueError(
                 'Value of "%s" for key "email" is too long!' % email
             )
@@ -204,7 +204,7 @@ class RolesBase(object):
 
     @sqlalchemy.orm.validates('role')
     def validate_role(self, key, role):
-        if len(role) > self.role.type.length:
+        if len(role) > self.__table__.columns[key].type.length:
             raise ValueError(
                 'Value of "%s" for key "role" is too long!' % role
             )
