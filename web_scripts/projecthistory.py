@@ -6,6 +6,7 @@ import cgi
 import authutils
 import db
 import formutils
+import strutils
 import templateutils
 
 # TODO: May want to turn error listing off once stable?
@@ -58,6 +59,7 @@ def main():
         raise RuntimeError('No project ID specified!')
 
     project_history = db.get_project_history(project_id)
+    project_history = strutils.decode_utf_nested_dict_list(project_history)
     page = format_project_history(project_history)
     print(page)
 
