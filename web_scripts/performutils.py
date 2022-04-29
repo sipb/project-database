@@ -59,6 +59,7 @@ def format_failure_page(status, operation):
     authlink = authutils.get_auth_url(True)
     deauthlink = authutils.get_base_url(False) + '/projectlist.py'
     can_add = authutils.can_add(user)
+    status = strutils.decode_utf_nested_dict_list(status)
     result = ''
     result += 'Content-type: text/html\n\n'
     result += jenv.get_template('performfailure.html').render(
