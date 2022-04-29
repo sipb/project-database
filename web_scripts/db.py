@@ -493,6 +493,104 @@ def get_project_history(project_id):
 
 # Adding operations
 
+def form_row(model, project_id, entry):
+    """Form a row object from a dict.
+
+    Parameters
+    ----------
+    model : type
+        A type which inherits from SQLBase.
+    project_id : int
+        The project ID to use.
+    entry : dict
+        A dict with keys matching the columns of model.
+
+    Returns
+    -------
+    result : SQLBase
+        The row object.
+    """
+    result = model()
+    result.project_id = int(project_id)
+    for key in result.__table__.columns.keys():
+        if (key != 'id') and (key != 'project_id') and (key in entry):
+            setattr(result, key, entry[key])
+    return result
+
+
+def form_contact_row(project_id, entry):
+    """Form a contact row object.
+
+    Parameters
+    ----------
+    project_id : int
+        ID of the project.
+    entry : dict
+        The contact details. Shall have keys 'type', 'email', and 'index.'
+
+    Returns
+    -------
+    contact : SQLBase
+        The row object.
+    """
+    return form_row(ContactEmails, project_id, entry)
+
+
+def form_role_row(project_id, entry):
+    """Form a role row object.
+
+    Parameters
+    ----------
+    project_id : int
+        ID of the project.
+    entry : dict
+        The role details. Shall have keys 'role', 'description', 'index', and
+        (optionally) 'prereq'.
+
+    Returns
+    -------
+    role : SQLBase
+        The row object.
+    """
+    return form_row(Roles, project_id, entry)
+
+
+def form_link_row(project_id, entry):
+    """Form a link row object.
+
+    Parameters
+    ----------
+    project_id : int
+        ID of the project.
+    entry : dict
+        The link details. Shall have keys 'link' and 'index'.
+
+    Returns
+    -------
+    link : SQLBase
+        The row object.
+    """
+    return form_row(Links, project_id, entry)
+
+
+def form_comms_row(project_id, entry):
+    """Form a comms row object.
+
+    Parameters
+    ----------
+    project_id : int
+        ID of the project.
+    entry : dict
+        The link details. Shall have keys 'commchannel' and 'index'.
+
+    Returns
+    -------
+    comm : SQLBase
+        The row object.
+    """
+    return form_row(CommChannels, project_id, entry)
+
+
 def add_project_metadata(args):
     """Add a project with provided metadata to the database. Caller is
     responsible for committing the change.
@@ -535,29 +633,6 @@ def add_project_metadata(args):
     return project_id
 
 
-def form_contact_row(project_id, entry):
-    """Form a contact row object.
-
-    Parameters
-    ----------
-    project_id : int
-        ID of the project.
-    entry : dict
-        The contact details. Shall have keys 'type', 'email', and 'index.'
-
-    Returns
-    -------
-    contact : SQLBase
-        The row object.
-    """
-    contact = ContactEmails()
-    contact.project_id = int(project_id)
-    contact.type = entry['type']
-    contact.email = entry['email']
-    contact.index = entry['index']
-    return contact
-
-
 def add_project_contacts(
     project_id, args, author_kerberos, action='create', revision_id=0
 ):
@@ -596,32 +671,6 @@ def add_project_contacts(
         db_add(contact, author_kerberos, action, revision_id)
 
     return get_contacts(project_id)
-
-
-def form_role_row(project_id, entry):
-    """Form a role row object.
-
-    Parameters
-    ----------
-    project_id : int
-        ID of the project.
-    entry : dict
-        The role details. Shall have keys 'role', 'description', 'index', and
-        (optionally) 'prereq'.
-
-    Returns
-    -------
-    role : SQLBase
-        The row object.
-    """
-    role = Roles()
-    role.project_id = int(project_id)
-    role.role = entry['role']
-    role.description = entry['description']
-    role.index = entry['index']
-    if 'prereq' in entry:
-        role.prereq = entry['prereq']
-    return role
 
 
 def add_project_roles(
@@ -663,28 +712,6 @@ def add_project_roles(
     return get_roles(project_id)
 
 
-def form_link_row(project_id, entry):
-    """Form a link row object.
-
-    Parameters
-    ----------
-    project_id : int
-        ID of the project.
-    entry : dict
-        The link details. Shall have keys 'link' and 'index'.
-
-    Returns
-    -------
-    link : SQLBase
-        The row object.
-    """
-    link = Links()
-    link.project_id = int(project_id)
-    link.link = entry['link']
-    link.index = entry['index']
-    return link
-
-
 def add_project_links(
     project_id, args, author_kerberos, action='create', revision_id=0
 ):
@@ -721,28 +748,6 @@ def add_project_links(
         db_add(link, author_kerberos, action, revision_id)
 
     return get_links(project_id)
-
-
-def form_comms_row(project_id, entry):
-    """Form a comms row object.
-
-    Parameters
-    ----------
-    project_id : int
-        ID of the project.
-    entry : dict
-        The link details. Shall have keys 'commchannel' and 'index'.
-
-    Returns
-    -------
-    comm : SQLBase
-        The row object.
-    """
-    comm = CommChannels()
-    comm.project_id = int(project_id)
-    comm.commchannel = entry['commchannel']
-    comm.index = entry['index']
-    return comm
 
 
 def add_project_comms(
