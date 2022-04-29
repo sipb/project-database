@@ -870,6 +870,41 @@ def update_project_metadata(project_id, args, editor_kerberos):
     return revision_id
 
 
+def update_project_table(
+    get_current_fn, form_row_fn, match_key, project_id, args, editor_kerberos,
+    revision_id
+):
+    """Update a given table with new entries. Caller is responsible for
+    committing the change.
+
+    Parameters
+    ----------
+    get_current_fn : callable
+        Function which returns the current rows associated with the project.
+    form_row_fn : callable
+        Function which forms a row object given a dict.
+    match_key : str
+        Key to match entries on.
+    project_id : int
+        The ID of the project to operate on.
+    args : list of dict
+        The new rows.
+    editor_kerberos : str
+        The kerb of the user making the edit.
+    revision_id : int
+        The revision ID associated with the edit.
+    """
+    current_x = get_current_fn(project_id, get_raw=True)
+
+    new_x = []
+    for entry in args:
+        new_x.append(form_row_fn(project_id, entry))
+
+    db_update(
+        current_x, new_x, match_key, editor_kerberos, revision_id
+    )
+
+
 def update_project_contacts(project_id, args, editor_kerberos, revision_id):
     """Update the contact email entries for a project in the database.
     Caller is responsible for committing the change.
@@ -886,14 +921,9 @@ def update_project_contacts(project_id, args, editor_kerberos, revision_id):
     revision_id : int
         The revision ID associated with the edit.
     """
-    current_contacts = get_contacts(project_id, get_raw=True)
-
-    new_contacts = []
-    for entry in args:
-        new_contacts.append(form_contact_row(project_id, entry))
-
-    db_update(
-        current_contacts, new_contacts, 'email', editor_kerberos, revision_id
+    update_project_table(
+        get_contacts, form_contact_row, 'email', project_id, args,
+        editor_kerberos, revision_id
     )
 
 
@@ -914,14 +944,9 @@ def update_project_roles(project_id, args, editor_kerberos, revision_id):
     revision_id : int
         The revision ID associated with the edit.
     """
-    current_roles = get_roles(project_id, get_raw=True)
-
-    new_roles = []
-    for entry in args:
-        new_roles.append(form_role_row(project_id, entry))
-
-    db_update(
-        current_roles, new_roles, 'role', editor_kerberos, revision_id
+    update_project_table(
+        get_roles, form_role_row, 'role', project_id, args, editor_kerberos,
+        revision_id
     )
 
 
@@ -940,13 +965,10 @@ def update_project_links(project_id, args, editor_kerberos, revision_id):
     revision_id : int
         The revision ID associated with the edit.
     """
-    current_links = get_links(project_id, get_raw=True)
-
-    new_links = []
-    for entry in args:
-        new_links.append(form_link_row(project_id, entry))
-
-    db_update(current_links, new_links, 'link', editor_kerberos, revision_id)
+    update_project_table(
+        get_links, form_link_row, 'link', project_id, args, editor_kerberos,
+        revision_id
+    )
 
 
 def update_project_comms(project_id, args, editor_kerberos, revision_id):
@@ -964,14 +986,9 @@ def update_project_comms(project_id, args, editor_kerberos, revision_id):
     revision_id : int
         The revision ID associated with the edit.
     """
-    current_comms = get_comm(project_id, get_raw=True)
-
-    new_comms = []
-    for entry in args:
-        new_comms.append(form_comms_row(project_id, entry))
-
-    db_update(
-        current_comms, new_comms, 'commchannel', editor_kerberos, revision_id
+    update_project_table(
+        get_comm, form_comms_row, 'commchannel', project_id, args,
+        editor_kerberos, revision_id
     )
 
 
