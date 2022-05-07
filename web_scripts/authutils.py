@@ -6,7 +6,7 @@
 import os
 
 import db
-# import moira
+import roster
 
 
 def get_kerberos():
@@ -80,23 +80,17 @@ def get_auth_url(do_authenticate):
 
 
 def is_sipb(user):
-    # TODO: scripts can't access moira anymore. What is an alternate way to
-    # check if a user is in SIPB? Do we have a member database mirrored
-    # somewhere?
-    # return moira.has_access(user, 'sipb-office@mit.edu')
     if user:
-        return True
+        return user in roster.sipb_roster
     else:
         return False
 
 
 def is_keyholder(user):
-    # TODO: scripts can't access moira anymore. What is an alternate way to
-    # check if a user is a SIPB keyholder? Do we have a keyholder database
-    # mirrored somewhere?
-    # return moira.has_access(user, 'sipb-???@mit.edu')
+    # NOTE: the roster uses the older "prospective" vs. "member" distinction,
+    # rather than "member" vs. "keyholder".
     if user:
-        return True
+        return roster.sipb_roster.get(user, 'other') == 'member'
     else:
         return False
 
