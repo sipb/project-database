@@ -20,10 +20,20 @@ alt Requestor is not authorized or content is invalid
 
 else Requestor is authorized and content is valid
 
-    performaddproject.py -> Database : Add project with status "awaiting_approval"
-    Database -> performaddproject.py : Return project_id
-    performaddproject.py -> Approvers : Send email
-    performaddproject.py -> Requestor : Display success page
+    alt Requestor is an approver
+
+        performaddproject.py -> Database : Add project with status "approved"
+        Database -> performaddproject.py : Return project_id
+        performaddproject.py -> Requestor : Display success page
+
+    else Requestor is not an approver
+
+        performaddproject.py -> Database : Add project with status "awaiting_approval"
+        Database -> performaddproject.py : Return project_id
+        performaddproject.py -> Approvers : Send email
+        performaddproject.py -> Requestor : Display success page with message that project is pending approval
+
+    end
 
 end
 @enduml
