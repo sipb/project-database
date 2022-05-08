@@ -620,8 +620,7 @@ def add_project_metadata(args):
     project.status = args['status']
     project.description = args['description']
     project.creator = args['creator']
-    # Projects are waiting to be approved by default
-    project.approval = 'awaiting_approval'
+    project.approval = args['approval']
     db_add(project, args['creator'], 'create', 0)
 
     project_id = get_project_id(args['name'])
@@ -845,7 +844,9 @@ def add_project_comms(
     )
 
 
-def add_project(project_info, creator_kerberos):
+def add_project(
+    project_info, creator_kerberos, initial_approval='awaiting_approval'
+):
     """Add the given project to the database and commits the change.
 
     Raises ValueError if project with the given name already exists.
@@ -856,6 +857,9 @@ def add_project(project_info, creator_kerberos):
         The project info extracted from the form in performaddproject.html
     creator_kerberos : str
         The kerberos of the user who created the project.
+    initial_approval : {'awaiting_approval', 'approved', 'rejected'}, optional
+        The initial approval status of the project. Default is
+        'awaiting_approval'.
 
     Returns
     -------
@@ -872,6 +876,7 @@ def add_project(project_info, creator_kerberos):
         'description': project_info['description'],
         'status': project_info['status'],
         'creator': creator_kerberos,
+        'approval': initial_approval
     }
     project_id = add_project_metadata(metadata)
     add_project_links(project_id, project_info['links'], creator_kerberos)

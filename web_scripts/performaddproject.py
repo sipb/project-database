@@ -27,8 +27,15 @@ def main():
     is_ok, status_messages = valutils.validate_add_project(project_info)
 
     if is_ok:
+        requestor_kerberos = authutils.get_kerberos()
+        can_approve = authutils.can_approve(requestor_kerberos)
+        initial_approval = 'approved' if can_approve else 'awaiting_approval'
         try:
-            project_id = db.add_project(project_info, authutils.get_kerberos())
+            project_id = db.add_project(
+                project_info,
+                authutils.get_kerberos(),
+                initial_approval=initial_approval
+            )
             assert project_id != -1
             project_info['project_id'] = project_id
         except Exception:
@@ -40,7 +47,8 @@ def main():
 
     if is_ok:
         page = performutils.format_success_page(project_id, 'Add Project')
-        mail.send_to_approvers(project_info)
+        if not can_approve:
+            mail.send_to_approvers(project_info)
     else:
         page = performutils.format_failure_page(
             strutils.html_listify(status_messages), 'Add Project'
