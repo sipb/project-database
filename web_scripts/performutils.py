@@ -4,7 +4,7 @@ import strutils
 import templateutils
 
 
-def format_success_page(project_id, operation):
+def format_success_page(project_id, operation, message=None):
     """Format the success page.
 
     Parameters
@@ -36,7 +36,8 @@ def format_success_page(project_id, operation):
         user=user,
         authlink=authlink,
         deauthlink=deauthlink,
-        can_add=can_add
+        can_add=can_add,
+        message=message
     ).encode('utf-8')
     return result
 

@@ -46,9 +46,19 @@ def main():
             status_messages = [status]
 
     if is_ok:
-        page = performutils.format_success_page(project_id, 'Add Project')
-        if not can_approve:
+        if can_approve:
+            message = None
+        else:
+            message = (
+                'The following project details have been sent to the '
+                'moderators for approval. You will be notified once the '
+                'posting has been reviewed.'
+            )
             mail.send_to_approvers(project_info)
+
+        page = performutils.format_success_page(
+            project_id, 'Add Project', message=message
+        )
     else:
         page = performutils.format_failure_page(
             strutils.html_listify(status_messages), 'Add Project'
