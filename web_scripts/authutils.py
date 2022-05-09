@@ -181,7 +181,6 @@ def can_approve(user):
     can_edit : bool
         Whether or not the user can approve projects.
     """
-    return False
     if not user:
         return False
     elif is_admin(user):
