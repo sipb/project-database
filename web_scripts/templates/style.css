@@ -27,23 +27,7 @@ tr:nth-child(even){
     background-color: white
 }
 th {
-    border: 1px solid white;
     font-weight:  bold;
     background-color: #a31f34;
     color: white;
 }
-
-/*td {
-    padding: 5px;
-}
-.header td {
-    border: white;
-    font-weight:  bold;
-    background-color: #a31f34;
-    color: white;
-}
-.gone {
-    border: 0;
-}*/
-
-
