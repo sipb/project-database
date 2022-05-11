@@ -8,3 +8,6 @@ body{
     padding: 0;
     margin: 0;
 }
+td { padding: 5px; }
+.header td { border: 2px solid black; }
+.gone { border: 0; }
