@@ -24,3 +24,8 @@ td {
 .gone {
     border: 0;
 }
+th {
+    background-color: #a31f34;
+    color: white;
+}
+tr:nth-child(even){background-color: white}
