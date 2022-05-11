@@ -1,32 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <title>SIPB Project List</title>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" type="text/css" href="templates/style.css" />
-</head>
-<body>
-    <h2>{{ title }}</h2>
+    <head>
+        <title>SIPB Project List</title>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" type="text/css" href="templates/style.css" />
+    </head>
+    <body>
+        <div id="content-block">
+            <h2>{{ title }}</h2>
 
-    {% include 'navigationlinks.html' %}
+            {% include 'navigationlinks.html' %}
 
-    <p>
-        <a href="projectlist.py">All projects</a> |
-        <a href="projectlist.py?filter_by=active">Active projects</a> |
-        <a href="projectlist.py?filter_by=inactive">Inactive projects</a>
-        {% if user %}
-            | <a href="projectlist.py?filter_by=contact&email={{ user_email }}">Your projects</a>
-        {% endif %}
-        {% if can_approve %}
-            | <a href="projectlist.py?filter_by=awaiting_approval">Projects awaiting approval</a>
-        {% endif %}
-    </p>
+            <p>
+                <a href="projectlist.py">All projects</a> |
+                <a href="projectlist.py?filter_by=active">Active projects</a> |
+                <a href="projectlist.py?filter_by=inactive">Inactive projects</a>
+                {% if user %}
+                    | <a href="projectlist.py?filter_by=contact&email={{ user_email }}">Your projects</a>
+                {% endif %}
+                {% if can_approve %}
+                    | <a href="projectlist.py?filter_by=awaiting_approval">Projects awaiting approval</a>
+                {% endif %}
+            </p>
 
-    <table border="1">
-    {% include 'projectheader.html' %}
-    {% for project in project_list %}
-        {% include 'projectrow.html' %}
-    {% endfor %}
-    </table>
-</body>
+            <table border="1">
+            {% include 'projectheader.html' %}
+            {% for project in project_list %}
+                {% include 'projectrow.html' %}
+            {% endfor %}
+            </table>
+        </div>
+    </body>
 </html>

@@ -18,7 +18,7 @@ td {
     padding: 5px;
 }
 .header td {
-    border: 2px solid black;
+    border: white;
     font-weight:  bold;
     background-color: #a31f34;
     color: white;
@@ -28,4 +28,7 @@ td {
 }
 tr:nth-child(even){
     background-color: white
+}
+#content-block{
+    margin:  1em;
 }
