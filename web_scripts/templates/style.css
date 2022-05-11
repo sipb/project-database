@@ -9,5 +9,8 @@ body{
     margin: 0;
 }
 td { padding: 5px; }
-.header td { border: 2px solid black; }
+.header td {
+    border: 2px solid black;
+    font-weight:  bold;
+}
 .gone { border: 0; }
