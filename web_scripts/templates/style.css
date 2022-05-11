@@ -4,9 +4,12 @@ body{
     font-size: 80%;
     color: #000000;
     line-height: 1.5em;
-    background: #a1a1a1;
+    background: #c2c0bf;
     padding: 0;
     margin: 0;
+}
+.title {
+    color: #a31f34;
 }
 table {
     border-collapse: collapse;
