@@ -8,9 +8,16 @@ body{
     padding: 0;
     margin: 0;
 }
-td { padding: 5px; }
+table {
+    border-collapse: collapse;
+}
+td {
+    padding: 5px;
+}
 .header td {
     border: 2px solid black;
     font-weight:  bold;
 }
-.gone { border: 0; }
+.gone {
+    border: 0;
+}
