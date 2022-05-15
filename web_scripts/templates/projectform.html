@@ -1,32 +1,32 @@
 <p>
-    <label for="name">Project name:</label>
+    <label for="name"><b>Project name:</b></label>
     <input type="text" id="name" name="name" {% if project_info %} value="{{ project_info.name }}" {% endif %}>
 </p>
 <p>
-    <label for="description">Description:</label><br>
+    <label for="description"><b>Description:</b></label><br>
     <textarea id="description" name="description" rows="24" cols="80">{% if project_info %}{{ project_info.description }}{% endif %}</textarea>
 </p>
 <p>
-    <label>Status:</label>
+    <label><b>Status:</b></label>
     <input type="radio" id="active" name="status" value="active" {% if (project_info and project_info.status == "active") or not project_info %}checked{% endif %}>
     <label for="active">Active</label>
     <input type="radio" id="inactive" name="status" value="inactive" {% if project_info and project_info.status == "inactive" %}checked{% endif %}>
     <label for="inactive">Inactive</label>
 </p>
 <p>
-    <label for="links">Link(s) (comma-separated):</label><br>
+    <label for="links"><b>Link(s)</b> (comma-separated):</label><br>
     <input type="text" id="links" name="links" size="80" {% if project_info %}value="{{ project_info.links|join(', ', attribute='link') }}"{% endif %}>
 </p>
 <p>
-    <label for="comm_channels">Communication channel(s) (comma-separated):</label><br>
+    <label for="comm_channels"><b>Communication channel(s)</b> (comma-separated):</label><br>
     <input type="text" id="comm_channels" name="comm_channels" size="80" {% if project_info %}value="{{ project_info.comm_channels|join(', ', attribute='commchannel') }}"{% endif %}>
 </p>
 <p>
-    <label for="contacts">Contact(s) (comma-separated, first is primary, only contacts of the form &lt;kerberos&gt;@mit.edu can edit project details):</label><br>
+    <label for="contacts"><b>Contact(s)</b> (comma-separated, first is primary, only contacts of the form &lt;kerberos&gt;@mit.edu can edit project details):</label><br>
     <input type="text" id="contacts" name="contacts" size="80" {% if project_info %}value="{{ project_info.contacts|join(', ', attribute='email') }}"{% endif %}>
 </p>
 <p>
-    <label>Role(s):</label>
+    <label><b>Role(s):</b></label>
 </p>
 <div id="roles_container"></div>
 {% if project_info %}
@@ -44,14 +44,14 @@
         <blockquote>{{ project_info.approver_comments }}</blockquote>
     {% endif %}
     <p>
-        <label>This project should be:</label>
+        <label><b>This project should be:</b></label>
         <input type="radio" id="approved" name="approval_action" value="approved" checked>
         <label for="approved">Approved</label>
         <input type="radio" id="rejected" name="approval_action" value="rejected">
         <label for="rejected">Rejected</label>
     </p>
     <p>
-        <label for="approver_comments">Reviewer comments (will be sent to the project's creator):</label><br>
+        <label for="approver_comments"><b>Reviewer comments</b> (will be sent to the project's creator):</label><br>
         <textarea id="approver_comments" name="approver_comments" rows="6" cols="80"></textarea>
     </p>
 {% endif %}
