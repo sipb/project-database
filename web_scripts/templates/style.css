@@ -23,10 +23,13 @@ td {
     padding:  5px;
 }
 tr {
-    background-color: white
+    background-color: white;
 }
 .header {
     font-weight:  bold;
     background-color: #a31f34;
     color: white;
+}
+.spacer {
+    background-color: #c2c0bf;
 }
