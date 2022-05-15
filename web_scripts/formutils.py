@@ -76,6 +76,29 @@ def get_role_ids(arguments):
     return sorted(list(role_ids))
 
 
+def get_link_ids(arguments):
+    """Get all link IDs from the arguments from CGI.
+
+    Parameters
+    ----------
+    arguments : cgi.FieldStorage
+        The data from the form.
+
+    Returns
+    -------
+    link_ids : list of int
+        The sorted link IDs present in the arguments.
+    """
+    link_ids = set()
+    for key in arguments.keys():
+        # Check all fields so that we can catch mal-formed inputs:
+        if key.startswith('link_'):
+            link_ids.add(int(key[len('link_'):]))
+        elif key.startswith('anchortext_'):
+            link_ids.add(int(key[len('anchortext_'):]))
+    return sorted(list(link_ids))
+
+
 def extract_roles(arguments):
     """Extract the role dicts from the arguments from CGI.
 
@@ -109,6 +132,38 @@ def extract_roles(arguments):
         if len(roles[-1]['prereq']) == 0:
             roles[-1]['prereq'] = None
     return roles
+
+
+def extract_links(arguments):
+    """Extract the link dicts from the arguments from CGI.
+
+    Parameters
+    ----------
+    arguments : cgi.FieldStorage
+        The data from the form.
+
+    Returns
+    -------
+    links : list of dict
+        The information for each link.
+    """
+    link_ids = get_link_ids(arguments)
+    links = []
+    for index, link_id in enumerate(link_ids):
+        links.append(
+            {
+                'link': safe_cgi_field_get(
+                    arguments, 'link_%d' % link_id
+                ),
+                'anchortext': safe_cgi_field_get(
+                    arguments, 'anchortext_%d' % link_id
+                ),
+                'index': index
+            }
+        )
+        if len(links[-1]['anchortext']) == 0:
+            links[-1]['anchortext'] = None
+    return links
 
 
 def index_dictify_list(str_list, key):
@@ -148,15 +203,7 @@ def args_to_dict(arguments):
         'name': safe_cgi_field_get(arguments, 'name'),
         'description': safe_cgi_field_get(arguments, 'description'),
         'status': safe_cgi_field_get(arguments, 'status'),
-        'links': index_dictify_list(
-            [
-                strutils.make_url_absolute(link)
-                for link in strutils.split_comma_sep(
-                    safe_cgi_field_get(arguments, 'links')
-                )
-            ],
-            'link'
-        ),
+        'links': extract_links(arguments),
         'comm_channels': index_dictify_list(
             strutils.split_comma_sep(
                 safe_cgi_field_get(arguments, 'comm_channels')
