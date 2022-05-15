@@ -22,7 +22,7 @@ table {
 }
 td {
     border: 1px solid black;
-    padding: 5px;
+    /*padding: 5px;*/
 }
 tr {
     background-color: white;
