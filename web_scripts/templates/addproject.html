@@ -5,9 +5,10 @@
         <meta charset="UTF-8">
         <link rel="stylesheet" type="text/css" href="templates/style.css" />
         <script type="text/javascript" src="templates/roles.js"></script>
+        <script type="text/javascript" src="templates/links.js"></script>
     </head>
     {% if user and can_add %}
-        <body onload="add_role()">
+        <body onload="add_role(); add_link();">
     {% else %}
         <body>
     {% endif %}
