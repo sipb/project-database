@@ -1,28 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <title>Add Project</title>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" type="text/css" href="templates/style.css" />
-    <script type="text/javascript" src="templates/roles.js"></script>
-</head>
-{% if user and can_add %}
-    <body onload="add_role()">
-{% else %}
-    <body>
-{% endif %}
-    <h2>SIPB Project Database -- Add Project</h2>
-
-    {% include 'navigationlinks.html' %}
-
-    {% if not user %}
-        <p><a href="{{ authlink }}">Sign in to create a project.</a></p>
-    {% elif not can_add %}
-        <p>You do not have access to create new projects. Please contact {{ help_address }} for help.</p>
+    <head>
+        <title>Add Project</title>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" type="text/css" href="templates/style.css" />
+        <script type="text/javascript" src="templates/roles.js"></script>
+    </head>
+    {% if user and can_add %}
+        <body onload="add_role()">
     {% else %}
-        <form action="performaddproject.py" method="POST">
-            {% include 'projectform.html' %}
-        </form>
+        <body>
     {% endif %}
-</body>
+        <div id="content-block">
+            <h2>SIPB Project Database -- Add Project</h2>
+
+            {% include 'navigationlinks.html' %}
+
+            {% if not user %}
+                <p><a href="{{ authlink }}">Sign in to create a project.</a></p>
+            {% elif not can_add %}
+                <p>You do not have access to create new projects. Please contact {{ help_address }} for help.</p>
+            {% else %}
+                <form action="performaddproject.py" method="POST">
+                    {% include 'projectform.html' %}
+                </form>
+            {% endif %}
+            </div>
+    </body>
 </html>

@@ -1,162 +1,164 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <title>Edit History</title>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" type="text/css" href="templates/style.css" />
-</head>
-<body>
-    <h2>Edit History</h2>
+    <head>
+        <title>Edit History</title>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" type="text/css" href="templates/style.css" />
+    </head>
+    <body>
+        <div id="content-block">
+            <h2>Edit History</h2>
 
-    {% include 'navigationlinks.html' %}
+            {% include 'navigationlinks.html' %}
 
-    <table border="1">
-        <tr class="header">
-            <td>Revision ID</td>
-            <td>Action</td>
-            <td>Timestamp</td>
-            <td>Author</td>
-            <td>Project ID</td>
-            <td>Name</td>
-            <td>Description</td>
-            <td>Status</td>
-            <td>Approval</td>
-            <td>Creator</td>
-            <td>Approver</td>
-            <td>Approver Comments</td>
-            <td>Contact(s)</td>
-            <td>Role(s)</td>
-            <td>Link(s)</td>
-            <td>Communication Channel(s)</td>
-        </tr>
-        {% for revision in project_history %}
-            <tr>
-                <td>{{ revision.revision_id }}</td>
-                <td>{{ revision.action }}</td>
-                <td>{{ revision.timestamp }}</td>
-                <td>{{ revision.author }}</td>
-                <td>{{ revision.project_id }}</td>
-                <td>{{ revision.name }}</td>
-                <td>{{ revision.description }}</td>
-                <td>{{ revision.status }}</td>
-                <td>{{ revision.approval }}</td>
-                <td>{{ revision.creator }}</td>
-                <td>{{ revision.approver }}</td>
-                <td>{{ revision.approver_comments }}</td>
-                <td>
-                    <ul>
-                        {% for contact in revision.contacts %}
-                            <li>
-                                {% if contact.action == 'delete' %}
-                                    -
-                                    <del>
-                                {% elif contact.action == 'create' %}
-                                    +
-                                    <ins>
-                                {% elif contact.action == 'update' %}
-                                    m
-                                {% endif %}
-                                {{ contact.index }}
-                                {% if user %}
-                                    {{ contact.email|urlize }}
-                                {% else %}
-                                    {{ contact.email|obfuscate_email }}
-                                {% endif %}
-                                ({{ contact.type}})
-                                {% if contact.action == 'delete' %}
-                                    </del>
-                                {% elif contact.action == 'create' %}
-                                    </ins>
-                                {% endif %}
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </td>
-                <td>
-                    <dl>
-                        {% for role in revision.roles %}
-                            {% if role.action == 'delete' %}
-                                <del>
-                            {% elif role.action == 'create' %}
-                                <ins>
-                            {% endif %}
-                            <dt>
-                                {% if role.action == 'delete' %}
-                                    -
-                                {% elif role.action == 'create' %}
-                                    +
-                                {% elif role.action == 'update' %}
-                                    m
-                                {% endif %}
-                                {{ role.index }} {{ role.role }}
-                            </dt>
-                            <dd>
-                                <i>Description:</i> {{ role.description }}
-                            </dd>
-                            <dd>
-                                {% if role.prereq == None %}
-                                    <i>Prereqs:</i> none
-                                {% else %}
-                                    <i>Prereqs:</i> {{ role.prereq }}
-                                {% endif %}
-                            </dd>
-                            {% if role.action == 'delete' %}
-                                </del>
-                            {% elif role.action == 'create' %}
-                                </ins>
-                            {% endif %}
-                        {% endfor %}
-                    </dl>
-                </td>
-                <td>
-                    {% for link in revision.links %}
-                        <li>
-                            {% if link.action == 'delete' %}
-                                -
-                                <del>
-                            {% elif link.action == 'create' %}
-                                +
-                                <ins>
-                            {% elif link.action == 'update' %}
-                                m
-                            {% endif %}
-                            {{ link.index }} {{ link.link|urlize }}
-                            {% if link.action == 'delete' %}
-                                </del>
-                            {% elif link.action == 'create' %}
-                                </ins>
-                            {% endif %}
-                        </li>
-                    {% endfor %}
-                </td>
-                <td>
-                    {% for channel in revision.comm_channels %}
-                        <li>
-                            {% if channel.action == 'delete' %}
-                                -
-                                <del>
-                            {% elif channel.action == 'create' %}
-                                +
-                                <ins>
-                            {% elif channel.action == 'update' %}
-                                m
-                            {% endif %}
-                            {{ channel.index }}
-                            {% if user %}
-                                {{ channel.commchannel|urlize }}
-                            {% else %}
-                                {{ channel.commchannel|obfuscate_email }}
-                            {% endif %}
-                            {% if channel.action == 'delete' %}
-                                </del>
-                            {% elif channel.action == 'create' %}
-                                </ins>
-                            {% endif %}
-                        </li>
-                    {% endfor %}
-                </td>
-            </tr>
-        {% endfor %}
-    </table>
-</body>
+            <table border="1">
+                <tr class="header">
+                    <td>Revision ID</td>
+                    <td>Action</td>
+                    <td>Timestamp</td>
+                    <td>Author</td>
+                    <td>Project ID</td>
+                    <td>Name</td>
+                    <td>Description</td>
+                    <td>Status</td>
+                    <td>Approval</td>
+                    <td>Creator</td>
+                    <td>Approver</td>
+                    <td>Approver Comments</td>
+                    <td>Contact(s)</td>
+                    <td>Role(s)</td>
+                    <td>Link(s)</td>
+                    <td>Communication Channel(s)</td>
+                </tr>
+                {% for revision in project_history %}
+                    <tr>
+                        <td>{{ revision.revision_id }}</td>
+                        <td>{{ revision.action }}</td>
+                        <td>{{ revision.timestamp }}</td>
+                        <td>{{ revision.author }}</td>
+                        <td>{{ revision.project_id }}</td>
+                        <td>{{ revision.name }}</td>
+                        <td>{{ revision.description }}</td>
+                        <td>{{ revision.status }}</td>
+                        <td>{{ revision.approval }}</td>
+                        <td>{{ revision.creator }}</td>
+                        <td>{{ revision.approver }}</td>
+                        <td>{{ revision.approver_comments }}</td>
+                        <td>
+                            <ul>
+                                {% for contact in revision.contacts %}
+                                    <li>
+                                        {% if contact.action == 'delete' %}
+                                            -
+                                            <del>
+                                        {% elif contact.action == 'create' %}
+                                            +
+                                            <ins>
+                                        {% elif contact.action == 'update' %}
+                                            m
+                                        {% endif %}
+                                        {{ contact.index }}
+                                        {% if user %}
+                                            {{ contact.email|urlize }}
+                                        {% else %}
+                                            {{ contact.email|obfuscate_email }}
+                                        {% endif %}
+                                        ({{ contact.type}})
+                                        {% if contact.action == 'delete' %}
+                                            </del>
+                                        {% elif contact.action == 'create' %}
+                                            </ins>
+                                        {% endif %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td>
+                            <dl>
+                                {% for role in revision.roles %}
+                                    {% if role.action == 'delete' %}
+                                        <del>
+                                    {% elif role.action == 'create' %}
+                                        <ins>
+                                    {% endif %}
+                                    <dt>
+                                        {% if role.action == 'delete' %}
+                                            -
+                                        {% elif role.action == 'create' %}
+                                            +
+                                        {% elif role.action == 'update' %}
+                                            m
+                                        {% endif %}
+                                        {{ role.index }} {{ role.role }}
+                                    </dt>
+                                    <dd>
+                                        <i>Description:</i> {{ role.description }}
+                                    </dd>
+                                    <dd>
+                                        {% if role.prereq == None %}
+                                            <i>Prereqs:</i> none
+                                        {% else %}
+                                            <i>Prereqs:</i> {{ role.prereq }}
+                                        {% endif %}
+                                    </dd>
+                                    {% if role.action == 'delete' %}
+                                        </del>
+                                    {% elif role.action == 'create' %}
+                                        </ins>
+                                    {% endif %}
+                                {% endfor %}
+                            </dl>
+                        </td>
+                        <td>
+                            {% for link in revision.links %}
+                                <li>
+                                    {% if link.action == 'delete' %}
+                                        -
+                                        <del>
+                                    {% elif link.action == 'create' %}
+                                        +
+                                        <ins>
+                                    {% elif link.action == 'update' %}
+                                        m
+                                    {% endif %}
+                                    {{ link.index }} {{ link.link|urlize }}
+                                    {% if link.action == 'delete' %}
+                                        </del>
+                                    {% elif link.action == 'create' %}
+                                        </ins>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for channel in revision.comm_channels %}
+                                <li>
+                                    {% if channel.action == 'delete' %}
+                                        -
+                                        <del>
+                                    {% elif channel.action == 'create' %}
+                                        +
+                                        <ins>
+                                    {% elif channel.action == 'update' %}
+                                        m
+                                    {% endif %}
+                                    {{ channel.index }}
+                                    {% if user %}
+                                        {{ channel.commchannel|urlize }}
+                                    {% else %}
+                                        {{ channel.commchannel|obfuscate_email }}
+                                    {% endif %}
+                                    {% if channel.action == 'delete' %}
+                                        </del>
+                                    {% elif channel.action == 'create' %}
+                                        </ins>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </body>
 </html>

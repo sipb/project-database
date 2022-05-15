@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <title>Failure</title>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" type="text/css" href="templates/style.css" />
-</head>
-<body>
-    <h2>SIPB Project Database -- {{ operation }} Failed</h2>
+    <head>
+        <title>Failure</title>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" type="text/css" href="templates/style.css" />
+    </head>
+    <body>
+        <div id="content-block">
+            <h2>SIPB Project Database -- {{ operation }} Failed</h2>
 
-    {% include 'navigationlinks.html' %}
+            {% include 'navigationlinks.html' %}
 
-    <p>The operation failed with the following issues:</p>
-    {{ status|safe }}
-    <p>Please fix these issues and try again.</p>
-</body>
+            <p>The operation failed with the following issues:</p>
+            {{ status|safe }}
+            <p>Please fix these issues and try again.</p>
+        </div>
+    </body>
 </html>
