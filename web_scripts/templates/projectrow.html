@@ -35,7 +35,13 @@
         <b>Link(s):</b>
         <ul>
             {% for link in project.links %}
-                <li>{{ link.link|urlize }}</li>
+                <li>
+                    {% if link.anchortext %}
+                        <a href="{{ link.link }}">{{ link.anchortext }}</a>
+                    {% else %}
+                        <a href="{{ link.link }}">{{ link.link }}</a>
+                    {% endif %}
+                </li>
             {% endfor %}
         </ul>
     </td>
