@@ -152,8 +152,10 @@ def extract_links(arguments):
     for index, link_id in enumerate(link_ids):
         links.append(
             {
-                'link': safe_cgi_field_get(
-                    arguments, 'link_%d' % link_id
+                'link': strutils.make_url_absolute(
+                    safe_cgi_field_get(
+                        arguments, 'link_%d' % link_id
+                    )
                 ),
                 'anchortext': safe_cgi_field_get(
                     arguments, 'anchortext_%d' % link_id
