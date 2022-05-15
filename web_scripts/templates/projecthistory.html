@@ -121,7 +121,7 @@
                                     {% elif link.action == 'update' %}
                                         m
                                     {% endif %}
-                                    {{ link.index }} {{ link.link|urlize }}
+                                    {{ link.index }} {{ link.link|urlize }} {{ link.anchortext }}
                                     {% if link.action == 'delete' %}
                                         </del>
                                     {% elif link.action == 'create' %}
