@@ -39,7 +39,9 @@ textarea {
 input[type="text"] {
     font-family: Tahoma, Sans, sans-serif;
 }
-ul, li {
+ul, li, dl, dt, dd {
     margin-top: 0;
     padding-top: 0;
+    margin-bottom: 0;
+    padding-bottom: 0;
 }
