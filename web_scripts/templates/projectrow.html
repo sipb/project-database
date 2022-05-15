@@ -1,6 +1,5 @@
 <tr>
     <td>{{ project.name  }}</td>
-    <td>{{ project.description }}</td>
     <td>
         {{ project.status }}
         {% if project.approval == 'awaiting_approval' %}
@@ -10,13 +9,33 @@
         {% endif %}
     </td>
     <td>
+        {% if project.can_edit %}
+            <p><a href="editproject.py?project_id={{ project.project_id }}">edit</a></p>
+        {% endif %}
+        {% if project.can_approve %}
+            <p><a href="approveproject.py?project_id={{ project.project_id }}">review</a></p>
+        {% endif %}
+    </td>
+</tr>
+<tr>
+    <td colspan="3">
+        <h4>Description:</h4>
+        <p>{{ project.description }}</p>
+    </td>
+</tr>
+<tr>
+    <td colspan="3">
+        <h4>Link(s):</h4>
         <ul>
             {% for link in project.links %}
                 <li>{{ link.link|urlize }}</li>
             {% endfor %}
         </ul>
     </td>
-    <td>
+</tr>
+<tr>
+    <td colspan="3">
+        <h4>Communications Channel(s):</h4>
         <ul>
             {% for channel in project.comm_channels %}
                 <li>
@@ -29,7 +48,10 @@
             {% endfor %}
         </ul>
     </td>
-    <td>
+</tr>
+<tr>
+    <td colspan="3">
+        <h4>Role(s):</h4>
         <dl>
             {% for role in project.roles %}
                 <dt>{{ role.role }}</dt>
@@ -46,7 +68,10 @@
             {% endfor %}
         </dl>
     </td>
-    <td>
+</tr>
+<tr>
+    <td colspan="3">
+        <h4>Contact(s):</h4>
         <ul>
             {% for contact in project.contacts %}
                 <li>
@@ -59,13 +84,5 @@
                 </li>
             {% endfor %}
         </ul>
-    </td>
-    <td>
-        {% if project.can_edit %}
-            <p><a href="editproject.py?project_id={{ project.project_id }}">edit</a></p>
-        {% endif %}
-        {% if project.can_approve %}
-            <p><a href="approveproject.py?project_id={{ project.project_id }}">review</a></p>
-        {% endif %}
     </td>
 </tr>
