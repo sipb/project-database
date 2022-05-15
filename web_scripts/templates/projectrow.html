@@ -1,5 +1,17 @@
 <tr class="header">
-    <td>{{ project.name }}</td>
+    <td>
+        {{ project.name }}
+        {% if project.can_edit or project.can_approve %}
+            (
+            {% if project.can_edit %}
+                <a href="editproject.py?project_id={{ project.project_id }}">edit</a>
+            {% endif %}
+            {% if project.can_approve %}
+                <a href="approveproject.py?project_id={{ project.project_id }}">review</a>
+            {% endif %}
+            )
+        {% endif %}
+    </td>
     <td>
         Status: {{ project.status }}
         {% if project.approval == 'awaiting_approval' %}
@@ -8,26 +20,15 @@
             (rejected)
         {% endif %}
     </td>
-    <td>
-        {% if project.can_edit or project.can_approve %}
-            Actions:
-            {% if project.can_edit %}
-                <a href="editproject.py?project_id={{ project.project_id }}">edit</a>
-            {% endif %}
-            {% if project.can_approve %}
-                <a href="approveproject.py?project_id={{ project.project_id }}">review</a>
-            {% endif %}
-        {% endif %}
-    </td>
 </tr>
 <tr>
-    <td colspan="3">
+    <td colspan="2">
         <b>Description:</b>
         <p>{{ project.description }}</p>
     </td>
 </tr>
 <tr>
-    <td colspan="3">
+    <td colspan="2">
         <b>Link(s):</b>
         <ul>
             {% for link in project.links %}
@@ -37,7 +38,7 @@
     </td>
 </tr>
 <tr>
-    <td colspan="3">
+    <td colspan="2">
         <b>Communications Channel(s):</b>
         <ul>
             {% for channel in project.comm_channels %}
@@ -53,7 +54,7 @@
     </td>
 </tr>
 <tr>
-    <td colspan="3">
+    <td colspan="2">
         <b>Role(s):</b>
         <dl>
             {% for role in project.roles %}
@@ -73,7 +74,7 @@
     </td>
 </tr>
 <tr>
-    <td colspan="3">
+    <td colspan="2">
         <b>Contact(s):</b>
         <ul>
             {% for contact in project.contacts %}
