@@ -9,26 +9,25 @@
         {% elif project.approval == 'rejected' %}
             (rejected)
         {% endif %}
-        {% if project.can_edit or project.can_approve %}
-            (
-            {% if project.can_edit %}
-                <a href="editproject.py?project_id={{ project.project_id }}">edit</a>
-            {% endif %}
-            {% if project.can_approve %}
-                <a href="approveproject.py?project_id={{ project.project_id }}">review</a>
-            {% endif %}
-            )
+    </td>
+    <td>
+        Actions:
+        {% if project.can_edit %}
+            <a href="editproject.py?project_id={{ project.project_id }}">edit</a>
+        {% endif %}
+        {% if project.can_approve %}
+            <a href="approveproject.py?project_id={{ project.project_id }}">review</a>
         {% endif %}
     </td>
 </tr>
 <tr>
-    <td colspan="2">
+    <td colspan="3">
         <b>Description:</b>
         {{ project.description }}
     </td>
 </tr>
 <tr>
-    <td colspan="2">
+    <td colspan="3">
         <b>Link(s):</b>
         <ul>
             {% for link in project.links %}
@@ -38,7 +37,7 @@
     </td>
 </tr>
 <tr>
-    <td colspan="2">
+    <td colspan="3">
         <b>Communications Channel(s):</b>
         <ul>
             {% for channel in project.comm_channels %}
@@ -54,7 +53,7 @@
     </td>
 </tr>
 <tr>
-    <td colspan="2">
+    <td colspan="3">
         <b>Role(s):</b>
         <dl>
             {% for role in project.roles %}
@@ -74,7 +73,7 @@
     </td>
 </tr>
 <tr>
-    <td colspan="2">
+    <td colspan="3">
         <b>Contact(s):</b>
         <ul>
             {% for contact in project.contacts %}
