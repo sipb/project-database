@@ -33,3 +33,9 @@ tr {
 .spacer {
     background-color: #c2c0bf;
 }
+textarea {
+    font-family: Tahoma, Sans, sans-serif;
+}
+input[type="text"] {
+    font-family: Tahoma, Sans, sans-serif;
+}
