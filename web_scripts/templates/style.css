@@ -26,7 +26,7 @@ td, td {
 tr:nth-child(even){
     background-color: white
 }
-th {
+.header {
     font-weight:  bold;
     background-color: #a31f34;
     color: white;
