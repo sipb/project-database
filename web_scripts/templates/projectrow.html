@@ -4,7 +4,7 @@
     </td>
 </tr>
 <tr>
-    <td>
+    <td {% if not project.can_edit and not project.can_approve %}colspan="2"{% endif %}>
         <b>Status:</b> {{ project.status }}
         {% if project.approval == 'awaiting_approval' %}
             (awaiting approval)
@@ -12,15 +12,17 @@
             (rejected)
         {% endif %}
     </td>
-    <td>
-        <b>Actions:</b>
-        {% if project.can_edit %}
-            <a href="editproject.py?project_id={{ project.project_id }}">edit</a>
-        {% endif %}
-        {% if project.can_approve %}
-            <a href="approveproject.py?project_id={{ project.project_id }}">review</a>
-        {% endif %}
-    </td>
+    {% if project.can_edit or project.can_approve %}
+        <td>
+            <b>Actions:</b>
+            {% if project.can_edit %}
+                <a href="editproject.py?project_id={{ project.project_id }}">edit</a>
+            {% endif %}
+            {% if project.can_approve %}
+                <a href="approveproject.py?project_id={{ project.project_id }}">review</a>
+            {% endif %}
+        </td>
+    {% endif %}
 </tr>
 <tr>
     <td colspan="2">
