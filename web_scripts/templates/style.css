@@ -17,8 +17,6 @@ h2 {
 table {
     border-collapse: collapse;
     width: 100%;
-/*    margin-top: 0;
-    margin-bottom: 0;*/
 }
 td {
     border: 1px solid black;
@@ -40,4 +38,8 @@ textarea {
 }
 input[type="text"] {
     font-family: Tahoma, Sans, sans-serif;
+}
+ul, li {
+    margin: 0;
+    padding: 0;
 }
