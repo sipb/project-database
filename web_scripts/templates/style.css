@@ -1,5 +1,5 @@
 body{
-    height:100%;
+    height: 100%;
     font-family: Tahoma, Sans, sans-serif;
     color: #000000;
     line-height: 1.5em;
@@ -29,6 +29,7 @@ tr {
     font-weight:  bold;
     background-color: #a31f34;
     color: white;
+    font-size: 110%;
 }
 .spacer {
     background-color: #c2c0bf;
