@@ -22,13 +22,13 @@
 </tr>
 <tr>
     <td colspan="3">
-        <h4>Description:</h4>
+        <b>Description:</b>
         <p>{{ project.description }}</p>
     </td>
 </tr>
 <tr>
     <td colspan="3">
-        <h4>Link(s):</h4>
+        <b>Link(s):</b>
         <ul>
             {% for link in project.links %}
                 <li>{{ link.link|urlize }}</li>
@@ -38,7 +38,7 @@
 </tr>
 <tr>
     <td colspan="3">
-        <h4>Communications Channel(s):</h4>
+        <b>Communications Channel(s):</b>
         <ul>
             {% for channel in project.comm_channels %}
                 <li>
@@ -54,7 +54,7 @@
 </tr>
 <tr>
     <td colspan="3">
-        <h4>Role(s):</h4>
+        <b>Role(s):</b>
         <dl>
             {% for role in project.roles %}
                 <dt>{{ role.role }}</dt>
@@ -74,7 +74,7 @@
 </tr>
 <tr>
     <td colspan="3">
-        <h4>Contact(s):</h4>
+        <b>Contact(s):</b>
         <ul>
             {% for contact in project.contacts %}
                 <li>
