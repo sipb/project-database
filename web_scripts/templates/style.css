@@ -17,6 +17,8 @@ h2 {
 table {
     border-collapse: collapse;
     width: 100%;
+    margin-top: 0;
+    margin-bottom: 0;
 }
 td {
     border: 1px solid black;
@@ -24,8 +26,6 @@ td {
 }
 tr {
     background-color: white;
-    margin-top: -10em;
-    margin-bottom: -10em;
 }
 .header {
     font-weight:  bold;
