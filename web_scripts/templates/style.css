@@ -23,7 +23,7 @@ td, td {
     border:  1px solid black;
     padding:  5px;
 }
-tr:nth-child(even){
+tr {
     background-color: white
 }
 .header {
