@@ -39,7 +39,7 @@ function add_link(link="", anchortext="") {
     anchortext_field.setAttribute("type", "text");
     anchortext_field.setAttribute("id", "anchortext_" + link_counter);
     anchortext_field.setAttribute("name", "anchortext_" + link_counter);
-    anchortext_field.setAttribute("value", link);
+    anchortext_field.setAttribute("value", anchortext);
     anchortext_field.setAttribute("size", "80");
     link_fields.appendChild(anchortext_field);
 
