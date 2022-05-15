@@ -1,7 +1,7 @@
 <tr class="header">
     <td>{{ project.name }}</td>
     <td>
-        {{ project.status }}
+        Status: {{ project.status }}
         {% if project.approval == 'awaiting_approval' %}
             (awaiting approval)
         {% elif project.approval == 'rejected' %}
@@ -9,11 +9,14 @@
         {% endif %}
     </td>
     <td>
-        {% if project.can_edit %}
-            <p><a href="editproject.py?project_id={{ project.project_id }}">edit</a></p>
-        {% endif %}
-        {% if project.can_approve %}
-            <p><a href="approveproject.py?project_id={{ project.project_id }}">review</a></p>
+        {% if project.can_edit or project.can_approve %}
+            Actions:
+            {% if project.can_edit %}
+                <a href="editproject.py?project_id={{ project.project_id }}">edit</a>
+            {% endif %}
+            {% if project.can_approve %}
+                <a href="approveproject.py?project_id={{ project.project_id }}">review</a>
+            {% endif %}
         {% endif %}
     </td>
 </tr>
