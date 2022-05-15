@@ -14,10 +14,17 @@
     <label for="inactive">Inactive</label>
 </p>
 <p>
-    <label for="links"><b>Link(s)</b> (comma-separated):</label><br>
-    <input type="text" id="links" name="links" size="80" {% if project_info %}value="{{ project_info.links|join(', ', attribute='link') }}"{% endif %}>
+    <label><b>Link(s):</b></label>
 </p>
 <div id="links_container"></div>
+{% if project_info %}
+    {% for link in project_info.links %}
+        <script type="text/javascript">add_link("{{ link.link|escapejs }}", "{% if link.anchortext %}{{ link.anchortext|escapejs }}{% endif %}");</script>
+    {% endfor %}
+{% endif %}
+<p>
+    <input type="button" value="Add another link" onclick="add_link()">
+</p>
 <p>
     <label for="comm_channels"><b>Communication channel(s)</b> (comma-separated):</label><br>
     <input type="text" id="comm_channels" name="comm_channels" size="80" {% if project_info %}value="{{ project_info.comm_channels|join(', ', attribute='commchannel') }}"{% endif %}>
