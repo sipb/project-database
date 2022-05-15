@@ -11,16 +11,17 @@ h2 {
     color: #a31f34;
 }
 #content-block{
-    margin:  1em;
+    margin: 1em;
 }
 
 table {
     border-collapse: collapse;
-    width:  100%;
+    width: 100%;
 }
 td {
-    border:  1px solid black;
-    padding:  5px;
+    border: 1px solid black;
+    padding: 5px;
+    margin-top: 0;
 }
 tr {
     background-color: white;

@@ -20,7 +20,7 @@
             {% elif not can_approve %}
                 <p>You do not have access to approve this project. Please contact {{ help_address }} for help.</p>
             {% else %}
-                <p>Instructions: please review the proposed project to ensure it meets SIPB's standards. Once approved, the project information will be shown on the public-facing project list.</p>
+                <p><b>Instructions:</b> please review the proposed project to ensure it meets SIPB's standards. Once approved, the project information will be shown on the public-facing project list.</p>
                 <p>You may edit fields to correct minor typos, but please ask the project's creator before making any substantial changes.</p>
                 <p>If rejecting a project, please describe the reason for rejection in the text box at the bottom of this form. Your comments will be sent to the project's creator.</p>
                 <form action="performapproveproject.py?project_id={{ project_id }}" method="POST">
