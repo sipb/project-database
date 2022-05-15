@@ -563,7 +563,8 @@ def form_link_row(project_id, entry):
     project_id : int
         ID of the project.
     entry : dict
-        The link details. Shall have keys 'link' and 'index'.
+        The link details. Shall have keys 'link', 'index', and (optionally)
+        'anchortext'.
 
     Returns
     -------
@@ -765,7 +766,7 @@ def validate_links(args):
     args : list of dict
         The links to validate.
     """
-    args_lst = ['link', 'index']
+    args_lst = ['link', 'index']  # 'anchortext' optional
     for dict in args:
         assert check_object_params(dict, args_lst)
 
@@ -781,7 +782,8 @@ def add_project_links(
     project_id : int
         The ID of the project to add contacts to.
     args : list of dict
-        The links to add. Each entry shall have keys 'link' and 'index'.
+        The links to add. Each entry shall have keys 'link', 'index', and
+        (optionally) 'anchortext'.
     author_kerberos : str
         The kerb of the user adding the links.
     action : {'create', 'update', 'delete'}, optional
@@ -1027,7 +1029,8 @@ def update_project_links(project_id, args, editor_kerberos, revision_id):
     project_id : int
         ID of the project we want to modify
     args : dict
-        - args is a list of dictionaries with keys 'link'
+        - args is a list of dictionaries with keys 'link' and (optional)
+            'anchortext'.
     editor_kerberos : str
         The kerb of the user making the edit.
     revision_id : int

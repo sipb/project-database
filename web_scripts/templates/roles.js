@@ -12,13 +12,13 @@ function add_role(role_name="", role_description="", role_prereqs="") {
     );
 
     var role_name_label = document.createElement("label");
-    role_name_label.setAttribute("for", "role_name");
+    role_name_label.setAttribute("for", "role_name_" + role_counter);
     role_name_label.innerHTML = "Role name: ";
     role_fields.appendChild(role_name_label);
 
     var role_name_field = document.createElement("input");
     role_name_field.setAttribute("type", "text");
-    role_name_field.setAttribute("id", "role_name");
+    role_name_field.setAttribute("id", "role_name_" + role_counter);
     role_name_field.setAttribute("name", "role_name_" + role_counter);
     role_name_field.setAttribute("value", role_name);
     role_fields.appendChild(role_name_field);
@@ -26,14 +26,14 @@ function add_role(role_name="", role_description="", role_prereqs="") {
     role_fields.appendChild(document.createElement("br"));
 
     var role_description_label = document.createElement("label");
-    role_description_label.setAttribute("for", "role_description");
+    role_description_label.setAttribute("for", "role_description_" + role_counter);
     role_description_label.innerHTML = "Role description:";
     role_fields.appendChild(role_description_label);
 
     role_fields.appendChild(document.createElement("br"));
 
     var role_description_field = document.createElement("textarea");
-    role_description_field.setAttribute("id", "role_description");
+    role_description_field.setAttribute("id", "role_description_" + role_counter);
     role_description_field.setAttribute(
         "name", "role_description_" + role_counter
     );
@@ -45,7 +45,7 @@ function add_role(role_name="", role_description="", role_prereqs="") {
     role_fields.appendChild(document.createElement("br"));
 
     var role_prereqs_label = document.createElement("label");
-    role_prereqs_label.setAttribute("for", "role_prereqs");
+    role_prereqs_label.setAttribute("for", "role_prereqs_" + role_counter);
     role_prereqs_label.innerHTML = "Role prereqs:"
     role_fields.appendChild(role_prereqs_label);
 
@@ -53,7 +53,7 @@ function add_role(role_name="", role_description="", role_prereqs="") {
 
     var role_prereqs_field = document.createElement("textarea");
     role_prereqs_field.setAttribute("type", "text");
-    role_prereqs_field.setAttribute("id", "role_prereqs");
+    role_prereqs_field.setAttribute("id", "role_prereqs_" + role_counter);
     role_prereqs_field.setAttribute(
         "name", "role_prereqs_" + role_counter
     );

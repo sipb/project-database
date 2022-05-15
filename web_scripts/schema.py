@@ -230,6 +230,7 @@ class LinksBase(object):
     link = db.Column(db.Text(), nullable=False)
     # index sets the order which links are listed in:
     index = db.Column(db.Integer(), nullable=False)
+    anchortext = db.Column(db.Text(), nullable=True)
 
     # Foreign key constraint requires special handling.
     @sqlalchemy.ext.declarative.declared_attr
