@@ -503,6 +503,9 @@ def get_stale_projects(
     ----------
     time_horizon : datetime.timedelta, optional
         The time horizon to use. Default is 365 days.
+    active_only : bool, optional
+        Whether or not to return only active projects (default) or all
+        projects (including inactive ones).
 
     Returns
     -------
