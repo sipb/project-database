@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Confirm Project Details</title>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" type="text/css" href="templates/style.css" />
+        <script type="text/javascript" src="templates/roles.js"></script>
+        <script type="text/javascript" src="templates/links.js"></script>
+    </head>
+    <body>
+        <div id="content-block">
+            <h2>SIPB Project Database -- Confirm Project Details</h2>
+
+            {% include 'navigationlinks.html' %}
+
+            {% if not user %}
+                <p><a href="{{ authlink }}">Sign in to confirm projects.</a></p>
+            {% elif not is_valid %}
+                <p>Invalid request:</p>
+                {{ validation_status|safe }}
+            {% elif not can_edit %}
+                <p>You do not have access to edit this project. Please contact {{ help_address }} for help.</p>
+            {% else %}
+                <p><b>Instructions:</b> please review the project details to ensure they are up to date, making edits as necessary. Once done (even if no edits were made) click "Submit".</p>
+                <form action="performconfirmproject.py?project_id={{ project_id }}" method="POST">
+                    {% include 'projectform.html' %}
+                </form>
+            {% endif %}
+        </div>
+    </body>
+</html>
