@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+import datetime
+
 import sqlalchemy as sa
 from schema import \
     session, Projects, ContactEmails, Roles, Links, CommChannels, \
@@ -489,6 +491,40 @@ def get_project_history(project_id):
             ).all()
         )
     return project_history
+
+
+def get_stale_projects(time_horizon=datetime.timedelta(days=365)):
+    """Get projects for which the most recent edit is farther back than the
+    specified horizon.
+
+    Parameters
+    ----------
+    time_horizon : datetime.timedelta, optional
+        The time horizon to use. Default is 365 days.
+
+    Returns
+    -------
+    stale_projects : list of dict
+        The (full) info for each project.
+    """
+    now = session.query(sa.func.now()).scalar()
+    most_recent_revision_dates = session.query(
+        sa.func.max(ProjectsHistory.timestamp).label('last_edit_timestamp'),
+        ProjectsHistory.project_id
+    ).group_by(ProjectsHistory.project_id).subquery()
+    query = session.query(Projects).join(
+        most_recent_revision_dates,
+        Projects.project_id == most_recent_revision_dates.c.project_id
+    ).filter(
+        most_recent_revision_dates.c.last_edit_timestamp <=
+        now - time_horizon
+    )
+    stale_projects = list_dict_convert(query.all())
+    stale_projects = [
+        enrich_project_with_auxiliary_fields(project_info)
+        for project_info in stale_projects
+    ]
+    return stale_projects
 
 
 # Adding operations
