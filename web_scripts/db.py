@@ -493,7 +493,9 @@ def get_project_history(project_id):
     return project_history
 
 
-def get_stale_projects(time_horizon=datetime.timedelta(days=365)):
+def get_stale_projects(
+    time_horizon=datetime.timedelta(days=365), active_only=True
+):
     """Get projects for which the most recent edit is farther back than the
     specified horizon.
 
@@ -512,13 +514,18 @@ def get_stale_projects(time_horizon=datetime.timedelta(days=365)):
         sa.func.max(ProjectsHistory.timestamp).label('last_edit_timestamp'),
         ProjectsHistory.project_id
     ).group_by(ProjectsHistory.project_id).subquery()
-    query = session.query(Projects).join(
-        most_recent_revision_dates,
-        Projects.project_id == most_recent_revision_dates.c.project_id
-    ).filter(
+
+    condition = (
         most_recent_revision_dates.c.last_edit_timestamp <=
         now - time_horizon
     )
+    if active_only:
+        condition &= (Projects.status == 'active')
+
+    query = session.query(Projects).join(
+        most_recent_revision_dates,
+        Projects.project_id == most_recent_revision_dates.c.project_id
+    ).filter(condition)
     stale_projects = list_dict_convert(query.all())
     stale_projects = [
         enrich_project_with_auxiliary_fields(project_info)
