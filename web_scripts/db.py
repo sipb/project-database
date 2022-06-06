@@ -533,7 +533,12 @@ def get_stale_projects(
         Projects.project_id == most_recent_revision_dates.c.project_id
     ).filter(condition)
     results = query.all()
-    stale_projects, last_edit_timestamps = zip(*results)
+    if len(results) > 0:
+        stale_projects, last_edit_timestamps = zip(*results)
+    else:
+        stale_projects = []
+        last_edit_timestamps = []
+
     stale_projects = list_dict_convert(stale_projects)
     stale_projects = [
         enrich_project_with_auxiliary_fields(project_info)
