@@ -56,3 +56,20 @@ def send_reject_message(project_info, approver_kerberos, approver_comments):
     # TODO: Send out email to project's creator and points of contacts
     # print(creator, point_of_contacts)
     pass
+
+
+def send_confirm_reminder_message(project_info):
+    """Send a message to the project contact(s) reminding them to confirm the
+    project details.
+    """
+    # TODO: Not implemented yet!
+    pass
+
+
+def send_deactivation_message(project_info):
+    """Send a message to the project contact(s) informing them that their
+    project's status has been set to "inactive" and will no longer appear on
+    the list of active projects.
+    """
+    # TODO: Not implemented yet!
+    pass

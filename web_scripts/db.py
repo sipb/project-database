@@ -510,7 +510,8 @@ def get_stale_projects(
     Returns
     -------
     stale_projects : list of dict
-        The (full) info for each project.
+        The (full) info for each project. Includes the timestamp of the most
+        recent edit in the field 'last_edit_timestamp'.
     """
     now = session.query(sa.func.now()).scalar()
     most_recent_revision_dates = session.query(
@@ -525,15 +526,25 @@ def get_stale_projects(
     if active_only:
         condition &= (Projects.status == 'active')
 
-    query = session.query(Projects).join(
+    query = session.query(
+        Projects, most_recent_revision_dates.c.last_edit_timestamp
+    ).join(
         most_recent_revision_dates,
         Projects.project_id == most_recent_revision_dates.c.project_id
     ).filter(condition)
-    stale_projects = list_dict_convert(query.all())
+    results = query.all()
+    stale_projects, last_edit_timestamps = zip(*results)
+    stale_projects = list_dict_convert(stale_projects)
     stale_projects = [
         enrich_project_with_auxiliary_fields(project_info)
         for project_info in stale_projects
     ]
+
+    for project, last_edit_timestamp in zip(
+        stale_projects, last_edit_timestamps
+    ):
+        project['last_edit_timestamp'] = last_edit_timestamp
+
     return stale_projects
 
 
