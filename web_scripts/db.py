@@ -230,13 +230,17 @@ def check_object_params(dict, req_params):
 def get_all_projects():
     """Get metadata all of projects in database
     """
-    return session.query(Projects).all()
+    return session.query(Projects).order_by(
+        Projects.status, Projects.name
+    ).all()
 
 
 def get_all_approved_projects():
     """Get data for all approved projects in the database.
     """
-    return session.query(Projects).filter_by(approval='approved').order_by(
+    return session.query(Projects).filter_by(
+        approval='approved'
+    ).order_by(
         Projects.status, Projects.name
     ).all()
 
@@ -246,6 +250,8 @@ def get_all_awaiting_approval_projects():
     """
     return session.query(Projects).filter_by(
         approval='awaiting_approval'
+    ).order_by(
+        Projects.status, Projects.name
     ).all()
 
 
@@ -254,6 +260,8 @@ def get_active_approved_projects():
     """
     return session.query(Projects).filter_by(
         status='active', approval='approved'
+    ).order_by(
+        Projects.name
     ).all()
 
 
@@ -262,6 +270,8 @@ def get_inactive_approved_projects():
     """
     return session.query(Projects).filter_by(
         status='inactive', approval='approved'
+    ).order_by(
+        Projects.name
     ).all()
 
 
@@ -270,7 +280,9 @@ def get_projects_for_contact(email):
     """
     return session.query(Projects).join(
         ContactEmails, Projects.project_id == ContactEmails.project_id
-    ).filter(ContactEmails.email == email).all()
+    ).filter(ContactEmails.email == email).order_by(
+        Projects.status, Projects.name
+    ).all()
 
 
 def get_project_info(model, project_id, raw_input=False, sort_by_index=False):
