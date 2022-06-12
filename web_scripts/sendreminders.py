@@ -9,7 +9,7 @@ import mail
 # REMIND_DAYS = set(datetime.timedelta(days=d) for d in [30, 21, 14, 7, 3, 2, 1])
 
 EXPIRATION_HORIZON = datetime.timedelta(days=1)
-REMIND_DAYS = set(datetime.timedelta(days=d) for d in [30, 21, 14, 7, 3, 2, 1])
+REMIND_DAYS = set(datetime.timedelta(days=d) for d in [30, 21, 14, 7, 3, 2, 1, 13, 28])
 
 
 def round_timedelta(in_timedelta):
@@ -55,6 +55,7 @@ def main():
         )
         print(last_edit_age_rounded)
         if last_edit_age_rounded in REMIND_DAYS:
+            print('sending!')
             mail.send_confirm_reminder_message(project)
 
     stale_projects = db.get_stale_projects(
