@@ -43,7 +43,7 @@ def format_approve_project(project_id):
             strutils.html_listify(status_messages) if not is_valid else ''
         ),
         can_approve=can_approve,
-        help_address='useful-help-email-for-projects-db [at] mit [dot] edu',
+        help_address='sipb-projectdb-team [at] mit [dot] edu',
         authlink=authlink,
         project_info=project_info,
         project_id=project_id,

@@ -23,8 +23,7 @@ def format_add_project():
     result += jenv.get_template('addproject.html').render(
         user=user,
         can_add=can_add,
-        # TODO: what is the contact email for projects-db maintainers?
-        help_address='useful-help-email-for-projects-db [at] mit [dot] edu',
+        help_address='sipb-projectdb-team [at] mit [dot] edu',
         authlink=authlink,
         deauthlink=deauthlink,
         operation='Create project'

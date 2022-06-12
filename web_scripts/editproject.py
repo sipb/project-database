@@ -43,7 +43,7 @@ def format_edit_project(project_id):
             strutils.html_listify(status_messages) if not is_valid else ''
         ),
         can_edit=can_edit,
-        help_address='useful-help-email-for-projects-db [at] mit [dot] edu',
+        help_address='sipb-projectdb-team [at] mit [dot] edu',
         authlink=authlink,
         project_info=project_info,
         project_id=project_id,
