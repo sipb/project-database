@@ -5,6 +5,33 @@ import datetime
 import db
 import mail
 
+# EXPIRATION_HORIZON = datetime.timedelta(days=365)
+# REMIND_DAYS = set(datetime.timedelta(days=d) for d in [30, 21, 14, 7, 3, 2, 1])
+
+EXPIRATION_HORIZON = datetime.timedelta(days=1)
+REMIND_DAYS = set(datetime.timedelta(days=d) for d in [30, 21, 14, 7, 3, 2, 1])
+
+
+def round_timedelta(in_timedelta):
+    """Round a time difference to the nearest whole number of days.
+    """
+    if in_timedelta.days < 0:
+        sign = -1
+    else:
+        sign = +1
+    in_timedelta = abs(in_timedelta)
+
+    fractional_part = datetime.timedelta(
+        seconds=in_timedelta.seconds, microseconds=in_timedelta.microseconds
+    )
+    floor = datetime.timedelta(days=in_timedelta.days)
+    if fractional_part >= datetime.timedelta(days=0.5):
+        rounded = floor + datetime.timedelta(days=1)
+    else:
+        rounded = floor
+
+    return rounded * sign
+
 
 def main():
     """The sendreminders script does two things:
@@ -16,20 +43,23 @@ def main():
             edit link, and a reminder that they should change the status back
             to active if they want their project to appear in the list of
             active projects.
-
-    Note that these actions are performed EVERY time the script is run. If we
-    run the script daily, this might lead to lots of spam. We could consider
-    running it weekly to cut down on this, while still getting the point across
-    that people should update their projects.
     """
+    now = db.get_now()
     projects_needing_edits = db.get_stale_projects(
-        time_horizon=datetime.timedelta(days=335)
+        now,
+        time_horizon=EXPIRATION_HORIZON - max(REMIND_DAYS)
     )
     for project in projects_needing_edits:
-        mail.send_confirm_reminder_message(project)
+        last_edit_age_rounded = round_timedelta(
+            now - project['last_edit_timestamp']
+        )
+        print(last_edit_age_rounded)
+        if last_edit_age_rounded in REMIND_DAYS:
+            mail.send_confirm_reminder_message(project)
 
     stale_projects = db.get_stale_projects(
-        time_horizon=datetime.timedelta(days=365)
+        now,
+        time_horizon=EXPIRATION_HORIZON
     )
     for project in stale_projects:
         project['status'] = 'inactive'

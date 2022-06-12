@@ -493,14 +493,20 @@ def get_project_history(project_id):
     return project_history
 
 
+def get_now():
+    return session.query(sa.func.now()).scalar()
+
+
 def get_stale_projects(
-    time_horizon=datetime.timedelta(days=365), active_only=True
+    now, time_horizon=datetime.timedelta(days=365), active_only=True
 ):
     """Get projects for which the most recent edit is farther back than the
     specified horizon.
 
     Parameters
     ----------
+    now : datetime.datetime
+        The current time. Get this using db.get_now().
     time_horizon : datetime.timedelta, optional
         The time horizon to use. Default is 365 days.
     active_only : bool, optional
@@ -513,7 +519,6 @@ def get_stale_projects(
         The (full) info for each project. Includes the timestamp of the most
         recent edit in the field 'last_edit_timestamp'.
     """
-    now = session.query(sa.func.now()).scalar()
     most_recent_revision_dates = session.query(
         sa.func.max(ProjectsHistory.timestamp).label('last_edit_timestamp'),
         ProjectsHistory.project_id
