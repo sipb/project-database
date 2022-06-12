@@ -236,7 +236,9 @@ def get_all_projects():
 def get_all_approved_projects():
     """Get data for all approved projects in the database.
     """
-    return session.query(Projects).filter_by(approval='approved').all()
+    return session.query(Projects).filter_by(approval='approved').order_by(
+        Projects.status, Projects.name
+    ).all()
 
 
 def get_all_awaiting_approval_projects():
