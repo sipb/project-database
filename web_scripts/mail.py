@@ -5,7 +5,7 @@ from xml.etree.ElementTree import Comment
 import db
 import creds
 from datetime import datetime
-from sendreminders import EXPIRATION_BY_NUM_DAYS
+from config import EXPIRATION_BY_NUM_DAYS
 
 APPROVERS_LIST = "sipb-projectdb-approvers@mit.edu"
 SERVICE_EMAIL = "sipb-projectdb-bot@mit.edu" #Email identifying as coming from this service
