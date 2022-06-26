@@ -20,24 +20,16 @@ alt Editor is not authorized or content is invalid
 
 else Editor is authorized and content is valid
 
-    alt Editor is an approver
+    performeditproject.py -> Database : Update project
 
-        performeditproject.py -> Database : Update project (put same content in display table and buffer table)
-
-    else Editor is not an approver
-
-        performeditproject.py -> Database : Update project (only put content in buffer table, set buffer table status to "awaiting_approval")
-
-    end
-
-    alt Status is "rejected"
+    alt Status is "rejected" or project name was changed by non-approver
         
         performeditproject.py -> Database : Set status to "awaiting_approval"
         performeditproject.py -> Approvers : Send email
 
     end
 
-    performeditproject.py -> Editor : Display success page
+    performeditproject.py -> Editor : Display success page (optionally including message about re-approval)
 
 end
 
