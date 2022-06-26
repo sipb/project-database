@@ -148,28 +148,30 @@ def send_confirm_reminder_message(project_info,num_days_left):
     project details. 
     """
     current_time = datetime.now().strftime("%H:%M:%S on %m/%d/%Y")
-    subject = "Project {name} needs to be renewed".format(name=project_info['name'])
+    subject = "[ACTION NEEDED] SIPB Project {name} needs to be renewed".format(name=project_info['name'])
     msg = """
     Dear {name}'s project team,
     
-    Per SIPB's policy, we require that project maintainers need to renew their submitted project 
-    every {num_days} to make sure the information it contains is up-to-date. We ask that you review
-    the project information displayed on the SIPB projects website and make any edits as necessary.
+    Per SIPB's policy, we require that project maintainers update their submitted project info at least
+    every {policy_num_days} days make sure the information it contains is correct. The expiration
+    date is calculated from the last time an edit was made to the project. We ask that you 
+    review the project information displayed on the SIPB projects website and make any edits as necessary.
     
     If you fail to renew the status of your project, of which you have {num_days} left,
-    then your project will be set to "inactive".
+    then your project will automatically be set to "inactive".
     
     You can edit your project using the following link:
     {url}
     
-    Please make the necessary changes to your project submission and resubmit for another review.
-    
+    Note: If no edits are needed, you can simply change your project's status back to "active" and click 
+    "Update Project" for a new expiration timestamp to be generated.
     This email was generated as of {time}.
     
     Sincerely,
     SIPB ProjectDB service bot
     """.format(name=project_info['name'],
                time=current_time,
+               policy_num_days=EXPIRATION_BY_NUM_DAYS,
                num_days=num_days_left,
                url= BASE_EDIT_URL + project_info['project_id'])
     
@@ -182,5 +184,36 @@ def send_deactivation_message(project_info):
     project's status has been set to "inactive" and will no longer appear on
     the list of active projects.
     """
-    # TODO: Not implemented yet!
-    pass
+    current_time = datetime.now().strftime("%H:%M:%S on %m/%d/%Y")
+    subject = "[NOTICE] SIPB Project {name} has been marked as inactive".format(name=project_info['name'])
+    msg = """
+    Dear {name}'s project team,
+    
+    This is a notice to let you know that your project has automatically been marked as "inactive" on
+    the SIPB projects website. This is because your group has failed to update your project
+    listing prior to the expiration data.
+    
+    Per SIPB's policy, we require that project maintainers update their submitted project info at least
+    every {policy_num_days} days make sure the information it contains is correct. The expiration
+    date is calculated from the last time an edit was made to the project.
+    
+    We ask that you review the project information displayed on the SIPB projects website and make any edits 
+    as necessary.
+    
+    You can edit your project using the following link:
+    {url}
+    
+    Note: If no edits are needed, you can simply change your project's status back to "active" and click 
+    "Update Project" for a new expiration timestamp to be generated.
+    
+    This email was generated as of {time}.
+    
+    Sincerely,
+    SIPB ProjectDB service bot
+    """.format(name=project_info['name'],
+               time=current_time,
+               policy_num_days=EXPIRATION_BY_NUM_DAYS,
+               url= BASE_EDIT_URL + project_info['project_id'])
+    
+    recipients = get_point_of_contacts(project_info)
+    send(recipients,SERVICE_EMAIL,subject,msg)
