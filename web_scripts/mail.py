@@ -60,7 +60,7 @@ def send_to_approvers(project_info):
     """
     project_creator = db.get_project_creator(project_info['project_id'])
     current_time = datetime.now().strftime("%H:%M:%S on %m/%d/%Y")
-    subject = "Project '{name}' needs approval".format(name=project_info['name'])
+    subject = "[Action Required] Project '{name}' needs approval".format(name=project_info['name'])
     msg = """
     Dear SIPB Project Approvers,
     
@@ -107,8 +107,8 @@ def send_approve_message(project_info, approver_kerberos, approver_comments):
                approver=approver_kerberos,
                comment=approver_comments if approver_comments else "None")
     
-    recipients = get_point_of_contacts(project_info)
-    send([recipients,APPROVERS_LIST],SERVICE_EMAIL,subject,msg)
+    recipients = get_point_of_contacts(project_info) + [APPROVERS_LIST]
+    send(recipients,SERVICE_EMAIL,subject,msg)
 
 
 def send_reject_message(project_info, approver_kerberos, approver_comments):
@@ -139,8 +139,8 @@ def send_reject_message(project_info, approver_kerberos, approver_comments):
                url= BASE_EDIT_URL + str(project_info['project_id']),
                comment=approver_comments) # There *must* be a comment for rejection
     
-    recipients = get_point_of_contacts(project_info)
-    send([recipients,APPROVERS_LIST],SERVICE_EMAIL,subject,msg)
+    recipients = get_point_of_contacts(project_info) + [APPROVERS_LIST]
+    send(recipients,SERVICE_EMAIL,subject,msg)
 
 
 def send_confirm_reminder_message(project_info,num_days_left):
@@ -175,8 +175,8 @@ def send_confirm_reminder_message(project_info,num_days_left):
                num_days=num_days_left,
                url= BASE_EDIT_URL + str(project_info['project_id']))
     
-    recipients = get_point_of_contacts(project_info)
-    send([recipients,APPROVERS_LIST],SERVICE_EMAIL,subject,msg)
+    recipients = get_point_of_contacts(project_info) #No need to spam approvers with reminders
+    send(recipients,SERVICE_EMAIL,subject,msg)
 
 
 def send_deactivation_message(project_info):
@@ -213,7 +213,7 @@ def send_deactivation_message(project_info):
     """.format(name=project_info['name'],
                time=current_time,
                policy_num_days=EXPIRATION_BY_NUM_DAYS,
-               url= BASE_EDIT_URL + str(project_info['project_id']))
+               url= BASE_EDIT_URL + str(project_info['project_id'])) 
     
-    recipients = get_point_of_contacts(project_info)
-    send([recipients,APPROVERS_LIST],SERVICE_EMAIL,subject,msg)
+    recipients = get_point_of_contacts(project_info) + [APPROVERS_LIST]
+    send(recipients,SERVICE_EMAIL,subject,msg)
