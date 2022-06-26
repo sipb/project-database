@@ -22,13 +22,13 @@ else Requestor is authorized and content is valid
 
     alt Requestor is an approver
 
-        performaddproject.py -> Database : Add project with status "approved"
+        performaddproject.py -> Database : Add project with status "approved" (put same content in display table and buffer table)
         Database -> performaddproject.py : Return project_id
         performaddproject.py -> Requestor : Display success page
 
     else Requestor is not an approver
 
-        performaddproject.py -> Database : Add project with status "awaiting_approval"
+        performaddproject.py -> Database : Add project with status "awaiting_approval" (put same content in display table and buffer table)
         Database -> performaddproject.py : Return project_id
         performaddproject.py -> Approvers : Send email
         performaddproject.py -> Requestor : Display success page with message that project is pending approval

@@ -24,14 +24,12 @@ else Approver is authorized and content is valid
 
     alt Project approved
 
-        
-        
-        performapproveproject.py -> Database : Set status to "approved"
+        performapproveproject.py -> Database : Set status to "approved" and update display table to match buffer table
         performapproveproject.py -> Requestor : Send approval email
 
     else Project rejected
 
-        performapproveproject.py -> Database : Set status to "rejected"
+        performapproveproject.py -> Database : Set status to "rejected" in both display table and buffer table
         performapproveproject.py -> Requestor : Send rejection email
 
     end
