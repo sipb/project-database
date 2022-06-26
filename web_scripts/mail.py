@@ -108,7 +108,7 @@ def send_approve_message(project_info, approver_kerberos, approver_comments):
                comment=approver_comments if approver_comments else "None")
     
     recipients = get_point_of_contacts(project_info)
-    send(recipients,SERVICE_EMAIL,subject,msg)
+    send([recipients,APPROVERS_LIST],SERVICE_EMAIL,subject,msg)
 
 
 def send_reject_message(project_info, approver_kerberos, approver_comments):
@@ -136,11 +136,11 @@ def send_reject_message(project_info, approver_kerberos, approver_comments):
     """.format(name=project_info['name'],
                time=current_time,
                approver=approver_kerberos,
-               url= BASE_EDIT_URL + project_info['project_id'],
+               url= BASE_EDIT_URL + str(project_info['project_id']),
                comment=approver_comments) # There *must* be a comment for rejection
     
     recipients = get_point_of_contacts(project_info)
-    send(recipients,SERVICE_EMAIL,subject,msg)
+    send([recipients,APPROVERS_LIST],SERVICE_EMAIL,subject,msg)
 
 
 def send_confirm_reminder_message(project_info,num_days_left):
@@ -173,10 +173,10 @@ def send_confirm_reminder_message(project_info,num_days_left):
                time=current_time,
                policy_num_days=EXPIRATION_BY_NUM_DAYS,
                num_days=num_days_left,
-               url= BASE_EDIT_URL + project_info['project_id'])
+               url= BASE_EDIT_URL + str(project_info['project_id']))
     
     recipients = get_point_of_contacts(project_info)
-    send(recipients,SERVICE_EMAIL,subject,msg)
+    send([recipients,APPROVERS_LIST],SERVICE_EMAIL,subject,msg)
 
 
 def send_deactivation_message(project_info):
@@ -213,7 +213,7 @@ def send_deactivation_message(project_info):
     """.format(name=project_info['name'],
                time=current_time,
                policy_num_days=EXPIRATION_BY_NUM_DAYS,
-               url= BASE_EDIT_URL + project_info['project_id'])
+               url= BASE_EDIT_URL + str(project_info['project_id']))
     
     recipients = get_point_of_contacts(project_info)
-    send(recipients,SERVICE_EMAIL,subject,msg)
+    send([recipients,APPROVERS_LIST],SERVICE_EMAIL,subject,msg)
