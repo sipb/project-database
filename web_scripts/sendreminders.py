@@ -5,7 +5,8 @@ import datetime
 import db
 import mail
 
-EXPIRATION_HORIZON = datetime.timedelta(days=365)
+EXPIRATION_BY_NUM_DAYS = 365
+EXPIRATION_HORIZON = datetime.timedelta(days=EXPIRATION_BY_NUM_DAYS)
 REMIND_DAYS = set(datetime.timedelta(days=d) for d in [30, 21, 14, 7, 3, 2, 1])
 
 
@@ -51,7 +52,7 @@ def main():
             now - project['last_edit_timestamp']
         )
         if last_edit_age_rounded in REMIND_DAYS:
-            mail.send_confirm_reminder_message(project)
+            mail.send_confirm_reminder_message(project,last_edit_age_rounded)
 
     stale_projects = db.get_stale_projects(
         now,
