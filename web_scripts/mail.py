@@ -93,7 +93,8 @@ def send_approve_message(project_info, approver_kerberos, approver_comments):
     Dear {name}'s project team,
     
     Congratulations! Your project submission to the SIPB projects website has been reviewed and approved by {approver}, with the following comment:
-    {comment}
+    
+    \"{comment}\"
     
     You can now find your project on the list of all approved projects at:
     {url}
@@ -122,7 +123,8 @@ def send_reject_message(project_info, approver_kerberos, approver_comments):
     Dear {name}'s project team,
     
     Unfortunately, your project submission to the SIPB projects website has been rejected by {approver} with the following comments:
-    {comment}
+    
+    \"{comment}\"
     
     You can edit your project using the following link:
     {url}
@@ -185,8 +187,7 @@ def send_deactivation_message(project_info):
     msg = """
     Dear {name}'s project team,
     
-    This is a notice to let you know that your project has automatically been marked as "inactive" on the SIPB projects website. This is because your group has failed to update your project
-    listing prior to the expiration data.
+    This is a notice to let you know that your project has automatically been marked as "inactive" on the SIPB projects website. This is because your group has failed to update your project listing prior to the expiration data.
     
     Per SIPB's policy, we require that project maintainers update their submitted project info at least every {policy_num_days} days make sure the information it contains is correct. The expiration date is calculated from the last time an edit was made to the project.
     
