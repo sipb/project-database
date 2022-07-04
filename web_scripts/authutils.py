@@ -7,7 +7,7 @@ import os
 
 import db
 import roster
-
+from config import ADMIN_USERS
 
 def get_kerberos():
     """Get the kerberos of the user. Returns None if there is no user.
@@ -129,8 +129,7 @@ def is_admin(user):
     is_admin : bool
         Whether or not the user is an admin.
     """
-    # TODO: This should probably be loaded from some external config file?
-    if user and user in ['huydai', 'javsolis', 'markchil']:
+    if user and user in ADMIN_USERS:
         return True
     else:
         return False

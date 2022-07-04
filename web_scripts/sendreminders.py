@@ -5,7 +5,7 @@ import datetime
 import db
 import mail
 
-EXPIRATION_BY_NUM_DAYS = 365
+from config import EXPIRATION_BY_NUM_DAYS
 EXPIRATION_HORIZON = datetime.timedelta(days=EXPIRATION_BY_NUM_DAYS)
 REMIND_DAYS = set(datetime.timedelta(days=d) for d in [30, 21, 14, 7, 3, 2, 1])
 

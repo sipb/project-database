@@ -5,7 +5,7 @@ from xml.etree.ElementTree import Comment
 import db
 import creds
 from datetime import datetime
-from sendreminders import EXPIRATION_BY_NUM_DAYS
+from config import EXPIRATION_BY_NUM_DAYS
 
 APPROVERS_LIST = "sipb-projectdb-approvers@mit.edu"
 SERVICE_EMAIL = "sipb-projectdb-bot@mit.edu" #Email identifying as coming from this service
@@ -21,9 +21,11 @@ def get_point_of_contacts(project_info):
     Given a project, return a list of strings of all the email contacts 
     associated with the project (including the creator)
     """
-    all_contacts = [db.get_project_creator(project_info['project_id'])]
+    creator_email = db.get_project_creator(project_info['project_id']) + '@mit.edu'
+    all_contacts = [creator_email]
     for contact in project_info['contacts']:
-       all_contacts.append(contact['email'])
+        if contact not in project_info['contacts']: #Avoid duplicates
+            all_contacts.append(contact['email'])
     return all_contacts
 
 
@@ -60,7 +62,7 @@ def send_to_approvers(project_info):
     """
     project_creator = db.get_project_creator(project_info['project_id'])
     current_time = datetime.now().strftime("%H:%M:%S on %m/%d/%Y")
-    subject = "Project '{name}' needs approval".format(name=project_info['name'])
+    subject = "[Action Required] SIPB project '{name}' needs approval".format(name=project_info['name'])
     msg = """
     Dear SIPB Project Approvers,
     
@@ -86,13 +88,13 @@ def send_approve_message(project_info, approver_kerberos, approver_comments):
     that the project has been accepted.
     """
     current_time = datetime.now().strftime("%H:%M:%S on %m/%d/%Y")
-    subject = "Project {name} has been approved".format(name=project_info['name'])
+    subject = "SIPB project '{name}' has been approved".format(name=project_info['name'])
     msg = """
     Dear {name}'s project team,
     
-    Congratulations! Your project submission to the SIPB projects website has been reviewed and approved by {approver}, 
-    with the following comment:
-    {comment}
+    Congratulations! Your project submission to the SIPB projects website has been reviewed and approved by {approver}, with the following comment:
+    
+    \"{comment}\"
     
     You can now find your project on the list of all approved projects at:
     {url}
@@ -107,7 +109,7 @@ def send_approve_message(project_info, approver_kerberos, approver_comments):
                approver=approver_kerberos,
                comment=approver_comments if approver_comments else "None")
     
-    recipients = get_point_of_contacts(project_info)
+    recipients = get_point_of_contacts(project_info) + [APPROVERS_LIST]
     send(recipients,SERVICE_EMAIL,subject,msg)
 
 
@@ -116,13 +118,13 @@ def send_reject_message(project_info, approver_kerberos, approver_comments):
     that the project has been rejected.
     """
     current_time = datetime.now().strftime("%H:%M:%S on %m/%d/%Y")
-    subject = "Project {name} has been rejected".format(name=project_info['name'])
+    subject = "SIPB project '{name}' has been rejected".format(name=project_info['name'])
     msg = """
     Dear {name}'s project team,
     
-    Unfortunately, your project submission to the SIPB projects website has been rejected by {approver}
-    with the following comments:
-    {comment}
+    Unfortunately, your project submission to the SIPB projects website has been rejected by {approver} with the following comments:
+    
+    \"{comment}\"
     
     You can edit your project using the following link:
     {url}
@@ -136,10 +138,10 @@ def send_reject_message(project_info, approver_kerberos, approver_comments):
     """.format(name=project_info['name'],
                time=current_time,
                approver=approver_kerberos,
-               url= BASE_EDIT_URL + project_info['project_id'],
+               url= BASE_EDIT_URL + str(project_info['project_id']),
                comment=approver_comments) # There *must* be a comment for rejection
     
-    recipients = get_point_of_contacts(project_info)
+    recipients = get_point_of_contacts(project_info) + [APPROVERS_LIST]
     send(recipients,SERVICE_EMAIL,subject,msg)
 
 
@@ -148,21 +150,18 @@ def send_confirm_reminder_message(project_info,num_days_left):
     project details. 
     """
     current_time = datetime.now().strftime("%H:%M:%S on %m/%d/%Y")
-    subject = "Project {name} needs to be renewed".format(name=project_info['name'])
+    subject = "[ACTION NEEDED] SIPB project '{name}' needs to be renewed".format(name=project_info['name'])
     msg = """
     Dear {name}'s project team,
     
-    Per SIPB's policy, we require that project maintainers need to renew their submitted project 
-    every {num_days} to make sure the information it contains is up-to-date. We ask that you review
-    the project information displayed on the SIPB projects website and make any edits as necessary.
+    Per SIPB's policy, we require that project maintainers update their submitted project info at least every {policy_num_days} days make sure the information it contains is correct. The expiration date is calculated from the last time an edit was made to the project. We ask that you review the project information displayed on the SIPB projects website and make any edits as necessary.
     
-    If you fail to renew the status of your project, of which you have {num_days} left,
-    then your project will be set to "inactive".
+    If you fail to renew the status of your project, of which you have {num_days} left, then your project will automatically be set to "inactive".
     
     You can edit your project using the following link:
     {url}
     
-    Please make the necessary changes to your project submission and resubmit for another review.
+    Note: If no edits are needed, you can simply change your project's status back to "active" and click "Update Project" for a new expiration timestamp to be generated.
     
     This email was generated as of {time}.
     
@@ -170,10 +169,11 @@ def send_confirm_reminder_message(project_info,num_days_left):
     SIPB ProjectDB service bot
     """.format(name=project_info['name'],
                time=current_time,
+               policy_num_days=EXPIRATION_BY_NUM_DAYS,
                num_days=num_days_left,
-               url= BASE_EDIT_URL + project_info['project_id'])
+               url= BASE_EDIT_URL + str(project_info['project_id']))
     
-    recipients = get_point_of_contacts(project_info)
+    recipients = get_point_of_contacts(project_info) #No need to spam approvers with reminders
     send(recipients,SERVICE_EMAIL,subject,msg)
 
 
@@ -182,5 +182,30 @@ def send_deactivation_message(project_info):
     project's status has been set to "inactive" and will no longer appear on
     the list of active projects.
     """
-    # TODO: Not implemented yet!
-    pass
+    current_time = datetime.now().strftime("%H:%M:%S on %m/%d/%Y")
+    subject = "[NOTICE] SIPB project '{name}' has been marked as inactive".format(name=project_info['name'])
+    msg = """
+    Dear {name}'s project team,
+    
+    This is a notice to let you know that your project has automatically been marked as "inactive" on the SIPB projects website. This is because your group has failed to update your project listing prior to the expiration data.
+    
+    Per SIPB's policy, we require that project maintainers update their submitted project info at least every {policy_num_days} days make sure the information it contains is correct. The expiration date is calculated from the last time an edit was made to the project.
+    
+    We ask that you review the project information displayed on the SIPB projects website and make any edits as necessary.
+    
+    You can edit your project using the following link:
+    {url}
+    
+    Note: If no edits are needed, you can simply change your project's status back to "active" and click "Update Project" for a new expiration timestamp to be generated.
+    
+    This email was generated as of {time}.
+    
+    Sincerely,
+    SIPB ProjectDB service bot
+    """.format(name=project_info['name'],
+               time=current_time,
+               policy_num_days=EXPIRATION_BY_NUM_DAYS,
+               url= BASE_EDIT_URL + str(project_info['project_id'])) 
+    
+    recipients = get_point_of_contacts(project_info) + [APPROVERS_LIST]
+    send(recipients,SERVICE_EMAIL,subject,msg)
