@@ -9,6 +9,7 @@ import db
 import roster
 from config import ADMIN_USERS
 
+
 def get_kerberos():
     """Get the kerberos of the user. Returns None if there is no user.
 

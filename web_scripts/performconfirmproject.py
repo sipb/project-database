@@ -43,7 +43,9 @@ def main():
         # When updating a rejected project, change status to
         # "awaiting_approval" and email the approvers:
         if db.get_project_approval_status(project_id) == 'rejected':
-            db.unreject_project(project_info, project_id, editor_kerberos)
+            db.set_project_status_to_awaiting_approval(
+                project_info, project_id, editor_kerberos
+            )
             mail.send_to_approvers(project_info)
 
         page = performutils.format_success_page(project_id, 'Confirm Project')

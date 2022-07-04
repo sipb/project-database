@@ -1244,7 +1244,9 @@ def reject_project(
     session.commit()
 
 
-def unreject_project(project_info, project_id, editor_kerberos):
+def set_project_status_to_awaiting_approval(
+    project_info, project_id, editor_kerberos
+):
     """Set a project back to "awaiting_approval"
 
     Parameters
