@@ -12,7 +12,7 @@ SERVICE_EMAIL = "sipb-projectdb-bot@mit.edu" #Email identifying as coming from t
 
 ALL_PROJECTS_URL = "https://{locker}.scripts.mit.edu:444/projectlist.py".format(locker=creds.user)
 AWAITING_APPROVAL_URL = "https://{locker}.scripts.mit.edu:444/projectlist.py?filter_by=awaiting_approval".format(locker=creds.user)
-BASE_EDIT_URL = "https://huydai.scripts.mit.edu:444/editproject.py?project_id=" #Need to provide project id at the end
+BASE_EDIT_URL = "https://{locker}.scripts.mit.edu:444/editproject.py?project_id=".format(locker=creds.user) #Need to provide project id at the end
 
 ## Helper function
 
@@ -27,6 +27,96 @@ def get_point_of_contacts(project_info):
         if contact not in project_info['contacts']: #Avoid duplicates
             all_contacts.append(contact['email'])
     return all_contacts
+
+
+def format_project_links(links):
+    result = ''
+    for link in links:
+        result += """
+        Link: {link}
+        Anchortext: {anchortext}
+
+        """.format(
+            link=link['link'],
+            anchortext=link['anchortext']
+        )
+    return result
+
+
+def format_project_comm_channels(comm_channels):
+    result = ''
+    for channel in comm_channels:
+        result += """
+        Channel: {channel}
+
+        """.format(
+            channel=channel['commchannel']
+        )
+    return result
+
+
+def format_project_roles(roles):
+    result = ''
+    for role in roles:
+        result += """
+        Role: {role}
+        Description: {description}
+        Prereq: {prereq}
+        """.format(
+            role=role['role'],
+            description=role['description'],
+            prereq=role['prereq']
+        )
+    return result
+
+
+def format_project_contacts(contacts):
+    result = ''
+    for contact in contacts:
+        result += """
+        Contact: {email}
+        Type: {type}
+        """.format(
+            email=contact['email'],
+            type=contact['type']
+        )
+    return result
+
+
+def format_project_info(project_info):
+    """Format a string with all of the various project info.
+    """
+    result = """
+    Name: {name}
+
+    Description:
+    {description}
+
+    Status: {status}
+
+    Link(s):
+    {links}
+
+    Communications channel(s):
+    {comm_channels}
+
+    Role(s):
+    {roles}
+
+    Contact(s):
+    {contacts}
+    """.format(
+        name=project_info['name'],
+        description=project_info['description'],
+        status=project_info['status'],
+        links=format_project_links(project_info['links']),
+        comm_channels=format_project_comm_channels(
+            project_info['comm_channels']
+        ),
+        roles=format_project_roles(project_info['roles']),
+        contacts=format_project_contacts(project_info['contacts'])
+    )
+    return result
 
 
 ## Main functionality
@@ -82,6 +172,41 @@ def send_to_approvers(project_info):
         url=AWAITING_APPROVAL_URL)
     
     send(APPROVERS_LIST,SERVICE_EMAIL,subject,msg)
+
+
+def send_edit_notice_to_approvers(project_info, editor_kerberos):
+    """Send a message to the approver mailing list notifying that a project has
+    been edited.
+    """
+    current_time = datetime.now().strftime("%H:%M:%S on %m/%d/%Y")
+    subject = "[NOTICE] SIPB project '{name}' has been edited".format(
+        name=project_info['name']
+    )
+    msg = """
+    Dear SIPB Project Approvers,
+    
+    Project '{name}' has been edited by {editor}. No action is required if the
+    following details are acceptable, otherwise edit the details using the URL
+    at the end of this message.
+
+    {info}
+    
+    Edit the project, if necessary, here:
+    {url}
+    
+    This email was generated as of {time}.
+    
+    Sincerely,
+    SIPB ProjectDB service bot
+    """.format(
+        name=project_info['name'],
+        info=format_project_info(project_info),
+        editor=editor_kerberos,
+        time=current_time,
+        url=BASE_EDIT_URL + str(project_info['project_id']))
+    
+    send(APPROVERS_LIST, SERVICE_EMAIL, subject, msg)
+
 
 def send_approve_message(project_info, approver_kerberos, approver_comments):
     """Send a message to the project creator and points of contact indicating

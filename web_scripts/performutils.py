@@ -283,7 +283,9 @@ def edit_confirm_main(task):
                 # When a non-approver changes the details of a project, send a
                 # notification email to the approvers, but do not change the
                 # project status:
-                mail.send_to_approvers(project_info)
+                mail.send_edit_notice_to_approvers(
+                    project_info, editor_kerberos
+                )
 
         page = format_success_page(project_id, '%s Project' % task)
     else:
