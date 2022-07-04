@@ -29,6 +29,12 @@ else Editor is authorized and content is valid
 
     end
 
+    alt Project details (but not name) were changed by non-approver
+
+        performeditproject.py -> Approvers : Send email
+
+    end
+
     performeditproject.py -> Editor : Display success page (optionally including message about re-approval)
 
 end
