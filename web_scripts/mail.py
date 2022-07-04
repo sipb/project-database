@@ -139,7 +139,7 @@ def send(recipients, sender, subject, message):
     elif isinstance(recipients, list):
         msg['To'] = ','.join(recipients)
     else:
-        raise Exception("Email reciepient neither a list or a string")
+        raise Exception("Email recipient neither a list or a string")
     
     s = smtplib.SMTP('outgoing.mit.edu', 25)
     s.sendmail(sender, recipients, msg.as_string())

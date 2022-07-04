@@ -5,7 +5,6 @@ import authutils
 import db
 import formutils
 import mail
-import performutils
 import strutils
 import templateutils
 import valutils
@@ -264,25 +263,26 @@ def edit_confirm_main(task):
             status_messages = [status]
 
     if is_ok:
-        if db.get_project_approval_status(project_id) == 'rejected':
+        approval_status = db.get_project_approval_status(project_id)
+        if approval_status == 'rejected':
             # When updating a rejected project, change status to
             # "awaiting_approval" and email the approvers:
             db.set_project_status_to_awaiting_approval(
                 project_info, project_id, editor_kerberos
             )
             mail.send_to_approvers(project_info)
-        elif not is_approver:
+        elif (approval_status == 'approved') and (not is_approver):
             if name_changed:
-                # When a non-approver changes the name of a project, change
-                # status to "awaiting_approval" and email the approvers:
+                # When a non-approver changes the name of an approved project,
+                # change status to "awaiting_approval" and email the approvers:
                 db.set_project_status_to_awaiting_approval(
                     project_info, project_id, editor_kerberos
                 )
                 mail.send_to_approvers(project_info)
             elif details_changed:
-                # When a non-approver changes the details of a project, send a
-                # notification email to the approvers, but do not change the
-                # project status:
+                # When a non-approver changes the details of an approved
+                # project, send a notification email to the approvers, but do
+                # not change the project status:
                 mail.send_edit_notice_to_approvers(
                     project_info, editor_kerberos
                 )
