@@ -7,7 +7,7 @@ import os
 
 import db
 import roster
-from config import ADMIN_USERS
+import config
 
 
 def get_kerberos():
@@ -111,7 +111,7 @@ def can_add(user):
     """
     if not user:
         return False
-    elif is_sipb(user) or is_admin(user):
+    elif is_sipb(user) or is_admin(user) or is_approver(user):
         return True
     else:
         return False
@@ -130,7 +130,26 @@ def is_admin(user):
     is_admin : bool
         Whether or not the user is an admin.
     """
-    if user and user in ADMIN_USERS:
+    if user and user in config.ADMIN_USERS:
+        return True
+    else:
+        return False
+
+
+def is_approver(user):
+    """Determine whether the given user is a project-database approver.
+
+    Parameters
+    ----------
+    user : str
+        The kerberos of the user.
+
+    Returns
+    -------
+    is_approver : bool
+        Whether or not the user is an approver.
+    """
+    if user and user in config.APPROVER_USERS:
         return True
     else:
         return False
@@ -155,6 +174,8 @@ def can_edit(user, project_id):
         return False
     elif is_admin(user):
         return True
+    elif is_approver(user):
+        return True
     elif db.get_project_creator(project_id) == user:
         return True
     else:
@@ -166,6 +187,28 @@ def can_edit(user, project_id):
             return True
         else:
             return False
+
+
+def requires_approval(user):
+    """Determine whether the given user requires approval to perform certain
+    actions.
+
+    Parameters
+    ----------
+    user : str
+        The kerberos of the user.
+
+    Returns
+    -------
+    requires_approval : bool
+        Whether or not actions performed by the user require approval.
+    """
+    if not user:
+        return True
+    elif is_admin(user) or is_approver(user) or is_keyholder(user):
+        return False
+    else:
+        return True
 
 
 def can_approve(user):
@@ -186,7 +229,7 @@ def can_approve(user):
         return False
     elif is_admin(user):
         return True
-    elif is_keyholder(user):
+    elif is_approver(user):
         return True
 
 
@@ -207,7 +250,7 @@ def enrich_project_list_with_permissions(user, project_list):
     """
     user_can_approve = can_approve(user)
     for project in project_list:
-        project['can_edit'] = can_edit(user, project_list)
+        project['can_edit'] = can_edit(user, project['project_id'])
         project['can_approve'] = (
             user_can_approve and
             project['approval'] == 'awaiting_approval'

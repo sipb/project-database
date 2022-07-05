@@ -28,8 +28,9 @@ def main():
 
     if is_ok:
         requestor_kerberos = authutils.get_kerberos()
-        can_approve = authutils.can_approve(requestor_kerberos)
-        initial_approval = 'approved' if can_approve else 'awaiting_approval'
+        requires_approval = authutils.requires_approval(requestor_kerberos)
+        initial_approval = \
+            'awaiting_approval' if requires_approval else 'approved'
         try:
             project_id = db.add_project(
                 project_info,
@@ -46,15 +47,15 @@ def main():
             status_messages = [status]
 
     if is_ok:
-        if can_approve:
-            message = None
-        else:
+        if requires_approval:
             message = (
                 'The following project details have been sent to the '
                 'moderators for approval. You will be notified once the '
                 'posting has been reviewed.'
             )
             mail.send_to_approvers(project_info)
+        else:
+            message = None
 
         page = performutils.format_success_page(
             project_id, 'Add Project', message=message

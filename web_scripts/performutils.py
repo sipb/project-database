@@ -246,8 +246,8 @@ def edit_confirm_main(task):
             project_info, project_id
         )
 
-    is_approver = authutils.can_approve(editor_kerberos)
-    if not is_approver:
+    requires_approval = authutils.requires_approval(editor_kerberos)
+    if requires_approval:
         name_changed = check_for_name_change(project_info, project_id)
         details_changed = check_for_info_change(project_info, project_id)
 
@@ -271,7 +271,7 @@ def edit_confirm_main(task):
                 project_info, project_id, editor_kerberos
             )
             mail.send_to_approvers(project_info)
-        elif (approval_status == 'approved') and (not is_approver):
+        elif (approval_status == 'approved') and requires_approval:
             if name_changed:
                 # When a non-approver changes the name of an approved project,
                 # change status to "awaiting_approval" and email the approvers:
