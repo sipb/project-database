@@ -7,8 +7,8 @@ import creds
 from datetime import datetime
 from config import EXPIRATION_BY_NUM_DAYS
 
-# APPROVERS_LIST = "sipb-projectdb-approvers@mit.edu"
-APPROVERS_LIST = 'markchil@mit.edu'
+APPROVERS_LIST = "sipb-projectdb-approvers@mit.edu"
+# APPROVERS_LIST = 'markchil@mit.edu'
 SERVICE_EMAIL = "sipb-projectdb-bot@mit.edu" #Email identifying as coming from this service
 
 ALL_PROJECTS_URL = "https://{locker}.scripts.mit.edu:444/projectlist.py".format(locker=creds.user)
