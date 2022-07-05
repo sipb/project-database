@@ -300,6 +300,8 @@ def edit_confirm_main(task):
                 message = None
             else:
                 message = None
+        else:
+            message = None
 
         page = format_success_page(
             project_id, '%s Project' % task, message=message
