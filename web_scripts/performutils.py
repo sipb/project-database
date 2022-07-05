@@ -271,6 +271,11 @@ def edit_confirm_main(task):
                 project_info, project_id, editor_kerberos
             )
             mail.send_to_approvers(project_info)
+            message = (
+                'The following updated project details have been sent to the '
+                'moderators for approval. You will be notified once the '
+                'posting has been reviewed.'
+            )
         elif (approval_status == 'approved') and requires_approval:
             if name_changed:
                 # When a non-approver changes the name of an approved project,
@@ -279,6 +284,12 @@ def edit_confirm_main(task):
                     project_info, project_id, editor_kerberos
                 )
                 mail.send_to_approvers(project_info)
+                message = (
+                    'This edit includes a change in the project\'s name. The '
+                    'updated project details have been sent to the '
+                    'moderators for approval. You will be notified once the '
+                    'posting has been reviewed.'
+                )
             elif details_changed:
                 # When a non-approver changes the details of an approved
                 # project, send a notification email to the approvers, but do
@@ -286,8 +297,13 @@ def edit_confirm_main(task):
                 mail.send_edit_notice_to_approvers(
                     project_info, editor_kerberos
                 )
+                message = None
+            else:
+                message = None
 
-        page = format_success_page(project_id, '%s Project' % task)
+        page = format_success_page(
+            project_id, '%s Project' % task, message=message
+        )
     else:
         page = format_failure_page(
             strutils.html_listify(status_messages), '%s Project' % task
