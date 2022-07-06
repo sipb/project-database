@@ -285,7 +285,10 @@ def get_projects_for_contact(email):
     ).all()
 
 
-def get_project_info(model, project_id, raw_input=False, sort_by_index=False):
+def get_project_info(
+    model, project_id, raw_input=False, sort_by_index=False, revision_id=None,
+    filter_deleted=True
+):
     """Given an SQL class model (e.g. ContactEmail, Roles, Links, etc.), query
     that table for all entries associated with project_id and return the result
     in the form of list of dictionaries
@@ -295,13 +298,30 @@ def get_project_info(model, project_id, raw_input=False, sort_by_index=False):
 
     If `sort_by_index` is set to True, the results will be sorted by the index
     column.
+
+    If `revision_id` is provided, it is assumed that `model` is a history
+    table, and the results will be filtered by revision ID.
+
+    If `filter_deleted` is provided, it is assumed that `model` is a history
+    table, and entries with action == 'delete' will be removed. This has no
+    effect if `revision_id` is not provided.
     
     Useful for building higher-level queries
     """
     query = session.query(model).filter_by(project_id=project_id)
+
+    if revision_id is not None:
+        query = query.filter_by(revision_id=revision_id)
+
+        # Can only filter delete actions on revisions.
+        if filter_deleted:
+            query = query.filter(model.action != 'delete')
+
     if sort_by_index:
         query = query.order_by(model.index)
+
     sql_result = query.all()
+
     if raw_input:
         return sql_result
     else:
@@ -328,6 +348,93 @@ get_links = lambda id, get_raw=False: get_project_info(
 get_comm = lambda id, get_raw=False: get_project_info(
     CommChannels, id, get_raw, sort_by_index=True
 )
+
+
+def get_project_revision(
+    id, revision_id=None, get_raw=False, filter_deleted=True
+):
+    if revision_id is None:
+        return get_project_info(Projects, id, raw_input=get_raw)
+    else:
+        return get_project_info(
+            ProjectsHistory,
+            id,
+            raw_input=get_raw,
+            revision_id=revision_id,
+            filter_deleted=filter_deleted
+        )
+
+
+def get_contacts_revision(
+    id, revision_id=None, get_raw=False, filter_deleted=True
+):
+    if revision_id is None:
+        return get_project_info(
+            ContactEmails, id, raw_input=get_raw, sort_by_index=True
+        )
+    else:
+        return get_project_info(
+            ContactEmailsHistory,
+            id,
+            raw_input=get_raw,
+            sort_by_index=True,
+            revision_id=revision_id,
+            filter_deleted=filter_deleted
+        )
+
+
+def get_roles_revision(
+    id, revision_id=None, get_raw=False, filter_deleted=True
+):
+    if revision_id is None:
+        return get_project_info(
+            Roles, id, raw_input=get_raw, sort_by_index=True
+        )
+    else:
+        return get_project_info(
+            RolesHistory,
+            id,
+            raw_input=get_raw,
+            sort_by_index=True,
+            revision_id=revision_id,
+            filter_deleted=filter_deleted
+        )
+
+
+def get_links_revision(
+    id, revision_id=None, get_raw=False, filter_deleted=True
+):
+    if revision_id is None:
+        return get_project_info(
+            Links, id, raw_input=get_raw, sort_by_index=True
+        )
+    else:
+        return get_project_info(
+            LinksHistory,
+            id,
+            raw_input=get_raw,
+            sort_by_index=True,
+            revision_id=revision_id,
+            filter_deleted=filter_deleted
+        )
+
+
+def get_comm_revision(
+    id, revision_id=None, get_raw=False, filter_deleted=True
+):
+    if revision_id is None:
+        return get_project_info(
+            CommChannels, id, raw_input=get_raw, sort_by_index=True
+        )
+    else:
+        return get_project_info(
+            CommChannelsHistory,
+            id,
+            raw_input=get_raw,
+            sort_by_index=True,
+            revision_id=revision_id,
+            filter_deleted=filter_deleted
+        )
 
 
 def get_project_id(name):
@@ -364,7 +471,7 @@ def get_project_approval_status(project_id):
     ).filter_by(project_id=project_id).scalar()
 
 
-def enrich_project_with_auxiliary_fields(project_info):
+def enrich_project_with_auxiliary_fields(project_info, revision_id=None):
     """Add the links, comm_channels, roles, and contacts info to a project_info
     dict.
 
@@ -379,14 +486,22 @@ def enrich_project_with_auxiliary_fields(project_info):
         The updated project info.
     """
     project_id = project_info['project_id']
-    project_info['links'] = get_links(project_id)
-    project_info['comm_channels'] = get_comm(project_id)
-    project_info['roles'] = get_roles(project_id)
-    project_info['contacts'] = get_contacts(project_id)
+    project_info['links'] = get_links_revision(
+        project_id, revision_id=revision_id
+    )
+    project_info['comm_channels'] = get_comm_revision(
+        project_id, revision_id=revision_id
+    )
+    project_info['roles'] = get_roles_revision(
+        project_id, revision_id=revision_id
+    )
+    project_info['contacts'] = get_contacts_revision(
+        project_id, revision_id=revision_id
+    )
     return project_info
 
 
-def get_all_info_for_project(project_id):
+def get_all_info_for_project(project_id, revision_id=None):
     """Get all of the information for a specific project.
 
     Parameters
@@ -399,8 +514,10 @@ def get_all_info_for_project(project_id):
     project_info : dict
         The information on the specified project.
     """
-    project_info = get_project(project_id)[0]
-    project_info = enrich_project_with_auxiliary_fields(project_info)
+    project_info = get_project_revision(project_id, revision_id=revision_id)[0]
+    project_info = enrich_project_with_auxiliary_fields(
+        project_info, revision_id=revision_id
+    )
 
     return project_info
 
