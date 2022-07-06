@@ -1144,6 +1144,23 @@ def update_project_comms(project_id, args, editor_kerberos, revision_id):
     )
 
 
+def update_project_auxiliary_tables(
+    project_info, project_id, editor_kerberos, revision_id
+):
+    update_project_links(
+        project_id, project_info['links'], editor_kerberos, revision_id
+    )
+    update_project_comms(
+        project_id, project_info['comm_channels'], editor_kerberos, revision_id
+    )
+    update_project_contacts(
+        project_id, project_info['contacts'], editor_kerberos, revision_id
+    )
+    update_project_roles(
+        project_id, project_info['roles'], editor_kerberos, revision_id
+    )
+
+
 def update_project(project_info, project_id, editor_kerberos):
     """Update the information for the given project in the database and commits
     the change.
@@ -1166,6 +1183,7 @@ def update_project(project_info, project_id, editor_kerberos):
     project_exists = True if get_project_name(project_id) else False
     if not project_exists:
         raise ValueError('No project with id %d exists!' % int(project_id))
+
     new_metadata = {
         'name': project_info['name'], 
         'description': project_info['description'],
@@ -1176,17 +1194,8 @@ def update_project(project_info, project_id, editor_kerberos):
     revision_id = update_project_metadata(
         project_id, new_metadata, editor_kerberos
     )
-    update_project_links(
-        project_id, project_info['links'], editor_kerberos, revision_id
-    )
-    update_project_comms(
-        project_id, project_info['comm_channels'], editor_kerberos, revision_id
-    )
-    update_project_contacts(
-        project_id, project_info['contacts'], editor_kerberos, revision_id
-    )
-    update_project_roles(
-        project_id, project_info['roles'], editor_kerberos, revision_id
+    update_project_auxiliary_tables(
+        project_info, project_id, editor_kerberos, revision_id
     )
     session.commit()
     return orig_project
@@ -1214,7 +1223,12 @@ def approve_project(
         'approver': approver_kerberos,
         'approver_comments': approver_comments
     }
-    update_project_metadata(project_id, new_metadata, approver_kerberos)
+    revision_id = update_project_metadata(
+        project_id, new_metadata, approver_kerberos
+    )
+    update_project_auxiliary_tables(
+        project_info, project_id, approver_kerberos, revision_id
+    )
     session.commit()
 
 
@@ -1240,7 +1254,12 @@ def reject_project(
         'approver': approver_kerberos,
         'approver_comments': approver_comments
     }
-    update_project_metadata(project_id, new_metadata, approver_kerberos)
+    revision_id = update_project_metadata(
+        project_id, new_metadata, approver_kerberos
+    )
+    update_project_auxiliary_tables(
+        project_info, project_id, approver_kerberos, revision_id
+    )
     session.commit()
 
 
@@ -1262,7 +1281,12 @@ def set_project_status_to_awaiting_approval(
     new_metadata = {
         'approval': 'awaiting_approval'
     }
-    update_project_metadata(project_id, new_metadata, editor_kerberos)
+    revision_id = update_project_metadata(
+        project_id, new_metadata, editor_kerberos
+    )
+    update_project_auxiliary_tables(
+        project_info, project_id, editor_kerberos, revision_id
+    )
     session.commit()
 
     
