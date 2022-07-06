@@ -203,6 +203,7 @@ def requires_approval(user):
     requires_approval : bool
         Whether or not actions performed by the user require approval.
     """
+    return True
     if not user:
         return True
     elif is_admin(user) or is_approver(user) or is_keyholder(user):
