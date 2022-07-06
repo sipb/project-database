@@ -514,7 +514,10 @@ def get_all_info_for_project(project_id, revision_id=None):
     project_info : dict
         The information on the specified project.
     """
-    project_info = get_project_revision(project_id, revision_id=revision_id)[0]
+    project_info = get_project_revision(project_id, revision_id=revision_id)
+    if len(project_info) == 0:
+        return None
+    project_info = project_info[0]
     project_info = enrich_project_with_auxiliary_fields(
         project_info, revision_id=revision_id
     )
@@ -1403,6 +1406,26 @@ def set_project_status_to_awaiting_approval(
     )
     update_project_auxiliary_tables(
         project_info, project_id, editor_kerberos, revision_id
+    )
+    session.commit()
+
+
+def rollback_project(project_id, revision_id, editor_kerberos):
+    project_exists = True if get_project_name(project_id) else False
+    if not project_exists:
+        raise ValueError('No project with id %d exists!' % int(project_id))
+
+    project_info = get_all_info_for_project(
+        project_id, revision_id=revision_id
+    )
+    if project_info is None:
+        raise ValueError('No revision with id %d exists!' % int(revision_id))
+
+    rollback_revision_id = update_project_metadata(
+        project_id, project_info, editor_kerberos
+    )
+    update_project_auxiliary_tables(
+        project_info, project_id, editor_kerberos, rollback_revision_id
     )
     session.commit()
 
