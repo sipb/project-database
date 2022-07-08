@@ -15,6 +15,7 @@
     {% if project.can_edit or project.can_approve %}
         <td>
             <b>Actions:</b>
+            <a href="projecthistory.py?project_id={{ project.project_id }}">view history</a>
             {% if project.can_edit %}
                 <a href="editproject.py?project_id={{ project.project_id }}">edit</a>
             {% endif %}
