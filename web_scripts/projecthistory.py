@@ -14,7 +14,7 @@ import cgitb
 cgitb.enable()
 
 
-def format_project_history(project_history):
+def format_project_history(project_history, project_id):
     """Format a list of project revisions into an HTML page.
 
     Parameters
@@ -33,6 +33,7 @@ def format_project_history(project_history):
     authlink = authutils.get_auth_url(True)
     deauthlink = authutils.get_auth_url(False)
     can_add = authutils.can_add(user)
+    can_edit = authutils.can_edit(user, project_id)
 
     result = ''
     result += 'Content-type: text/html\n\n'
@@ -42,7 +43,9 @@ def format_project_history(project_history):
         user_email=user_email,
         authlink=authlink,
         deauthlink=deauthlink,
-        can_add=can_add
+        can_add=can_add,
+        can_edit=can_edit,
+        project_id=project_id
     ).encode('utf-8')
     return result
 
@@ -60,7 +63,7 @@ def main():
 
     project_history = db.get_project_history(project_id)
     project_history = strutils.decode_utf_nested_dict_list(project_history)
-    page = format_project_history(project_history)
+    page = format_project_history(project_history, project_id)
     print(page)
 
 

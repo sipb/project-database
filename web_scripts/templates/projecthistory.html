@@ -29,6 +29,9 @@
                     <td>Role(s)</td>
                     <td>Link(s)</td>
                     <td>Communication Channel(s)</td>
+                    {% if can_edit %}
+                        <td>Action</td>
+                    {% endif %}
                 </tr>
                 {% for revision in project_history %}
                     <tr>
@@ -156,6 +159,11 @@
                                 </li>
                             {% endfor %}
                         </td>
+                        {% if can_edit %}
+                        <td>
+                            <a href="performrollback.py?project_id={{ project_id }}&revision_id={{ revision.revision_id }}">rollback</a>
+                        </td>
+                        {% endif %}
                     </tr>
                 {% endfor %}
             </table>
