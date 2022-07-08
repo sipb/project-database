@@ -51,7 +51,7 @@ def main():
 
     if is_ok:
         if (
-            (project_info['approval_status'] == 'awaiting_approval') and
+            (project_info['approval'] == 'awaiting_approval') and
             (current_approval_status != 'awaiting_approval')
         ):
             # When rollback turns an approved or rejected project into one
@@ -64,7 +64,7 @@ def main():
                 'posting has been reviewed.'
             )
         elif (
-            (project_info['approval_status'] == 'approved') and
+            (project_info['approval'] == 'approved') and
             requires_approval
         ):
             if name_changed:
