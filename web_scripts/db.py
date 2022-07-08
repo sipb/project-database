@@ -1411,6 +1411,17 @@ def set_project_status_to_awaiting_approval(
 
 
 def rollback_project(project_id, revision_id, editor_kerberos):
+    """Roll back a project's state to the given revision ID.
+
+    Parameters
+    ----------
+    project_id : int
+        The project ID to modify.
+    revision_id : int
+        The revision ID to roll back to.
+    editor_kerberos : str
+        The username of the person performing the rollback.
+    """
     project_exists = True if get_project_name(project_id) else False
     if not project_exists:
         raise ValueError('No project with id %d exists!' % int(project_id))

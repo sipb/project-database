@@ -246,12 +246,12 @@ def edit_confirm_main(task):
             project_info, project_id
         )
 
-    requires_approval = authutils.requires_approval(editor_kerberos)
-    if requires_approval:
-        name_changed = check_for_name_change(project_info, project_id)
-        details_changed = check_for_info_change(project_info, project_id)
-
     if is_ok:
+        requires_approval = authutils.requires_approval(editor_kerberos)
+        if requires_approval:
+            name_changed = check_for_name_change(project_info, project_id)
+            details_changed = check_for_info_change(project_info, project_id)
+
         try:
             db.update_project(project_info, project_id, editor_kerberos)
             project_info['project_id'] = project_id

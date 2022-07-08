@@ -713,13 +713,13 @@ def validate_approve_project(
     return is_ok, status_messages
 
 
-def validate_project_id_is_int(project_id):
-    """Check if the given project ID is interpretable as an int.
+def validate_id_is_int(id_):
+    """Check if the given ID is interpretable as an int.
 
     Parameters
     ----------
     project_id : str
-        The project ID to check. Assumed to be a string coming from a CGI form.
+        The ID to check. Assumed to be a string coming from a CGI form.
 
     Returns
     -------
@@ -729,9 +729,9 @@ def validate_project_id_is_int(project_id):
         A list of status messages.
     """
     try:
-        project_id = int(project_id)
+        id_ = int(id_)
     except ValueError:
-        return False, ['"%s" is not a valid project ID!' % project_id]
+        return False, ['"%s" is not a valid project ID!' % id_]
     else:
         return True, []
 
@@ -788,7 +788,7 @@ def validate_project_id(project_id):
     is_ok = True
     status_messages = []
 
-    is_int, is_int_status = validate_project_id_is_int(project_id)
+    is_int, is_int_status = validate_id_is_int(project_id)
     is_ok &= is_int
     status_messages.extend(is_int_status)
 
@@ -797,4 +797,80 @@ def validate_project_id(project_id):
         is_ok &= is_project
         status_messages.extend(is_project_status)
 
-    return is_ok, status_messages 
+    return is_ok, status_messages
+
+
+def validate_revision_id_exists(project_id, revision_id):
+    """Check if the given revision ID exists for the given project ID.
+
+    Parameters
+    ----------
+    project_id : str
+        The project ID to check. Assumed to be a string coming from a CGI form.
+    revision_id : str
+        The revision ID to check. Assumed to be a string coming from a CGI
+        form.
+
+    Returns
+    -------
+    is_ok : bool
+        Whether or not the validation was passed.
+    status_messages : list of str
+        A list of status messages.
+    """
+    project_id = int(project_id)
+    project_info = db.get_project_revision(project_id, revision_id=revision_id)
+    if len(project_info) == 0:
+        is_ok = False
+        status_messages = [
+            'There is no revision with id "%d" for the project with id "%d"!' %
+            (revision_id, project_id)
+        ]
+    elif len(project_info) == 1:
+        is_ok = True
+        status_messages = []
+    else:
+        is_ok = False
+        status_messages = [
+            'There are %d projects with project id "%d" ' +
+            'and revision id "%d"!' % (
+                len(project_info), project_id, revision_id
+            )
+        ]
+
+    return is_ok, status_messages
+
+
+def validate_revision_id(project_id, revision_id):
+    """Check if the given revision ID exists for the given project ID.
+
+    Parameters
+    ----------
+    project_id : str
+        The project ID to check. Assumed to be a string coming from a CGI form.
+    revision_id : str
+        The revision ID to check. Assumed to be a string coming from a CGI
+        form.
+
+    Returns
+    -------
+    is_ok : bool
+        Whether or not the validation was passed.
+    status_messages : list of str
+        A list of status messages.
+    """
+    is_ok, status_messages = validate_project_id(project_id)
+
+    if is_ok:
+        is_int, is_int_status = validate_id_is_int(revision_id)
+        is_ok &= is_int
+        status_messages.extend(is_int_status)
+
+        if is_int:
+            is_revision, is_revision_status = validate_revision_id_exists(
+                project_id, revision_id
+            )
+            is_ok &= is_revision
+            status_messages.extend(is_revision_status)
+
+    return is_ok, status_messages
