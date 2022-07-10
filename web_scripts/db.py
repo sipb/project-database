@@ -498,6 +498,36 @@ def enrich_project_with_auxiliary_fields(project_info, revision_id=None):
     project_info['contacts'] = get_contacts_revision(
         project_id, revision_id=revision_id
     )
+    project_info = enrich_project_with_revision_info(
+        project_info, revision_id=revision_id
+    )
+    return project_info
+
+
+def enrich_project_with_revision_info(project_info, revision_id=None):
+    """Add information on the most recent revision to a project_info dict.
+
+    Parameters
+    ----------
+    project_info : dict
+        The project info. This dict will be updated in place.
+
+    Returns
+    -------
+    project_info : dict
+        The updated project info.
+    """
+    if revision_id is None:
+        revision_id = get_current_revision(project_info['project_id'])
+
+    project_id = project_info['project_id']
+
+    history_info = get_project_revision(project_id, revision_id=revision_id)
+
+    project_info['revision_info'] = {
+        'timestamp': history_info['timestamp'],
+        'editor': history_info['author']
+    }
     return project_info
 
 
