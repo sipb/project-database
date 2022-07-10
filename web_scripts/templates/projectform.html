@@ -45,6 +45,11 @@
 <p>
     <input type="button" value="Add another role" onclick="add_role()">
 </p>
+{% if project_info %}
+    <p>
+        Last revised by {{ project.revision_info.editor }} at {{ project.revision_info.timestamp }}
+    </p>
+{% endif %}
 {% if can_approve %}
     <p>Project creator: {{ project_info.creator }}</p>
     {% if project_info.approver_comments %}
