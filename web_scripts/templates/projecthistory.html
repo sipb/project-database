@@ -30,7 +30,7 @@
                     <td>Link(s)</td>
                     <td>Communication Channel(s)</td>
                     {% if can_edit %}
-                        <td>Action</td>
+                        <td>Actions</td>
                     {% endif %}
                 </tr>
                 {% for revision in project_history %}
@@ -161,7 +161,7 @@
                         </td>
                         {% if can_edit %}
                         <td>
-                            <a href="performrollback.py?project_id={{ project_id }}&revision_id={{ revision.revision_id }}">rollback</a>
+                            <a href="performrollback.py?project_id={{ project_id }}&revision_id={{ revision.revision_id }}">roll back to here</a>
                         </td>
                         {% endif %}
                     </tr>
