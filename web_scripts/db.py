@@ -522,7 +522,7 @@ def enrich_project_with_revision_info(project_info, revision_id=None):
 
     project_id = project_info['project_id']
 
-    history_info = get_project_revision(project_id, revision_id=revision_id)
+    history_info = get_project_revision(project_id, revision_id=revision_id)[0]
 
     project_info['revision_info'] = {
         'timestamp': history_info['timestamp'],
