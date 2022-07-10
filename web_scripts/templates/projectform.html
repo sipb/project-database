@@ -47,7 +47,7 @@
 </p>
 {% if project_info %}
     <p>
-        Last revised by {{ project.revision_info.editor }} at {{ project.revision_info.timestamp }}
+        Last revised by {{ project_info.revision_info.editor }} at {{ project_info.revision_info.timestamp }}
     </p>
 {% endif %}
 {% if can_approve %}
