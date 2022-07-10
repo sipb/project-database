@@ -14,6 +14,7 @@ SERVICE_EMAIL = "sipb-projectdb-bot@mit.edu" #Email identifying as coming from t
 ALL_PROJECTS_URL = "https://{locker}.scripts.mit.edu:444/projectlist.py".format(locker=creds.user)
 AWAITING_APPROVAL_URL = "https://{locker}.scripts.mit.edu:444/projectlist.py?filter_by=awaiting_approval".format(locker=creds.user)
 BASE_EDIT_URL = "https://{locker}.scripts.mit.edu:444/editproject.py?project_id=".format(locker=creds.user) #Need to provide project id at the end
+BASE_HISTORY_URL = "https://{locker}.scripts.mit.edu:444/projecthistory.py?project_id=".format(locker=creds.user) #Need to provide project id at the end
 
 ## Helper function
 
@@ -194,6 +195,9 @@ def send_edit_notice_to_approvers(project_info, editor_kerberos):
     
     Edit the project, if necessary, here:
     {url}
+
+    You can also roll back to a previous state here:
+    {history_url}
     
     This email was generated as of {time}.
     
@@ -204,7 +208,9 @@ def send_edit_notice_to_approvers(project_info, editor_kerberos):
         info=format_project_info(project_info),
         editor=editor_kerberos,
         time=current_time,
-        url=BASE_EDIT_URL + str(project_info['project_id']))
+        url=BASE_EDIT_URL + str(project_info['project_id']),
+        history_url=BASE_HISTORY_URL + str(project_info['project_id'])
+    )
     
     send(APPROVERS_LIST, SERVICE_EMAIL, subject, msg)
 
