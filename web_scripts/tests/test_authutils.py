@@ -158,5 +158,21 @@ class Test_is_sipb(unittest.TestCase):
         self.assertFalse(result)
 
 
+class Test_is_keyholder(unittest.TestCase):
+    def test_keyholder(self):
+        result = authutils.is_sipb('markchil')
+        self.assertTrue(result)
+
+    def test_member(self):
+        # rif was memberized in 1991, and this test will need to be revised
+        # should they be elected a keyholder.
+        result = authutils.is_sipb('rif')
+        self.assertFalse(result)
+
+    def test_nonmember(self):
+        result = authutils.is_sipb('this_is_definitely_not_a_valid_kerb')
+        self.assertFalse(result)
+
+
 if __name__ == '__main__':
     unittest.main()
