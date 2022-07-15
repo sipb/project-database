@@ -51,7 +51,7 @@ class DatabaseWiper(object):
 
 
 class MultiManagerTestCase(unittest.TestCase):
-    def __init__(self, managers):
+    def __init__(self, *args, managers=[], **kwargs):
         super(MultiManagerTestCase, self).__init__()
 
         self.managers = managers
@@ -66,13 +66,17 @@ class MultiManagerTestCase(unittest.TestCase):
 
 
 class EnvironmentOverrideTestCase(MultiManagerTestCase):
-    def __init__(self):
-        self.managers = [EnvironmentOverrider()]
+    def __init__(self, *args, **kwargs):
+        super(EnvironmentOverrideTestCase, self).__init__(
+            *args, managers=[EnvironmentOverrider()], **kwargs
+        )
 
 
 class DatabaseWiperTestCase(MultiManagerTestCase):
-    def __init__(self):
-        self.managers = [DatabaseWiper()]
+    def __init__(self, *args, **kwargs):
+        super(DatabaseWiperTestCase, self).__init__(
+            *args, manager=[DatabaseWiper()], **kwargs
+        )
 
 
 class Test_get_kerberos(EnvironmentOverrideTestCase):
