@@ -11,6 +11,7 @@ import creds
 assert creds.mode == 'test'
 
 import authutils
+import config
 
 
 def restore_env(key, value):
@@ -190,6 +191,21 @@ class Test_can_add(unittest.TestCase):
         self.assertFalse(result)
 
     # NOTE: the non-SIPB admin or approver branches are not tested.
+
+
+class Test_is_admin(unittest.TestCase):
+    def test_none(self):
+        result = authutils.is_admin(None)
+        self.assertFalse(result)
+
+    def test_nonadmin(self):
+        result = authutils.is_admin('this_is_definitely_not_a_valid_kerb')
+        self.assertFalse(result)
+
+    def test_admin(self):
+        if len(config.ADMIN_USERS) > 0:
+            result = authutils.is_admin(config.ADMIN_USERS[0])
+            self.assertTrue(result)
 
 
 if __name__ == '__main__':
