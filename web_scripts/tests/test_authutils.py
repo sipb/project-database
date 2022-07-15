@@ -19,7 +19,10 @@ class Test_get_kerberos(unittest.TestCase):
 
     def tearDown(self):
         if self.initial_email is None:
-            os.environ.pop('SSL_CLIENT_S_DN_Email')
+            try:
+                os.environ.pop('SSL_CLIENT_S_DN_Email')
+            except KeyError:
+                pass
         else:
             os.environ['SSL_CLIENT_S_DN_Email'] = self.initial_email
 
