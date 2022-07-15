@@ -174,5 +174,23 @@ class Test_is_keyholder(unittest.TestCase):
         self.assertFalse(result)
 
 
+class Test_can_add(unittest.TestCase):
+    def test_none(self):
+        result = authutils.can_add(None)
+        self.assertFalse(result)
+
+    def test_member(self):
+        # rif was memberized in 1991, and this test will need to be revised
+        # should they be elected a keyholder.
+        result = authutils.can_add('rif')
+        self.assertTrue(result)
+
+    def test_nonmember(self):
+        result = authutils.can_add('this_is_definitely_not_a_valid_kerb')
+        self.assertFalse(result)
+
+    # NOTE: the non-SIPB admin or approver branches are not tested.
+
+
 if __name__ == '__main__':
     unittest.main()
