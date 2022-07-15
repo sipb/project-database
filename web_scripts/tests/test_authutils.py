@@ -3,7 +3,7 @@
 import unittest
 
 import sys
-sys.path.insert(0, '../web_scripts')
+sys.path.insert(0, '..')
 
 import os
 os.environ['PROJECTS_DATABASE_MODE'] = 'test'
