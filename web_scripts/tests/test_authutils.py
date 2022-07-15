@@ -120,5 +120,27 @@ class Test_get_base_url(EnvironmentOverrideTestCase):
         self.assertEqual(host, 'https://test.foo.bar')
 
 
+class Test_get_auth_url(EnvironmentOverrideTestCase):
+    def test_with_auth(self):
+        true_host = 'test.foo.bar:123'
+        os.environ['HTTP_HOST'] = true_host
+
+        true_uri = '/baz.html'
+        os.environ['REQUEST_URI'] = true_uri
+
+        host = authutils.get_auth_url(True)
+        self.assertEqual(host, 'https://test.foo.bar:444/baz.html')
+
+    def test_without_auth(self):
+        true_host = 'test.foo.bar:123'
+        os.environ['HTTP_HOST'] = true_host
+
+        true_uri = '/baz.html'
+        os.environ['REQUEST_URI'] = true_uri
+
+        host = authutils.get_auth_url(False)
+        self.assertEqual(host, 'https://test.foo.bar/baz.html')
+
+
 if __name__ == '__main__':
     unittest.main()
