@@ -13,27 +13,29 @@ assert creds.mode == 'test'
 import authutils
 
 
+def restore_env(key, value):
+    if value is None:
+        try:
+            os.environ.pop(value)
+        except KeyError:
+            pass
+    else:
+        os.environ[key] = value
+
+
 class EnvironmentOverrideTestCase(unittest.TestCase):
     def setUp(self):
-        self.initial_email = os.getenv('SSL_CLIENT_S_DN_Email')
-        self.initial_host = os.getenv('HTTP_HOST')
+        self.initial_values = {
+            key: os.getenv(key) for key in [
+                'SSL_CLIENT_S_DN_Email',
+                'HTTP_HOST',
+                'REQUEST_URI'
+            ]
+        }
 
     def tearDown(self):
-        if self.initial_email is None:
-            try:
-                os.environ.pop('SSL_CLIENT_S_DN_Email')
-            except KeyError:
-                pass
-        else:
-            os.environ['SSL_CLIENT_S_DN_Email'] = self.initial_email
-
-        if self.initial_host is None:
-            try:
-                os.environ.pop('HTTP_HOST')
-            except KeyError:
-                pass
-        else:
-            os.environ['HTTP_HOST'] = self.initial_host
+        for key, value in self.initial_values.items():
+            restore_env(key, value)
 
 
 class Test_get_kerberos(EnvironmentOverrideTestCase):
