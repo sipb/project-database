@@ -13,9 +13,10 @@ assert creds.mode == 'test'
 import authutils
 
 
-class EmailOverrideTestCase(unittest.TestCase):
+class EnvironmentOverrideTestCase(unittest.TestCase):
     def setUp(self):
         self.initial_email = os.getenv('SSL_CLIENT_S_DN_Email')
+        self.initial_host = os.getenv('HTTP_HOST')
 
     def tearDown(self):
         if self.initial_email is None:
@@ -26,8 +27,16 @@ class EmailOverrideTestCase(unittest.TestCase):
         else:
             os.environ['SSL_CLIENT_S_DN_Email'] = self.initial_email
 
+        if self.initial_host is None:
+            try:
+                os.environ.pop('HTTP_HOST')
+            except KeyError:
+                pass
+        else:
+            os.environ['HTTP_HOST'] = self.initial_host
 
-class Test_get_kerberos(EmailOverrideTestCase):
+
+class Test_get_kerberos(EnvironmentOverrideTestCase):
     def test_none(self):
         try:
             os.environ.pop('SSL_CLIENT_S_DN_Email')
@@ -60,7 +69,7 @@ class Test_get_kerberos(EmailOverrideTestCase):
         self.assertIsNone(kerberos)
 
 
-class Test_get_email(EmailOverrideTestCase):
+class Test_get_email(EnvironmentOverrideTestCase):
     def test_none(self):
         try:
             os.environ.pop('SSL_CLIENT_S_DN_Email')
@@ -91,6 +100,22 @@ class Test_get_email(EmailOverrideTestCase):
 
         email = authutils.get_email()
         self.assertIsNone(email)
+
+
+class Test_get_base_url(EnvironmentOverrideTestCase):
+    def test_with_auth(self):
+        true_host = 'test.foo.bar:123'
+        os.environ['HTTP_HOST'] = true_host
+
+        host = authutils.get_base_url(True)
+        self.assertEqual(host, 'https://test.foo.bar:444')
+
+    def test_without_auth(self):
+        true_host = 'test.foo.bar:123'
+        os.environ['HTTP_HOST'] = true_host
+
+        host = authutils.get_base_url(False)
+        self.assertEqual(host, 'https://test.foo.bar')
 
 
 if __name__ == '__main__':
