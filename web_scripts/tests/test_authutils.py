@@ -53,3 +53,7 @@ class Test_get_kerberos(unittest.TestCase):
 
         kerberos = authutils.get_kerberos()
         self.assertIsNone(kerberos)
+
+
+if __name__ == '__main__':
+    unittest.main()
