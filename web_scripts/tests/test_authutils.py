@@ -12,6 +12,7 @@ assert creds.mode == 'test'
 
 import authutils
 import config
+import schema
 
 
 def restore_env(key, value):
@@ -24,8 +25,8 @@ def restore_env(key, value):
         os.environ[key] = value
 
 
-class EnvironmentOverrideTestCase(unittest.TestCase):
-    def setUp(self):
+class EnvironmentOverrider(object):
+    def __enter__(self):
         self.initial_values = {
             key: os.getenv(key) for key in [
                 'SSL_CLIENT_S_DN_Email',
@@ -34,9 +35,44 @@ class EnvironmentOverrideTestCase(unittest.TestCase):
             ]
         }
 
-    def tearDown(self):
+    def __exit__(self, exc_type=None, exc_value=None, exc_tb=None):
         for key, value in self.initial_values.items():
             restore_env(key, value)
+
+
+class DatabaseWiper(object):
+    def __enter__(self):
+        schema.SQLBase.metadata.drop_all(schema.sqlengine)
+        schema.SQLBase.metadata.create_all(schema.sqlengine)
+
+    def __exit__(self):
+        schema.SQLBase.metadata.drop_all(schema.sqlengine)
+        schema.SQLBase.metadata.create_all(schema.sqlengine)
+
+
+class MultiManagerTestCase(unittest.TestCase):
+    def __init__(self, managers):
+        super(MultiManagerTestCase, self).__init__()
+
+        self.managers = managers
+
+    def setUp(self):
+        for manager in self.managers:
+            manager.__enter__()
+
+    def tearDown(self):
+        for manager in self.managers:
+            manager.__exit__()
+
+
+class EnvironmentOverrideTestCase(MultiManagerTestCase):
+    def __init__(self):
+        self.managers = [EnvironmentOverrider()]
+
+
+class DatabaseWiperTestCase(MultiManagerTestCase):
+    def __init__(self):
+        self.managers = [DatabaseWiper()]
 
 
 class Test_get_kerberos(EnvironmentOverrideTestCase):
