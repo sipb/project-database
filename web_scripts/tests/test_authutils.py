@@ -16,7 +16,7 @@ import authutils
 def restore_env(key, value):
     if value is None:
         try:
-            os.environ.pop(value)
+            os.environ.pop(key)
         except KeyError:
             pass
     else:
