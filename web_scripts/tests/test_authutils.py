@@ -208,5 +208,20 @@ class Test_is_admin(unittest.TestCase):
             self.assertTrue(result)
 
 
+class Test_is_approver(unittest.TestCase):
+    def test_none(self):
+        result = authutils.is_approver(None)
+        self.assertFalse(result)
+
+    def test_nonadmin(self):
+        result = authutils.is_approver('this_is_definitely_not_a_valid_kerb')
+        self.assertFalse(result)
+
+    def test_admin(self):
+        if len(config.APPROVER_USERS) > 0:
+            result = authutils.is_approver(config.APPROVER_USERS[0])
+            self.assertTrue(result)
+
+
 if __name__ == '__main__':
     unittest.main()
