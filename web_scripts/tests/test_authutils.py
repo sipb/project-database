@@ -42,13 +42,47 @@ class EnvironmentOverrider(object):
 
 
 class DatabaseWiper(object):
+    TEST_PROJECT_NAME = '__test__'
+
+    def drop_test_project(self):
+        project_id = db.get_project_id(self.TEST_PROJECT_NAME)
+        if project_id:
+            schema.ContactEmailsHistory.delete().where(
+                schema.ContactEmailsHistory.project_id == project_id
+            )
+            schema.ContactEmails.delete().where(
+                schema.ContactEmails.project_id == project_id
+            )
+            schema.RolesHistory.delete().where(
+                schema.RolesHistory.project_id == project_id
+            )
+            schema.Roles.delete().where(
+                schema.Roles.project_id == project_id
+            )
+            schema.LinksHistory.delete().where(
+                schema.LinksHistory.project_id == project_id
+            )
+            schema.Links.delete().where(
+                schema.Links.project_id == project_id
+            )
+            schema.CommChannelsHistory.delete().where(
+                schema.CommChannelsHistory.project_id == project_id
+            )
+            schema.CommChannels.delete().where(
+                schema.CommChannels.project_id == project_id
+            )
+            schema.ProjectsHistory.delete().where(
+                schema.ProjectsHistory.project_id == project_id
+            ).execute()
+            schema.Projects.delete().where(
+                schema.Projects.project_id == project_id
+            ).execute()
+
     def __enter__(self):
-        schema.SQLBase.metadata.drop_all(schema.sqlengine)
-        schema.SQLBase.metadata.create_all(schema.sqlengine)
+        self.drop_test_project()
 
     def __exit__(self, exc_type=None, exc_value=None, exc_tb=None):
-        schema.SQLBase.metadata.drop_all(schema.sqlengine)
-        schema.SQLBase.metadata.create_all(schema.sqlengine)
+        self.drop_test_project()
 
 
 class MultiManagerTestCase(unittest.TestCase):
@@ -286,13 +320,13 @@ class Test_can_edit(EnvironmentOverrideTestCase):
             self.assertTrue(result)
 
     def test_creator(self):
-        with DatabaseWiper():
+        with DatabaseWiper() as dw:
             kerberos = 'this_is_definitely_not_a_valid_kerb'
             email = kerberos + '@mit.edu'
             os.environ['SSL_CLIENT_S_DN_Email'] = email
             project_id = db.add_project(
                 {
-                    'name': 'test',
+                    'name': dw.TEST_PROJECT_NAME,
                     'description': 'some test description',
                     'status': 'active',
                     'links': [],
@@ -310,13 +344,13 @@ class Test_can_edit(EnvironmentOverrideTestCase):
         self.assertTrue(result)
 
     def test_contact(self):
-        with DatabaseWiper():
+        with DatabaseWiper() as dw:
             kerberos = 'this_is_definitely_not_a_valid_kerb'
             email = kerberos + '@mit.edu'
             os.environ['SSL_CLIENT_S_DN_Email'] = email
             project_id = db.add_project(
                 {
-                    'name': 'test',
+                    'name': dw.TEST_PROJECT_NAME,
                     'description': 'some test description',
                     'status': 'active',
                     'links': [],
@@ -334,13 +368,13 @@ class Test_can_edit(EnvironmentOverrideTestCase):
         self.assertTrue(result)
 
     def test_non_contact(self):
-        with DatabaseWiper():
+        with DatabaseWiper() as dw:
             kerberos = 'this_is_definitely_not_a_valid_kerb'
             email = kerberos + '@mit.edu'
             os.environ['SSL_CLIENT_S_DN_Email'] = email
             project_id = db.add_project(
                 {
-                    'name': 'test',
+                    'name': dw.TEST_PROJECT_NAME,
                     'description': 'some test description',
                     'status': 'active',
                     'links': [],
@@ -386,10 +420,10 @@ class Test_requires_approval(EnvironmentOverrideTestCase):
 
 if __name__ == '__main__':
     # unittest.main()
-    with DatabaseWiper():
+    with DatabaseWiper() as dw:
         project_id = db.add_project(
             {
-                'name': 'test',
+                'name': dw.TEST_PROJECT_NAME,
                 'description': 'some test description',
                 'status': 'active',
                 'links': [],
