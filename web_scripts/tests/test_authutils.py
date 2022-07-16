@@ -74,7 +74,7 @@ class EnvironmentOverrideTestCase(MultiManagerTestCase):
 
 class DatabaseWipeTestCase(MultiManagerTestCase):
     def __init__(self, *args, **kwargs):
-        super(DatabaseWiperTestCase, self).__init__(
+        super(DatabaseWipeTestCase, self).__init__(
             *args, managers=[DatabaseWiper()], **kwargs
         )
 
