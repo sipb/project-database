@@ -385,4 +385,19 @@ class Test_requires_approval(EnvironmentOverrideTestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    # unittest.main()
+    with DatabaseWiper():
+        project_id = db.add_project(
+            {
+                'name': 'test',
+                'description': 'some test description',
+                'status': 'active',
+                'links': [],
+                'comm_channels': [],
+                'contacts': [
+                    {'email': 'foo@mit.edu', 'type': 'primary', 'index': 0}
+                ],
+                'roles': []
+            },
+            'creator'
+        )
