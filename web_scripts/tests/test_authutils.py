@@ -283,7 +283,9 @@ class Test_can_edit(EnvironmentOverrideTestCase):
                     'status': 'active',
                     'links': [],
                     'comm_channels': [],
-                    'contacts': [email],
+                    'contacts': [
+                        {'email': email, 'type': 'primary', 'index': 0}
+                    ],
                     'roles': []
                 },
                 'creator'
