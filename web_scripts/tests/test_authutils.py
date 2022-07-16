@@ -44,9 +44,7 @@ class EnvironmentOverrider(object):
 
 
 class DatabaseWiper(object):
-    TEST_PROJECT_NAME = '__test__'
-
-    def drop_test_project(self):
+    def drop_test_projects(self):
         schema.session.query(schema.ProjectsHistory).delete()
         schema.session.query(schema.ContactEmails).delete()
         schema.session.query(schema.ContactEmailsHistory).delete()
@@ -62,11 +60,11 @@ class DatabaseWiper(object):
         schema.session.commit()
 
     def __enter__(self):
-        self.drop_test_project()
+        self.drop_test_projects()
         return self
 
     def __exit__(self, exc_type=None, exc_value=None, exc_tb=None):
-        self.drop_test_project()
+        self.drop_test_projects()
 
 
 class MultiManagerTestCase(unittest.TestCase):
@@ -304,13 +302,13 @@ class Test_can_edit(EnvironmentOverrideTestCase):
             self.assertTrue(result)
 
     def test_creator(self):
-        with DatabaseWiper() as dw:
+        with DatabaseWiper():
             kerberos = 'this_is_definitely_not_a_valid_kerb'
             email = kerberos + '@mit.edu'
             os.environ['SSL_CLIENT_S_DN_Email'] = email
             project_id = db.add_project(
                 {
-                    'name': dw.TEST_PROJECT_NAME,
+                    'name': 'test',
                     'description': 'some test description',
                     'status': 'active',
                     'links': [],
@@ -328,13 +326,13 @@ class Test_can_edit(EnvironmentOverrideTestCase):
         self.assertTrue(result)
 
     def test_contact(self):
-        with DatabaseWiper() as dw:
+        with DatabaseWiper():
             kerberos = 'this_is_definitely_not_a_valid_kerb'
             email = kerberos + '@mit.edu'
             os.environ['SSL_CLIENT_S_DN_Email'] = email
             project_id = db.add_project(
                 {
-                    'name': dw.TEST_PROJECT_NAME,
+                    'name': 'test',
                     'description': 'some test description',
                     'status': 'active',
                     'links': [],
@@ -352,13 +350,13 @@ class Test_can_edit(EnvironmentOverrideTestCase):
         self.assertTrue(result)
 
     def test_non_contact(self):
-        with DatabaseWiper() as dw:
+        with DatabaseWiper():
             kerberos = 'this_is_definitely_not_a_valid_kerb'
             email = kerberos + '@mit.edu'
             os.environ['SSL_CLIENT_S_DN_Email'] = email
             project_id = db.add_project(
                 {
-                    'name': dw.TEST_PROJECT_NAME,
+                    'name': 'test',
                     'description': 'some test description',
                     'status': 'active',
                     'links': [],
