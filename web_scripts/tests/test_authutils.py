@@ -47,39 +47,18 @@ class DatabaseWiper(object):
     TEST_PROJECT_NAME = '__test__'
 
     def drop_test_project(self):
-        project_id = db.get_project_id(self.TEST_PROJECT_NAME)
-        print(project_id)
-        if project_id:
-            sa.delete(schema.ContactEmailsHistory).where(
-                schema.ContactEmailsHistory.project_id == project_id
-            ).execute()
-            sa.delete(schema.ContactEmails).where(
-                schema.ContactEmails.project_id == project_id
-            ).execute()
-            sa.delete(schema.RolesHistory).where(
-                schema.RolesHistory.project_id == project_id
-            ).execute()
-            sa.delete(schema.Roles).where(
-                schema.Roles.project_id == project_id
-            ).execute()
-            sa.delete(schema.LinksHistory).where(
-                schema.LinksHistory.project_id == project_id
-            ).execute()
-            sa.delete(schema.Links).where(
-                schema.Links.project_id == project_id
-            ).execute()
-            sa.delete(schema.CommChannelsHistory).where(
-                schema.CommChannelsHistory.project_id == project_id
-            ).execute()
-            sa.delete(schema.CommChannels).where(
-                schema.CommChannels.project_id == project_id
-            ).execute()
-            sa.delete(schema.ProjectsHistory).where(
-                schema.ProjectsHistory.project_id == project_id
-            ).execute()
-            sa.delete(schema.Projects).where(
-                schema.Projects.project_id == project_id
-            ).execute()
+        schema.session.query(schema.Projects).delete()
+        schema.session.query(schema.ProjectsHistory).delete()
+        schema.session.query(schema.ContactEmails).delete()
+        schema.session.query(schema.ContactEmailsHistory).delete()
+        schema.session.query(schema.Roles).delete()
+        schema.session.query(schema.RolesHistory).delete()
+        schema.session.query(schema.Links).delete()
+        schema.session.query(schema.LinksHistory).delete()
+        schema.session.query(schema.CommChannels).delete()
+        schema.session.query(schema.CommChannelsHistory).delete()
+
+        schema.session.commit()
 
     def __enter__(self):
         self.drop_test_project()
