@@ -230,6 +230,8 @@ def can_approve(user):
         return True
     elif is_approver(user):
         return True
+    else:
+        return False
 
 
 def enrich_project_list_with_permissions(user, project_list):

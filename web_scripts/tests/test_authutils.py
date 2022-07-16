@@ -400,5 +400,25 @@ class Test_requires_approval(EnvironmentOverrideTestCase):
         self.assertTrue(result)
 
 
+class Test_can_approve(EnvironmentOverrideTestCase):
+    def test_none(self):
+        result = authutils.can_approve(None)
+        self.assertFalse(result)
+
+    def test_admin(self):
+        if len(config.ADMIN_USERS) > 0:
+            result = authutils.can_approve(config.ADMIN_USERS[0])
+            self.assertTrue(result)
+
+    def test_approver(self):
+        if len(config.APPROVER_USERS) > 0:
+            result = authutils.can_approve(config.APPROVER_USERS[0])
+            self.assertTrue(result)
+
+    def test_regular_user(self):
+        result = authutils.can_approve('this_is_definitely_not_a_valid_kerb')
+        self.assertFalse(result)
+
+
 if __name__ == '__main__':
     unittest.main()
