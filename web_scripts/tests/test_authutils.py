@@ -358,5 +358,31 @@ class Test_can_edit(EnvironmentOverrideTestCase):
         self.assertFalse(result)
 
 
+class Test_requires_approval(EnvironmentOverrideTestCase):
+    def test_none(self):
+        result = authutils.requires_approval(None)
+        self.assertTrue(result)
+
+    def test_admin(self):
+        if len(config.ADMIN_USERS) > 0:
+            result = authutils.requires_approval(config.ADMIN_USERS[0])
+            self.assertFalse(result)
+
+    def test_approver(self):
+        if len(config.APPROVER_USERS) > 0:
+            result = authutils.requires_approval(config.APPROVER_USERS[0])
+            self.assertFalse(result)
+
+    def test_keyholder(self):
+        result = authutils.requires_approval('markchil')
+        self.assertFalse(result)
+
+    def test_non_keyholder(self):
+        result = authutils.requires_approval(
+            'this_is_definitely_not_a_valid_kerb'
+        )
+        self.assertTrue(result)
+
+
 if __name__ == '__main__':
     unittest.main()
