@@ -51,10 +51,9 @@ class DatabaseWiper(object):
 
 
 class MultiManagerTestCase(unittest.TestCase):
-    def __init__(self, *args, managers=(), **kwargs):
+    def __init__(self, *args, **kwargs):
+        self.managers = kwargs.pop('managers', default=())
         super(MultiManagerTestCase, self).__init__(*args, **kwargs)
-
-        self.managers = managers
 
     def setUp(self):
         for manager in self.managers:
