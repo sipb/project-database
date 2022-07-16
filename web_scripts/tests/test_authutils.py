@@ -271,6 +271,44 @@ class Test_is_approver(unittest.TestCase):
 
 
 class Test_can_edit(EnvironmentOverrideTestCase):
+    def test_none(self):
+        result = authutils.can_edit(None, -1)
+        self.assertFalse(result)
+
+    def test_admin(self):
+        if len(config.ADMIN_USERS) > 0:
+            result = authutils.can_edit(config.ADMIN_USERS[0], -1)
+            self.assertTrue(result)
+
+    def test_approver(self):
+        if len(config.APPROVER_USERS) > 0:
+            result = authutils.can_edit(config.APPROVER_USERS[0], -1)
+            self.assertTrue(result)
+
+    def test_creator(self):
+        with DatabaseWiper():
+            kerberos = 'this_is_definitely_not_a_valid_kerb'
+            email = kerberos + '@mit.edu'
+            os.environ['SSL_CLIENT_S_DN_Email'] = email
+            project_id = db.add_project(
+                {
+                    'name': 'test',
+                    'description': 'some test description',
+                    'status': 'active',
+                    'links': [],
+                    'comm_channels': [],
+                    'contacts': [
+                        {'email': 'foo@mit.edu', 'type': 'primary', 'index': 0}
+                    ],
+                    'roles': []
+                },
+                kerberos
+            )
+
+            result = authutils.can_edit(kerberos, project_id)
+
+        self.assertTrue(result)
+
     def test_contact(self):
         with DatabaseWiper():
             kerberos = 'this_is_definitely_not_a_valid_kerb'
@@ -294,6 +332,30 @@ class Test_can_edit(EnvironmentOverrideTestCase):
             result = authutils.can_edit(kerberos, project_id)
 
         self.assertTrue(result)
+
+    def test_non_contact(self):
+        with DatabaseWiper():
+            kerberos = 'this_is_definitely_not_a_valid_kerb'
+            email = kerberos + '@mit.edu'
+            os.environ['SSL_CLIENT_S_DN_Email'] = email
+            project_id = db.add_project(
+                {
+                    'name': 'test',
+                    'description': 'some test description',
+                    'status': 'active',
+                    'links': [],
+                    'comm_channels': [],
+                    'contacts': [
+                        {'email': 'foo@mit.edu', 'type': 'primary', 'index': 0}
+                    ],
+                    'roles': []
+                },
+                'creator'
+            )
+
+            result = authutils.can_edit(kerberos, project_id)
+
+        self.assertFalse(result)
 
 
 if __name__ == '__main__':
