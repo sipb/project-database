@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import sqlalchemy as sa
 import unittest
 
 import sys
@@ -48,34 +49,34 @@ class DatabaseWiper(object):
     def drop_test_project(self):
         project_id = db.get_project_id(self.TEST_PROJECT_NAME)
         if project_id:
-            schema.ContactEmailsHistory.delete().where(
+            sa.delete(schema.ContactEmailsHistory).where(
                 schema.ContactEmailsHistory.project_id == project_id
-            )
-            schema.ContactEmails.delete().where(
+            ).execute()
+            sa.delete(schema.ContactEmails).where(
                 schema.ContactEmails.project_id == project_id
-            )
-            schema.RolesHistory.delete().where(
+            ).execute()
+            sa.delete(schema.RolesHistory).where(
                 schema.RolesHistory.project_id == project_id
-            )
-            schema.Roles.delete().where(
+            ).execute()
+            sa.delete(schema.Roles).where(
                 schema.Roles.project_id == project_id
-            )
-            schema.LinksHistory.delete().where(
+            ).execute()
+            sa.delete(schema.LinksHistory).where(
                 schema.LinksHistory.project_id == project_id
-            )
-            schema.Links.delete().where(
+            ).execute()
+            sa.delete(schema.Links).where(
                 schema.Links.project_id == project_id
-            )
-            schema.CommChannelsHistory.delete().where(
+            ).execute()
+            sa.delete(schema.CommChannelsHistory).where(
                 schema.CommChannelsHistory.project_id == project_id
-            )
-            schema.CommChannels.delete().where(
+            ).execute()
+            sa.delete(schema.CommChannels).where(
                 schema.CommChannels.project_id == project_id
-            )
-            schema.ProjectsHistory.delete().where(
+            ).execute()
+            sa.delete(schema.ProjectsHistory).where(
                 schema.ProjectsHistory.project_id == project_id
             ).execute()
-            schema.Projects.delete().where(
+            sa.delete(schema.Projects).where(
                 schema.Projects.project_id == project_id
             ).execute()
 
