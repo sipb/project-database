@@ -46,7 +46,7 @@ class DatabaseWiper(object):
         schema.SQLBase.metadata.drop_all(schema.sqlengine)
         schema.SQLBase.metadata.create_all(schema.sqlengine)
 
-    def __exit__(self):
+    def __exit__(self, exc_type=None, exc_value=None, exc_tb=None):
         schema.SQLBase.metadata.drop_all(schema.sqlengine)
         schema.SQLBase.metadata.create_all(schema.sqlengine)
 
