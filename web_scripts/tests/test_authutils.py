@@ -47,7 +47,6 @@ class DatabaseWiper(object):
     TEST_PROJECT_NAME = '__test__'
 
     def drop_test_project(self):
-        schema.session.query(schema.Projects).delete()
         schema.session.query(schema.ProjectsHistory).delete()
         schema.session.query(schema.ContactEmails).delete()
         schema.session.query(schema.ContactEmailsHistory).delete()
@@ -57,6 +56,8 @@ class DatabaseWiper(object):
         schema.session.query(schema.LinksHistory).delete()
         schema.session.query(schema.CommChannels).delete()
         schema.session.query(schema.CommChannelsHistory).delete()
+
+        schema.session.query(schema.Projects).delete()
 
         schema.session.commit()
 
