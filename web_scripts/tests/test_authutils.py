@@ -12,6 +12,7 @@ assert creds.mode == 'test'
 
 import authutils
 import config
+import db
 import schema
 
 
@@ -71,10 +72,17 @@ class EnvironmentOverrideTestCase(MultiManagerTestCase):
         )
 
 
-class DatabaseWiperTestCase(MultiManagerTestCase):
+class DatabaseWipeTestCase(MultiManagerTestCase):
     def __init__(self, *args, **kwargs):
         super(DatabaseWiperTestCase, self).__init__(
-            *args, manager=[DatabaseWiper()], **kwargs
+            *args, managers=[DatabaseWiper()], **kwargs
+        )
+
+
+class EnvironmentOverrideDatabaseWipeTestCase(MultiManagerTestCase):
+    def __init__(self, *args, **kwargs):
+        super(EnvironmentOverrideDatabaseWipeTestCase, self).__init__(
+            *args, managers=[EnvironmentOverrider(), DatabaseWiper()], **kwargs
         )
 
 
@@ -260,6 +268,30 @@ class Test_is_approver(unittest.TestCase):
         if len(config.APPROVER_USERS) > 0:
             result = authutils.is_approver(config.APPROVER_USERS[0])
             self.assertTrue(result)
+
+
+class Test_can_edit(EnvironmentOverrideTestCase):
+    def test_contact(self):
+        with DatabaseWiper():
+            kerberos = 'this_is_definitely_not_a_valid_kerb'
+            email = kerberos + '@mit.edu'
+            os.environ['SSL_CLIENT_S_DN_Email'] = email
+            project_id = db.add_project(
+                {
+                    'name': 'test',
+                    'description': 'some test description',
+                    'status': 'active',
+                    'links': [],
+                    'comm_channels': [],
+                    'contacts': [email],
+                    'roles': []
+                },
+                'creator'
+            )
+
+            result = authutils.can_edit(kerberos, project_id)
+
+        self.assertTrue(result)
 
 
 if __name__ == '__main__':
