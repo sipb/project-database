@@ -35,6 +35,7 @@ class EnvironmentOverrider(object):
                 'REQUEST_URI'
             ]
         }
+        return self
 
     def __exit__(self, exc_type=None, exc_value=None, exc_tb=None):
         for key, value in self.initial_values.items():
@@ -80,6 +81,7 @@ class DatabaseWiper(object):
 
     def __enter__(self):
         self.drop_test_project()
+        return self
 
     def __exit__(self, exc_type=None, exc_value=None, exc_tb=None):
         self.drop_test_project()
