@@ -48,6 +48,7 @@ class DatabaseWiper(object):
 
     def drop_test_project(self):
         project_id = db.get_project_id(self.TEST_PROJECT_NAME)
+        print(project_id)
         if project_id:
             sa.delete(schema.ContactEmailsHistory).where(
                 schema.ContactEmailsHistory.project_id == project_id
