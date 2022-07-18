@@ -463,6 +463,7 @@ class Test_enrich_project_list_with_permissions(
             project_info['project_id'] = db.add_project(
                 project_info, 'creator', initial_approval=initial_approval
             )
+            project_info['approval'] = initial_approval
 
     def test_none(self):
         project_list = authutils.enrich_project_list_with_permissions(
