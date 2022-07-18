@@ -206,5 +206,24 @@ class Test_validate_project_name(testutils.DatabaseWipeTestCase):
         self.assertGreaterEqual(len(status_messages), 1)
 
 
+class Test_validate_project_description(unittest.TestCase):
+    def test_empty(self):
+        is_ok, status_messages = valutils.validate_project_description('')
+        self.assertFalse(is_ok)
+        self.assertGreaterEqual(len(status_messages), 1)
+
+    def test_too_short(self):
+        is_ok, status_messages = valutils.validate_project_description('word')
+        self.assertFalse(is_ok)
+        self.assertGreaterEqual(len(status_messages), 1)
+
+    def test_ok(self):
+        is_ok, status_messages = valutils.validate_project_description(
+            'word word word'
+        )
+        self.assertTrue(is_ok)
+        self.assertEqual(len(status_messages), 0)
+
+
 if __name__ == '__main__':
     unittest.main()
