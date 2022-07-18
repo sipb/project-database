@@ -235,14 +235,80 @@ class Test_validate_project_contacts_nonempty(unittest.TestCase):
 
     def test_one(self):
         is_ok, status_messages = valutils.validate_project_contacts_nonempty(
-            {
-                'email': 'foo@mit.edu',
-                'type': 'primary',
-                'index': 0
-            }
+            [
+                {
+                    'email': 'foo@mit.edu',
+                    'type': 'primary',
+                    'index': 0
+                }
+            ]
         )
         self.assertTrue(is_ok)
         self.assertEqual(len(status_messages), 0)
+
+
+class Test_validate_project_contact_addresses(unittest.TestCase):
+    def test_valid(self):
+        is_ok, status_messages = valutils.validate_project_contact_addresses(
+            [
+                {
+                    'email': 'foo@mit.edu',
+                    'type': 'primary',
+                    'index': 0
+                },
+                {
+                    'email': 'foo@bar.mit.edu',
+                    'type': 'secondary',
+                    'index': 1
+                }
+            ]
+        )
+        self.assertTrue(is_ok)
+        self.assertEqual(len(status_messages), 0)
+
+    def test_too_long(self):
+        is_ok, status_messages = valutils.validate_project_contact_addresses(
+            [
+                {
+                    'email': ('A' * 100) + '@mit.edu',
+                    'type': 'primary',
+                    'index': 0
+                }
+            ]
+        )
+        self.assertFalse(is_ok)
+        self.assertGreaterEqual(len(status_messages), 1)
+
+    def test_non_mit(self):
+        is_ok, status_messages = valutils.validate_project_contact_addresses(
+            [
+                {
+                    'email': 'foo@mit.edu',
+                    'type': 'primary',
+                    'index': 0
+                },
+                {
+                    'email': 'foo@bar.com',
+                    'type': 'secondary',
+                    'index': 1
+                }
+            ]
+        )
+        self.assertFalse(is_ok)
+        self.assertGreaterEqual(len(status_messages), 1)
+
+    def test_no_base_mit(self):
+        is_ok, status_messages = valutils.validate_project_contact_addresses(
+            [
+                {
+                    'email': 'foo@bar.mit.edu',
+                    'type': 'primary',
+                    'index': 0
+                }
+            ]
+        )
+        self.assertFalse(is_ok)
+        self.assertGreaterEqual(len(status_messages), 1)
 
 
 if __name__ == '__main__':
