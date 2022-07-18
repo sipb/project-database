@@ -225,5 +225,25 @@ class Test_validate_project_description(unittest.TestCase):
         self.assertEqual(len(status_messages), 0)
 
 
+class Test_validate_project_contacts_nonempty(unittest.TestCase):
+    def test_empty(self):
+        is_ok, status_messages = valutils.validate_project_contacts_nonempty(
+            []
+        )
+        self.assertFalse(is_ok)
+        self.assertGreaterEqual(len(status_messages), 1)
+
+    def test_one(self):
+        is_ok, status_messages = valutils.validate_project_contacts_nonempty(
+            {
+                'email': 'foo@mit.edu',
+                'type': 'primary',
+                'index': 0
+            }
+        )
+        self.assertTrue(is_ok)
+        self.assertEqual(len(status_messages), 0)
+
+
 if __name__ == '__main__':
     unittest.main()
