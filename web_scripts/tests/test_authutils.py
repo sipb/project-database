@@ -1,110 +1,18 @@
 #!/usr/bin/env python
 
-import sqlalchemy as sa
-import unittest
-
-import sys
-sys.path.insert(0, '..')
+# testutils MUST be imported first to set up test configuration and module
+# paths properly!
+import testutils
 
 import os
-os.environ['PROJECTS_DATABASE_MODE'] = 'test'
-import creds
-assert creds.mode == 'test'
+import unittest
 
 import authutils
 import config
 import db
-import schema
 
 
-def restore_env(key, value):
-    if value is None:
-        try:
-            os.environ.pop(key)
-        except KeyError:
-            pass
-    else:
-        os.environ[key] = value
-
-
-class EnvironmentOverrider(object):
-    def __enter__(self):
-        self.initial_values = {
-            key: os.getenv(key) for key in [
-                'SSL_CLIENT_S_DN_Email',
-                'HTTP_HOST',
-                'REQUEST_URI'
-            ]
-        }
-        return self
-
-    def __exit__(self, exc_type=None, exc_value=None, exc_tb=None):
-        for key, value in self.initial_values.items():
-            restore_env(key, value)
-
-
-class DatabaseWiper(object):
-    def drop_test_projects(self):
-        assert creds.mode == 'test'
-
-        schema.session.query(schema.ProjectsHistory).delete()
-        schema.session.query(schema.ContactEmails).delete()
-        schema.session.query(schema.ContactEmailsHistory).delete()
-        schema.session.query(schema.Roles).delete()
-        schema.session.query(schema.RolesHistory).delete()
-        schema.session.query(schema.Links).delete()
-        schema.session.query(schema.LinksHistory).delete()
-        schema.session.query(schema.CommChannels).delete()
-        schema.session.query(schema.CommChannelsHistory).delete()
-
-        schema.session.query(schema.Projects).delete()
-
-        schema.session.commit()
-
-    def __enter__(self):
-        self.drop_test_projects()
-        return self
-
-    def __exit__(self, exc_type=None, exc_value=None, exc_tb=None):
-        self.drop_test_projects()
-
-
-class MultiManagerTestCase(unittest.TestCase):
-    def __init__(self, *args, **kwargs):
-        self.managers = kwargs.pop('managers', ())
-        super(MultiManagerTestCase, self).__init__(*args, **kwargs)
-
-    def setUp(self):
-        for manager in self.managers:
-            manager.__enter__()
-
-    def tearDown(self):
-        for manager in self.managers:
-            manager.__exit__()
-
-
-class EnvironmentOverrideTestCase(MultiManagerTestCase):
-    def __init__(self, *args, **kwargs):
-        super(EnvironmentOverrideTestCase, self).__init__(
-            *args, managers=[EnvironmentOverrider()], **kwargs
-        )
-
-
-class DatabaseWipeTestCase(MultiManagerTestCase):
-    def __init__(self, *args, **kwargs):
-        super(DatabaseWipeTestCase, self).__init__(
-            *args, managers=[DatabaseWiper()], **kwargs
-        )
-
-
-class EnvironmentOverrideDatabaseWipeTestCase(MultiManagerTestCase):
-    def __init__(self, *args, **kwargs):
-        super(EnvironmentOverrideDatabaseWipeTestCase, self).__init__(
-            *args, managers=[EnvironmentOverrider(), DatabaseWiper()], **kwargs
-        )
-
-
-class Test_get_kerberos(EnvironmentOverrideTestCase):
+class Test_get_kerberos(testutils.EnvironmentOverrideTestCase):
     def test_none(self):
         try:
             os.environ.pop('SSL_CLIENT_S_DN_Email')
@@ -137,7 +45,7 @@ class Test_get_kerberos(EnvironmentOverrideTestCase):
         self.assertIsNone(kerberos)
 
 
-class Test_get_email(EnvironmentOverrideTestCase):
+class Test_get_email(testutils.EnvironmentOverrideTestCase):
     def test_none(self):
         try:
             os.environ.pop('SSL_CLIENT_S_DN_Email')
@@ -170,7 +78,7 @@ class Test_get_email(EnvironmentOverrideTestCase):
         self.assertIsNone(email)
 
 
-class Test_get_base_url(EnvironmentOverrideTestCase):
+class Test_get_base_url(testutils.EnvironmentOverrideTestCase):
     def test_with_auth(self):
         true_host = 'test.foo.bar:123'
         os.environ['HTTP_HOST'] = true_host
@@ -186,7 +94,7 @@ class Test_get_base_url(EnvironmentOverrideTestCase):
         self.assertEqual(host, 'https://test.foo.bar')
 
 
-class Test_get_auth_url(EnvironmentOverrideTestCase):
+class Test_get_auth_url(testutils.EnvironmentOverrideTestCase):
     def test_with_auth(self):
         true_host = 'test.foo.bar:123'
         os.environ['HTTP_HOST'] = true_host
@@ -288,7 +196,7 @@ class Test_is_approver(unittest.TestCase):
             self.assertTrue(result)
 
 
-class Test_can_edit(EnvironmentOverrideTestCase):
+class Test_can_edit(testutils.EnvironmentOverrideTestCase):
     def test_none(self):
         result = authutils.can_edit(None, -1)
         self.assertFalse(result)
@@ -304,7 +212,7 @@ class Test_can_edit(EnvironmentOverrideTestCase):
             self.assertTrue(result)
 
     def test_creator(self):
-        with DatabaseWiper():
+        with testutils.DatabaseWiper():
             kerberos = 'this_is_definitely_not_a_valid_kerb'
             email = kerberos + '@mit.edu'
             os.environ['SSL_CLIENT_S_DN_Email'] = email
@@ -328,7 +236,7 @@ class Test_can_edit(EnvironmentOverrideTestCase):
         self.assertTrue(result)
 
     def test_contact(self):
-        with DatabaseWiper():
+        with testutils.DatabaseWiper():
             kerberos = 'this_is_definitely_not_a_valid_kerb'
             email = kerberos + '@mit.edu'
             os.environ['SSL_CLIENT_S_DN_Email'] = email
@@ -352,7 +260,7 @@ class Test_can_edit(EnvironmentOverrideTestCase):
         self.assertTrue(result)
 
     def test_non_contact(self):
-        with DatabaseWiper():
+        with testutils.DatabaseWiper():
             kerberos = 'this_is_definitely_not_a_valid_kerb'
             email = kerberos + '@mit.edu'
             os.environ['SSL_CLIENT_S_DN_Email'] = email
@@ -376,7 +284,7 @@ class Test_can_edit(EnvironmentOverrideTestCase):
         self.assertFalse(result)
 
 
-class Test_requires_approval(EnvironmentOverrideTestCase):
+class Test_requires_approval(testutils.EnvironmentOverrideTestCase):
     def test_none(self):
         result = authutils.requires_approval(None)
         self.assertTrue(result)
@@ -402,7 +310,7 @@ class Test_requires_approval(EnvironmentOverrideTestCase):
         self.assertTrue(result)
 
 
-class Test_can_approve(EnvironmentOverrideTestCase):
+class Test_can_approve(testutils.EnvironmentOverrideTestCase):
     def test_none(self):
         result = authutils.can_approve(None)
         self.assertFalse(result)
@@ -423,7 +331,7 @@ class Test_can_approve(EnvironmentOverrideTestCase):
 
 
 class Test_enrich_project_list_with_permissions(
-    EnvironmentOverrideDatabaseWipeTestCase
+    testutils.EnvironmentOverrideDatabaseWipeTestCase
 ):
     def setUp(self):
         super(Test_enrich_project_list_with_permissions, self).setUp()
