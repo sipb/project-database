@@ -45,6 +45,8 @@ class EnvironmentOverrider(object):
 
 class DatabaseWiper(object):
     def drop_test_projects(self):
+        assert creds.mode == 'test'
+
         schema.session.query(schema.ProjectsHistory).delete()
         schema.session.query(schema.ContactEmails).delete()
         schema.session.query(schema.ContactEmailsHistory).delete()
@@ -418,6 +420,81 @@ class Test_can_approve(EnvironmentOverrideTestCase):
     def test_regular_user(self):
         result = authutils.can_approve('this_is_definitely_not_a_valid_kerb')
         self.assertFalse(result)
+
+
+class Test_enrich_project_list_with_permissions(
+    EnvironmentOverrideDatabaseWipeTestCase
+):
+    def setUp(self):
+        super(Test_enrich_project_list_with_permissions, self).setUp()
+
+        self.project_info_list = [
+            {
+                'name': 'test1',
+                'description': 'some test description',
+                'status': 'active',
+                'links': [],
+                'comm_channels': [],
+                'contacts': [
+                    {'email': 'foo@mit.edu', 'type': 'primary', 'index': 0}
+                ],
+                'roles': []
+            },
+            {
+                'name': 'test2',
+                'description': 'some test description',
+                'status': 'active',
+                'links': [],
+                'comm_channels': [],
+                'contacts': [
+                    {
+                        'email': 'this_is_definitely_not_a_valid_kerb@mit.edu',
+                        'type': 'primary',
+                        'index': 0
+                    }
+                ],
+                'roles': []
+            }
+        ]
+        self.initial_approvals = ['awaiting_approval', 'approved']
+        for project_info, initial_approval in zip(
+            self.project_info_list, self.initial_approvals
+        ):
+            project_info['project_id'] = db.add_project(
+                project_info, 'creator', initial_approval=initial_approval
+            )
+
+    def test_none(self):
+        project_list = authutils.enrich_project_list_with_permissions(
+            None, self.project_info_list
+        )
+        for project_info in project_list:
+            self.assertFalse(project_info['can_edit'])
+            self.assertFalse(project_info['can_approve'])
+
+    def test_contact(self):
+        project_list = authutils.enrich_project_list_with_permissions(
+            'this_is_definitely_not_a_valid_kerb', self.project_info_list
+        )
+        for project_info in project_list:
+            self.assertFalse(project_info['can_approve'])
+
+        self.assertFalse(project_list[0]['can_edit'])
+        self.assertTrue(project_list[1]['can_edit'])
+
+    def test_admin(self):
+        if len(config.ADMIN_USERS) > 0:
+            project_list = authutils.enrich_project_list_with_permissions(
+                config.ADMIN_USERS[0], self.project_info_list
+            )
+            for project_info, initial_approval in zip(
+                project_list, self.initial_approvals
+            ):
+                self.assertTrue(project_info['can_edit'])
+                if initial_approval == 'awaiting_approval':
+                    self.assertTrue(project_info['can_approve'])
+                else:
+                    self.assertFalse(project_info['can_approve'])
 
 
 if __name__ == '__main__':
