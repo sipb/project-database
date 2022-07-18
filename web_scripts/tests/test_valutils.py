@@ -121,5 +121,90 @@ class Test_validate_project_name_available(testutils.DatabaseWipeTestCase):
         self.assertGreaterEqual(len(status_messages), 1)
 
 
+class Test_validate_project_name(testutils.DatabaseWipeTestCase):
+    def setUp(self):
+        super(Test_validate_project_name_available, self).setUp()
+
+        self.project_info_list = [
+            {
+                'name': 'test1',
+                'description': 'some test description',
+                'status': 'active',
+                'links': [],
+                'comm_channels': [],
+                'contacts': [
+                    {'email': 'foo@mit.edu', 'type': 'primary', 'index': 0}
+                ],
+                'roles': []
+            },
+            {
+                'name': 'test2',
+                'description': 'some test description',
+                'status': 'active',
+                'links': [],
+                'comm_channels': [],
+                'contacts': [
+                    {
+                        'email': 'this_is_definitely_not_a_valid_kerb@mit.edu',
+                        'type': 'primary',
+                        'index': 0
+                    }
+                ],
+                'roles': []
+            }
+        ]
+        self.initial_approvals = ['approved', 'approved']
+        for project_info, initial_approval in zip(
+            self.project_info_list, self.initial_approvals
+        ):
+            project_info['project_id'] = db.add_project(
+                project_info, 'creator', initial_approval=initial_approval
+            )
+            project_info['approval'] = initial_approval
+
+    def test_empty_no_prev(self):
+        is_ok, status_messages = valutils.validate_project_name('')
+        self.assertFalse(is_ok)
+        self.assertGreaterEqual(len(status_messages), 1)
+
+    def test_available_no_prev(self):
+        is_ok, status_messages = valutils.validate_project_name('test3')
+        self.assertTrue(is_ok)
+        self.assertEqual(len(status_messages), 0)
+
+    def test_taken_no_prev(self):
+        is_ok, status_messages = valutils.validate_project_name('test1')
+        self.assertFalse(is_ok)
+        self.assertGreaterEqual(len(status_messages), 1)
+
+    def test_same_with_prev(self):
+        is_ok, status_messages = valutils.validate_project_name(
+            'test1', previous_name='test1'
+        )
+        self.assertTrue(is_ok)
+        self.assertEqual(len(status_messages), 0)
+
+    def test_empty_with_prev(self):
+        is_ok, status_messages = valutils.validate_project_name(
+            '', previous_name='test1'
+        )
+        self.assertFalse(is_ok)
+        self.assertGreaterEqual(len(status_messages), 1)
+
+    def test_available_with_prev(self):
+        is_ok, status_messages = valutils.validate_project_name(
+            'test3', previous_name='test1'
+        )
+        self.assertTrue(is_ok)
+        self.assertEqual(len(status_messages), 0)
+
+    def test_taken_with_prev(self):
+        is_ok, status_messages = valutils.validate_project_name(
+            'test2', previous_name='test1'
+        )
+        self.assertFalse(is_ok)
+        self.assertGreaterEqual(len(status_messages), 1)
+
+
 if __name__ == '__main__':
     unittest.main()
