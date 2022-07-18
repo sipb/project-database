@@ -7,6 +7,7 @@ import testutils
 import os
 import unittest
 
+import db
 import valutils
 
 
@@ -70,6 +71,54 @@ class Test_validate_project_name_text(unittest.TestCase):
         is_ok, status_messages = valutils.validate_project_name_text('test')
         self.assertTrue(is_ok)
         self.assertEqual(len(status_messages), 0)
+
+
+class Test_validate_project_name_available(testutils.DatabaseWipeTestCase):
+    def setUp(self):
+        super(Test_validate_project_name_available, self).setUp()
+
+        self.project_info_list = [
+            {
+                'name': 'test1',
+                'description': 'some test description',
+                'status': 'active',
+                'links': [],
+                'comm_channels': [],
+                'contacts': [
+                    {'email': 'foo@mit.edu', 'type': 'primary', 'index': 0}
+                ],
+                'roles': []
+            }
+        ]
+        self.initial_approvals = ['approved']
+        for project_info, initial_approval in zip(
+            self.project_info_list, self.initial_approvals
+        ):
+            project_info['project_id'] = db.add_project(
+                project_info, 'creator', initial_approval=initial_approval
+            )
+            project_info['approval'] = initial_approval
+
+    def test_available(self):
+        is_ok, status_messages = valutils.validate_project_name_available(
+            'test2'
+        )
+        self.assertTrue(is_ok)
+        self.assertEqual(len(status_messages), 0)
+
+    def test_taken(self):
+        is_ok, status_messages = valutils.validate_project_name_available(
+            'test1'
+        )
+        self.assertFalse(is_ok)
+        self.assertGreaterEqual(len(status_messages), 1)
+
+    def test_taken_case(self):
+        is_ok, status_messages = valutils.validate_project_name_available(
+            'TEST1'
+        )
+        self.assertFalse(is_ok)
+        self.assertGreaterEqual(len(status_messages), 1)
 
 
 if __name__ == '__main__':
