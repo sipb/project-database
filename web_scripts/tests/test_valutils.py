@@ -311,5 +311,43 @@ class Test_validate_project_contact_addresses(unittest.TestCase):
         self.assertGreaterEqual(len(status_messages), 1)
 
 
+class Test_validate_project_contacts_unique(unittest.TestCase):
+    def test_unique(self):
+        is_ok, status_messages = valutils.validate_project_contacts_unique(
+            [
+                {
+                    'email': 'foo@mit.edu',
+                    'type': 'primary',
+                    'index': 0
+                },
+                {
+                    'email': 'foo@bar.mit.edu',
+                    'type': 'secondary',
+                    'index': 1
+                }
+            ]
+        )
+        self.assertTrue(is_ok)
+        self.assertEqual(len(status_messages), 0)
+
+    def test_repeated(self):
+        is_ok, status_messages = valutils.validate_project_contacts_unique(
+            [
+                {
+                    'email': 'foo@mit.edu',
+                    'type': 'primary',
+                    'index': 0
+                },
+                {
+                    'email': 'foo@mit.edu',
+                    'type': 'secondary',
+                    'index': 1
+                }
+            ]
+        )
+        self.assertFalse(is_ok)
+        self.assertGreaterEqual(len(status_messages), 1)
+
+
 if __name__ == '__main__':
     unittest.main()
