@@ -55,5 +55,22 @@ class Test_validate_add_permission(testutils.EnvironmentOverrideTestCase):
         self.assertGreaterEqual(len(status_messages), 1)
 
 
+class Test_validate_project_name_text(unittest.TestCase):
+    def test_empty(self):
+        is_ok, status_messages = valutils.validate_project_name_text('')
+        self.assertFalse(is_ok)
+        self.assertGreaterEqual(len(status_messages), 1)
+
+    def test_long(self):
+        is_ok, status_messages = valutils.validate_project_name_text('A' * 100)
+        self.assertFalse(is_ok)
+        self.assertGreaterEqual(len(status_messages), 1)
+
+    def test_basic(self):
+        is_ok, status_messages = valutils.validate_project_name_text('test')
+        self.assertTrue(is_ok)
+        self.assertEqual(len(status_messages), 0)
+
+
 if __name__ == '__main__':
     unittest.main()
