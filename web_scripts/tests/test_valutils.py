@@ -32,7 +32,7 @@ class Test_all_unique(unittest.TestCase):
         self.assertFalse(result)
 
 
-class Test_validate_add_permission(testutils.EnvironmentOverrider):
+class Test_validate_add_permission(testutils.EnvironmentOverrideTestCase):
     def test_none(self):
         os.environ.pop('SSL_CLIENT_S_DN_Email', None)
         is_ok, status_messages = valutils.validate_add_permission()
