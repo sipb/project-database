@@ -10,6 +10,7 @@ os.environ['PROJECTS_DATABASE_MODE'] = 'test'
 import creds
 assert creds.mode == 'test'
 
+import unittest
 import schema
 
 
