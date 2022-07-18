@@ -42,14 +42,14 @@ class Test_validate_add_permission(testutils.EnvironmentOverrideTestCase):
     def test_member(self):
         # rif was memberized in 1991, and this test will need to be revised
         # should they be elected a keyholder.
-        os.environ['SSL_CLIENT_S_DN_Email'] = 'rif'
+        os.environ['SSL_CLIENT_S_DN_Email'] = 'rif@mit.edu'
         is_ok, status_messages = valutils.validate_add_permission()
         self.assertTrue(is_ok)
         self.assertEqual(len(status_messages), 0)
 
     def test_nonmember(self):
         os.environ['SSL_CLIENT_S_DN_Email'] = \
-            'this_is_definitely_not_a_valid_kerb'
+            'this_is_definitely_not_a_valid_kerb@mit.edu'
         is_ok, status_messages = valutils.validate_add_permission()
         self.assertFalse(is_ok)
         self.assertGreaterEqual(len(status_messages), 1)
