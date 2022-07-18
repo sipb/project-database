@@ -123,7 +123,7 @@ class Test_validate_project_name_available(testutils.DatabaseWipeTestCase):
 
 class Test_validate_project_name(testutils.DatabaseWipeTestCase):
     def setUp(self):
-        super(Test_validate_project_name_available, self).setUp()
+        super(Test_validate_project_name, self).setUp()
 
         self.project_info_list = [
             {
