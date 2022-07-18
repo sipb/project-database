@@ -392,5 +392,68 @@ class Test_validate_project_contacts(unittest.TestCase):
         self.assertGreaterEqual(len(status_messages), 1)
 
 
+class Test_validate_project_role_fields(unittest.TestCase):
+    def test_empty(self):
+        is_ok, status_messages = valutils.validate_project_role_fields([])
+        self.assertTrue(is_ok)
+        self.assertEqual(len(status_messages), 0)
+
+    def test_valid(self):
+        is_ok, status_messages = valutils.validate_project_role_fields(
+            [
+                {
+                    'role': 'foo',
+                    'description': 'bar',
+                    'prereq': '',
+                    'index': 0
+                }
+            ]
+        )
+        self.assertTrue(is_ok)
+        self.assertEqual(len(status_messages), 0)
+
+    def test_name_too_long(self):
+        is_ok, status_messages = valutils.validate_project_role_fields(
+            [
+                {
+                    'role': 'A' * 100,
+                    'description': 'bar',
+                    'prereq': '',
+                    'index': 0
+                }
+            ]
+        )
+        self.assertFalse(is_ok)
+        self.assertGreaterEqual(len(status_messages), 1)
+
+    def test_no_name(self):
+        is_ok, status_messages = valutils.validate_project_role_fields(
+            [
+                {
+                    'role': '',
+                    'description': 'bar',
+                    'prereq': '',
+                    'index': 0
+                }
+            ]
+        )
+        self.assertFalse(is_ok)
+        self.assertGreaterEqual(len(status_messages), 1)
+
+    def test_no_description(self):
+        is_ok, status_messages = valutils.validate_project_role_fields(
+            [
+                {
+                    'role': 'A',
+                    'description': '',
+                    'prereq': '',
+                    'index': 0
+                }
+            ]
+        )
+        self.assertFalse(is_ok)
+        self.assertGreaterEqual(len(status_messages), 1)
+
+
 if __name__ == '__main__':
     unittest.main()
