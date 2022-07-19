@@ -549,5 +549,48 @@ class Test_validate_project_roles(unittest.TestCase):
         self.assertGreaterEqual(len(status_messages), 1)
 
 
+class Test_validate_project_links(unittest.TestCase):
+    def test_empty(self):
+        is_ok, status_messages = valutils.validate_project_links([])
+        self.assertTrue(is_ok)
+        self.assertEqual(len(status_messages), 0)
+
+    def test_valid(self):
+        is_ok, status_messages = valutils.validate_project_links(
+            [
+                {
+                    'link': 'mit.edu',
+                    'anchortext': '',
+                    'index': 0
+                },
+                {
+                    'link': 'csail.mit.edu',
+                    'anchortext': 'foo bar baz',
+                    'index': 1
+                }
+            ]
+        )
+        self.assertTrue(is_ok)
+        self.assertEqual(len(status_messages), 0)
+
+    def test_invalid(self):
+        is_ok, status_messages = valutils.validate_project_links(
+            [
+                {
+                    'link': 'mit.edu',
+                    'anchortext': '',
+                    'index': 0
+                },
+                {
+                    'link': 'mit.edu',
+                    'anchortext': 'foo bar baz',
+                    'index': 1
+                }
+            ]
+        )
+        self.assertFalse(is_ok)
+        self.assertGreaterEqual(len(status_messages), 1)
+
+
 if __name__ == '__main__':
     unittest.main()
