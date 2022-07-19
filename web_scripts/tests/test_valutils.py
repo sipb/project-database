@@ -502,5 +502,52 @@ class Test_validate_project_roles_unique(unittest.TestCase):
         self.assertGreaterEqual(len(status_messages), 1)
 
 
+class Test_validate_project_roles(unittest.TestCase):
+    def test_empty(self):
+        is_ok, status_messages = valutils.validate_project_roles([])
+        self.assertTrue(is_ok)
+        self.assertEqual(len(status_messages), 0)
+
+    def test_valid(self):
+        is_ok, status_messages = valutils.validate_project_roles(
+            [
+                {
+                    'role': 'A',
+                    'description': 'foo',
+                    'prereq': '',
+                    'index': 0
+                },
+                {
+                    'role': 'B',
+                    'description': 'bar',
+                    'prereq': '',
+                    'index': 1
+                }
+            ]
+        )
+        self.assertTrue(is_ok)
+        self.assertEqual(len(status_messages), 0)
+
+    def test_invalid(self):
+        is_ok, status_messages = valutils.validate_project_roles(
+            [
+                {
+                    'role': 'A',
+                    'description': 'foo',
+                    'prereq': '',
+                    'index': 0
+                },
+                {
+                    'role': 'A',
+                    'description': '',
+                    'prereq': '',
+                    'index': 1
+                }
+            ]
+        )
+        self.assertFalse(is_ok)
+        self.assertGreaterEqual(len(status_messages), 1)
+
+
 if __name__ == '__main__':
     unittest.main()
