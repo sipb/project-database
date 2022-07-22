@@ -894,5 +894,121 @@ class Test_validate_edit_permission(
         self.assertGreaterEqual(len(status_messages), 1)
 
 
+class Test_validate_edit_project(
+    testutils.EnvironmentOverrideDatabaseWipeTestCase
+):
+    def setUp(self):
+        super(Test_validate_edit_project, self).setUp()
+
+        self.project_info_list = [
+            {
+                'name': 'test1',
+                'description': 'some test description',
+                'status': 'active',
+                'links': [],
+                'comm_channels': [],
+                'contacts': [
+                    {'email': 'foo@mit.edu', 'type': 'primary', 'index': 0}
+                ],
+                'roles': []
+            },
+            {
+                'name': 'test2',
+                'description': 'some test description',
+                'status': 'active',
+                'links': [],
+                'comm_channels': [],
+                'contacts': [
+                    {
+                        'email': 'this_is_definitely_not_a_valid_kerb@mit.edu',
+                        'type': 'primary',
+                        'index': 0
+                    }
+                ],
+                'roles': []
+            }
+        ]
+        self.initial_approvals = ['approved', 'approved']
+        for project_info, initial_approval in zip(
+            self.project_info_list, self.initial_approvals
+        ):
+            project_info['project_id'] = db.add_project(
+                project_info, 'creator', initial_approval=initial_approval
+            )
+            project_info['approval'] = initial_approval
+
+    def test_none(self):
+        os.environ.pop('SSL_CLIENT_S_DN_Email', None)
+        project_info = {
+            'name': 'test3',
+            'description': 'some test description',
+            'status': 'active',
+            'links': [],
+            'comm_channels': [],
+            'contacts': [
+                {
+                    'email': 'foo@mit.edu',
+                    'type': 'primary',
+                    'index': 0
+                }
+            ],
+            'roles': []
+        }
+        project_id = db.get_project_id('test1')
+        is_ok, status_messages = valutils.validate_edit_project(
+            project_info, project_id
+        )
+        self.assertFalse(is_ok)
+        self.assertGreaterEqual(len(status_messages), 1)
+
+    def test_valid_same_name(self):
+        os.environ['SSL_CLIENT_S_DN_Email'] = 'foo@mit.edu'
+        project_info = {
+            'name': 'test1',
+            'description': 'some test description',
+            'status': 'active',
+            'links': [],
+            'comm_channels': [],
+            'contacts': [
+                {
+                    'email': 'foo@mit.edu',
+                    'type': 'primary',
+                    'index': 0
+                }
+            ],
+            'roles': []
+        }
+        project_id = db.get_project_id('test1')
+        is_ok, status_messages = valutils.validate_edit_project(
+            project_info, project_id
+        )
+        self.assertTrue(is_ok)
+        self.assertEqual(len(status_messages), 0)
+
+    def test_valid_new_name(self):
+        os.environ['SSL_CLIENT_S_DN_Email'] = 'foo@mit.edu'
+        project_info = {
+            'name': 'test3',
+            'description': 'some test description',
+            'status': 'active',
+            'links': [],
+            'comm_channels': [],
+            'contacts': [
+                {
+                    'email': 'foo@mit.edu',
+                    'type': 'primary',
+                    'index': 0
+                }
+            ],
+            'roles': []
+        }
+        project_id = db.get_project_id('test1')
+        is_ok, status_messages = valutils.validate_edit_project(
+            project_info, project_id
+        )
+        self.assertTrue(is_ok)
+        self.assertEqual(len(status_messages), 0)
+
+
 if __name__ == '__main__':
     unittest.main()
