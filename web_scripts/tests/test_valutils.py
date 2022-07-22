@@ -847,7 +847,7 @@ class Test_validate_edit_permission(
     testutils.EnvironmentOverrideDatabaseWipeTestCase
 ):
     def setUp(self):
-        super(Test_validate_add_project, self).setUp()
+        super(Test_validate_edit_permission, self).setUp()
 
         self.project_info_list = [
             {
