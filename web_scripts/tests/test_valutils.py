@@ -631,5 +631,131 @@ class Test_validate_project_comm_channels(unittest.TestCase):
         self.assertGreaterEqual(len(status_messages), 1)
 
 
+class Test_validate_project_info(testutils.DatabaseWipeTestCase):
+    def setUp(self):
+        super(Test_validate_project_info, self).setUp()
+
+        self.project_info_list = [
+            {
+                'name': 'test1',
+                'description': 'some test description',
+                'status': 'active',
+                'links': [],
+                'comm_channels': [],
+                'contacts': [
+                    {'email': 'foo@mit.edu', 'type': 'primary', 'index': 0}
+                ],
+                'roles': []
+            },
+            {
+                'name': 'test2',
+                'description': 'some test description',
+                'status': 'active',
+                'links': [],
+                'comm_channels': [],
+                'contacts': [
+                    {
+                        'email': 'this_is_definitely_not_a_valid_kerb@mit.edu',
+                        'type': 'primary',
+                        'index': 0
+                    }
+                ],
+                'roles': []
+            }
+        ]
+        self.initial_approvals = ['approved', 'approved']
+        for project_info, initial_approval in zip(
+            self.project_info_list, self.initial_approvals
+        ):
+            project_info['project_id'] = db.add_project(
+                project_info, 'creator', initial_approval=initial_approval
+            )
+            project_info['approval'] = initial_approval
+
+    def test_ok_no_previous(self):
+        project_info = {
+            'name': 'test3',
+            'description': 'some test description',
+            'status': 'active',
+            'links': [],
+            'comm_channels': [],
+            'contacts': [
+                {
+                    'email': 'foo@mit.edu',
+                    'type': 'primary',
+                    'index': 0
+                }
+            ],
+            'roles': []
+        }
+        is_ok, status_messages = valutils.validate_project_info(project_info)
+        self.assertTrue(is_ok)
+        self.assertEqual(len(status_messages), 0)
+
+    def test_invalid_no_previous(self):
+        project_info = {
+            'name': 'test1',
+            'description': 'some test description',
+            'status': 'active',
+            'links': [],
+            'comm_channels': [],
+            'contacts': [
+                {
+                    'email': 'foo@mit.edu',
+                    'type': 'primary',
+                    'index': 0
+                }
+            ],
+            'roles': []
+        }
+        is_ok, status_messages = valutils.validate_project_info(project_info)
+        self.assertFalse(is_ok)
+        self.assertGreaterEqual(len(status_messages), 1)
+
+    def test_ok_with_previous(self):
+        project_info = {
+            'name': 'test1',
+            'description': 'some test description',
+            'status': 'active',
+            'links': [],
+            'comm_channels': [],
+            'contacts': [
+                {
+                    'email': 'foo@mit.edu',
+                    'type': 'primary',
+                    'index': 0
+                }
+            ],
+            'roles': []
+        }
+        is_ok, status_messages = valutils.validate_project_info(
+            project_info, previous_name='test1'
+        )
+        self.assertTrue(is_ok)
+        self.assertEqual(len(status_messages), 0)
+
+    def test_invalid_with_previous(self):
+        project_info = {
+            'name': 'test1',
+            'description': 'some test description',
+            'status': 'active',
+            'links': [],
+            'comm_channels': [],
+            'contacts': [
+                {
+                    'email': 'foo@mit.edu',
+                    'type': 'primary',
+                    'index': 0
+                }
+            ],
+            'roles': []
+        }
+        is_ok, status_messages = valutils.validate_project_info(
+            project_info, previous_name='test2'
+        )
+        self.assertFalse(is_ok)
+        self.assertGreaterEqual(len(status_messages), 1)
+
+
 if __name__ == '__main__':
     unittest.main()
