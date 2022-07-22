@@ -761,7 +761,7 @@ class Test_validate_add_project(
     unittest.EnvironmentOverrideDatabaseWipeTestCase
 ):
     def setUp(self):
-        super(Test_validate_project_info, self).setUp()
+        super(Test_validate_add_project, self).setUp()
 
         self.project_info_list = [
             {
