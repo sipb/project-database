@@ -817,7 +817,7 @@ class Test_validate_add_project(
             ],
             'roles': []
         }
-        is_ok, status_messages = valutils.valdiate_add_project(project_info)
+        is_ok, status_messages = valutils.validate_add_project(project_info)
         self.assertTrue(is_ok)
         self.assertEqual(len(status_messages), 0)
 
@@ -838,7 +838,7 @@ class Test_validate_add_project(
             ],
             'roles': []
         }
-        is_ok, status_messages = valutils.valdiate_add_project(project_info)
+        is_ok, status_messages = valutils.validate_add_project(project_info)
         self.assertFalse(is_ok)
         self.assertGreaterEqual(len(status_messages), 1)
 
