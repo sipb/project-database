@@ -819,6 +819,7 @@ def validate_revision_id_exists(project_id, revision_id):
         A list of status messages.
     """
     project_id = int(project_id)
+    revision_id = int(revision_id)
     project_info = db.get_project_revision(project_id, revision_id=revision_id)
     if len(project_info) == 0:
         is_ok = False
