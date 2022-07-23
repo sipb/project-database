@@ -987,5 +987,21 @@ class Test_validate_revision_id_exists(testutils.DatabaseWipeTestCase):
         self.assertGreaterEqual(len(status_messages), 1)
 
 
+class Test_validate_revision_id(testutils.DatabaseWipeTestCase):
+    def test_valid(self):
+        project_id = db.get_project_id('test1')
+        is_ok, status_messages = valutils.validate_revision_id(project_id, '0')
+        self.assertTrue(is_ok)
+        self.assertEqual(len(status_messages), 0)
+
+    def test_invalid(self):
+        project_id = db.get_project_id('test1')
+        is_ok, status_messages = valutils.validate_revision_id(
+            project_id, '9999'
+        )
+        self.assertFalse(is_ok)
+        self.assertGreaterEqual(len(status_messages), 1)
+
+
 if __name__ == '__main__':
     unittest.main()
