@@ -945,7 +945,7 @@ class Test_validate_project_id_exists(testutils.DatabaseWipeTestCase):
         self.assertEqual(len(status_messages), 0)
 
     def test_invalid(self):
-        project_id = -99
+        project_id = '-99'
         project_name = db.get_project_name(project_id)
         self.assertTrue(project_name is None)
         is_ok, status_messages = valutils.validate_project_id_exists(
