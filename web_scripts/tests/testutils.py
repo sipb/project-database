@@ -121,7 +121,7 @@ class DatabasePopulatorMixin(unittest.TestCase):
                 'roles': []
             }
         ]
-        self.initial_approvals = ['approved', 'approved']
+        self.initial_approvals = ['awaiting_approval', 'approved']
         for project_info, initial_approval in zip(
             self.project_info_list, self.initial_approvals
         ):
