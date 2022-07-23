@@ -89,9 +89,9 @@ class EnvironmentOverrideTestCase(MultiManagerTestCase):
         )
 
 
-class DatabasePopulatorMixin(object):
+class DatabasePopulatorMixin(unittest.TestCase):
     def setUp(self):
-        super(DatabaseWipeTestCase, self).setUp()
+        super(DatabasePopulatorMixin, self).setUp()
 
         self.project_info_list = [
             {
@@ -131,7 +131,7 @@ class DatabasePopulatorMixin(object):
             project_info['approval'] = initial_approval
 
 
-class DatabaseWipeTestCase(MultiManagerTestCase, DatabasePopulatorMixin):
+class DatabaseWipeTestCase(DatabasePopulatorMixin, MultiManagerTestCase):
     def __init__(self, *args, **kwargs):
         super(DatabaseWipeTestCase, self).__init__(
             *args, managers=[DatabaseWiper()], **kwargs
@@ -139,7 +139,7 @@ class DatabaseWipeTestCase(MultiManagerTestCase, DatabasePopulatorMixin):
 
 
 class EnvironmentOverrideDatabaseWipeTestCase(
-    MultiManagerTestCase, DatabasePopulatorMixin
+    DatabasePopulatorMixin, MultiManagerTestCase
 ):
     def __init__(self, *args, **kwargs):
         super(EnvironmentOverrideDatabaseWipeTestCase, self).__init__(
