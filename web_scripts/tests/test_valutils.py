@@ -1173,5 +1173,17 @@ class Test_validate_approve_project(
         self.assertGreaterEqual(len(status_messages), 1)
 
 
+class Test_validate_id_is_int(unittest.TestCase):
+    def test_valid(self):
+        is_ok, status_messages = valutils.validate_id_is_int('1')
+        self.assertTrue(is_ok)
+        self.assertEqual(len(status_messages), 0)
+
+    def test_invalid(self):
+        is_ok, status_messages = valutils.validate_id_is_int('a')
+        self.assertFalse(is_ok)
+        self.assertGreaterEqual(len(status_messages), 1)
+
+
 if __name__ == '__main__':
     unittest.main()
