@@ -1042,5 +1042,22 @@ class Test_validate_approval_permission(testutils.EnvironmentOverrideTestCase):
             self.assertEqual(len(status_messages), 0)
 
 
+class Test_validate_approval_action(unittest.TestCase):
+    def test_approved(self):
+        is_ok, status_messages = valutils.validate_approval_action('approved')
+        self.assertTrue(is_ok)
+        self.assertEqual(len(status_messages), 0)
+
+    def test_rejected(self):
+        is_ok, status_messages = valutils.validate_approval_action('rejected')
+        self.assertTrue(is_ok)
+        self.assertEqual(len(status_messages), 0)
+
+    def test_invalid(self):
+        is_ok, status_messages = valutils.validate_approval_action('invalid')
+        self.assertFalse(is_ok)
+        self.assertGreaterEqual(len(status_messages), 1)
+
+
 if __name__ == '__main__':
     unittest.main()
