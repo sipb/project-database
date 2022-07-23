@@ -7,6 +7,7 @@ import testutils
 import os
 import unittest
 
+import config
 import db
 import valutils
 
@@ -1008,6 +1009,37 @@ class Test_validate_edit_project(
         )
         self.assertTrue(is_ok)
         self.assertEqual(len(status_messages), 0)
+
+
+class Test_validate_approval_permission(testutils.EnvironmentOverrideTestCase):
+    def test_none(self):
+        os.environ.pop('SSL_CLIENT_S_DN_Email', None)
+        is_ok, status_messages = valutils.validate_approval_permission()
+        self.assertFalse(is_ok)
+        self.assertGreaterEqual(len(status_messages), 1)
+
+    def test_non_approver(self):
+        os.environ['SSL_CLIENT_S_DN_Email'] = \
+            'this_is_definitely_not_a_valid_kerb@mit.edu'
+        is_ok, status_messages = valutils.validate_approval_permission()
+        self.assertFalse(is_ok)
+        self.assertGreaterEqual(len(status_messages), 1)
+
+    def test_admin(self):
+        if len(config.ADMIN_USERS) > 0:
+            os.environ['SSL_CLIENT_S_DN_Email'] = \
+                config.ADMIN_USERS[0] + '@mit.edu'
+            is_ok, status_messages = valutils.validate_approval_permission()
+            self.assertTrue(is_ok)
+            self.assertEqual(len(status_messages), 0)
+
+    def test_approver(self):
+        if len(config.APPROVER_USERS) > 0:
+            os.environ['SSL_CLIENT_S_DN_Email'] = \
+                config.APPROVER_USERS[0] + '@mit.edu'
+            is_ok, status_messages = valutils.validate_approval_permission()
+            self.assertTrue(is_ok)
+            self.assertEqual(len(status_messages), 0)
 
 
 if __name__ == '__main__':
