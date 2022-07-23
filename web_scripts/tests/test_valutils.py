@@ -75,34 +75,9 @@ class Test_validate_project_name_text(unittest.TestCase):
 
 
 class Test_validate_project_name_available(testutils.DatabaseWipeTestCase):
-    def setUp(self):
-        super(Test_validate_project_name_available, self).setUp()
-
-        self.project_info_list = [
-            {
-                'name': 'test1',
-                'description': 'some test description',
-                'status': 'active',
-                'links': [],
-                'comm_channels': [],
-                'contacts': [
-                    {'email': 'foo@mit.edu', 'type': 'primary', 'index': 0}
-                ],
-                'roles': []
-            }
-        ]
-        self.initial_approvals = ['approved']
-        for project_info, initial_approval in zip(
-            self.project_info_list, self.initial_approvals
-        ):
-            project_info['project_id'] = db.add_project(
-                project_info, 'creator', initial_approval=initial_approval
-            )
-            project_info['approval'] = initial_approval
-
     def test_available(self):
         is_ok, status_messages = valutils.validate_project_name_available(
-            'test2'
+            'test3'
         )
         self.assertTrue(is_ok)
         self.assertEqual(len(status_messages), 0)
@@ -123,46 +98,6 @@ class Test_validate_project_name_available(testutils.DatabaseWipeTestCase):
 
 
 class Test_validate_project_name(testutils.DatabaseWipeTestCase):
-    def setUp(self):
-        super(Test_validate_project_name, self).setUp()
-
-        self.project_info_list = [
-            {
-                'name': 'test1',
-                'description': 'some test description',
-                'status': 'active',
-                'links': [],
-                'comm_channels': [],
-                'contacts': [
-                    {'email': 'foo@mit.edu', 'type': 'primary', 'index': 0}
-                ],
-                'roles': []
-            },
-            {
-                'name': 'test2',
-                'description': 'some test description',
-                'status': 'active',
-                'links': [],
-                'comm_channels': [],
-                'contacts': [
-                    {
-                        'email': 'this_is_definitely_not_a_valid_kerb@mit.edu',
-                        'type': 'primary',
-                        'index': 0
-                    }
-                ],
-                'roles': []
-            }
-        ]
-        self.initial_approvals = ['approved', 'approved']
-        for project_info, initial_approval in zip(
-            self.project_info_list, self.initial_approvals
-        ):
-            project_info['project_id'] = db.add_project(
-                project_info, 'creator', initial_approval=initial_approval
-            )
-            project_info['approval'] = initial_approval
-
     def test_empty_no_prev(self):
         is_ok, status_messages = valutils.validate_project_name('')
         self.assertFalse(is_ok)
@@ -633,46 +568,6 @@ class Test_validate_project_comm_channels(unittest.TestCase):
 
 
 class Test_validate_project_info(testutils.DatabaseWipeTestCase):
-    def setUp(self):
-        super(Test_validate_project_info, self).setUp()
-
-        self.project_info_list = [
-            {
-                'name': 'test1',
-                'description': 'some test description',
-                'status': 'active',
-                'links': [],
-                'comm_channels': [],
-                'contacts': [
-                    {'email': 'foo@mit.edu', 'type': 'primary', 'index': 0}
-                ],
-                'roles': []
-            },
-            {
-                'name': 'test2',
-                'description': 'some test description',
-                'status': 'active',
-                'links': [],
-                'comm_channels': [],
-                'contacts': [
-                    {
-                        'email': 'this_is_definitely_not_a_valid_kerb@mit.edu',
-                        'type': 'primary',
-                        'index': 0
-                    }
-                ],
-                'roles': []
-            }
-        ]
-        self.initial_approvals = ['approved', 'approved']
-        for project_info, initial_approval in zip(
-            self.project_info_list, self.initial_approvals
-        ):
-            project_info['project_id'] = db.add_project(
-                project_info, 'creator', initial_approval=initial_approval
-            )
-            project_info['approval'] = initial_approval
-
     def test_ok_no_previous(self):
         project_info = {
             'name': 'test3',
@@ -761,46 +656,6 @@ class Test_validate_project_info(testutils.DatabaseWipeTestCase):
 class Test_validate_add_project(
     testutils.EnvironmentOverrideDatabaseWipeTestCase
 ):
-    def setUp(self):
-        super(Test_validate_add_project, self).setUp()
-
-        self.project_info_list = [
-            {
-                'name': 'test1',
-                'description': 'some test description',
-                'status': 'active',
-                'links': [],
-                'comm_channels': [],
-                'contacts': [
-                    {'email': 'foo@mit.edu', 'type': 'primary', 'index': 0}
-                ],
-                'roles': []
-            },
-            {
-                'name': 'test2',
-                'description': 'some test description',
-                'status': 'active',
-                'links': [],
-                'comm_channels': [],
-                'contacts': [
-                    {
-                        'email': 'this_is_definitely_not_a_valid_kerb@mit.edu',
-                        'type': 'primary',
-                        'index': 0
-                    }
-                ],
-                'roles': []
-            }
-        ]
-        self.initial_approvals = ['approved', 'approved']
-        for project_info, initial_approval in zip(
-            self.project_info_list, self.initial_approvals
-        ):
-            project_info['project_id'] = db.add_project(
-                project_info, 'creator', initial_approval=initial_approval
-            )
-            project_info['approval'] = initial_approval
-
     def test_valid(self):
         os.environ['SSL_CLIENT_S_DN_Email'] = 'rif' + '@mit.edu'
         project_info = {
@@ -847,31 +702,6 @@ class Test_validate_add_project(
 class Test_validate_edit_permission(
     testutils.EnvironmentOverrideDatabaseWipeTestCase
 ):
-    def setUp(self):
-        super(Test_validate_edit_permission, self).setUp()
-
-        self.project_info_list = [
-            {
-                'name': 'test1',
-                'description': 'some test description',
-                'status': 'active',
-                'links': [],
-                'comm_channels': [],
-                'contacts': [
-                    {'email': 'foo@mit.edu', 'type': 'primary', 'index': 0}
-                ],
-                'roles': []
-            }
-        ]
-        self.initial_approvals = ['approved', 'approved']
-        for project_info, initial_approval in zip(
-            self.project_info_list, self.initial_approvals
-        ):
-            project_info['project_id'] = db.add_project(
-                project_info, 'creator', initial_approval=initial_approval
-            )
-            project_info['approval'] = initial_approval
-
     def test_none(self):
         os.environ.pop('SSL_CLIENT_S_DN_Email', None)
         project_id = db.get_project_id('test1')
@@ -898,46 +728,6 @@ class Test_validate_edit_permission(
 class Test_validate_edit_project(
     testutils.EnvironmentOverrideDatabaseWipeTestCase
 ):
-    def setUp(self):
-        super(Test_validate_edit_project, self).setUp()
-
-        self.project_info_list = [
-            {
-                'name': 'test1',
-                'description': 'some test description',
-                'status': 'active',
-                'links': [],
-                'comm_channels': [],
-                'contacts': [
-                    {'email': 'foo@mit.edu', 'type': 'primary', 'index': 0}
-                ],
-                'roles': []
-            },
-            {
-                'name': 'test2',
-                'description': 'some test description',
-                'status': 'active',
-                'links': [],
-                'comm_channels': [],
-                'contacts': [
-                    {
-                        'email': 'this_is_definitely_not_a_valid_kerb@mit.edu',
-                        'type': 'primary',
-                        'index': 0
-                    }
-                ],
-                'roles': []
-            }
-        ]
-        self.initial_approvals = ['approved', 'approved']
-        for project_info, initial_approval in zip(
-            self.project_info_list, self.initial_approvals
-        ):
-            project_info['project_id'] = db.add_project(
-                project_info, 'creator', initial_approval=initial_approval
-            )
-            project_info['approval'] = initial_approval
-
     def test_none(self):
         os.environ.pop('SSL_CLIENT_S_DN_Email', None)
         project_info = {
@@ -1085,46 +875,6 @@ class Test_validate_approval_comments(unittest.TestCase):
 class Test_validate_approve_project(
     testutils.EnvironmentOverrideDatabaseWipeTestCase
 ):
-    def setUp(self):
-        super(Test_validate_approve_project, self).setUp()
-
-        self.project_info_list = [
-            {
-                'name': 'test1',
-                'description': 'some test description',
-                'status': 'active',
-                'links': [],
-                'comm_channels': [],
-                'contacts': [
-                    {'email': 'foo@mit.edu', 'type': 'primary', 'index': 0}
-                ],
-                'roles': []
-            },
-            {
-                'name': 'test2',
-                'description': 'some test description',
-                'status': 'active',
-                'links': [],
-                'comm_channels': [],
-                'contacts': [
-                    {
-                        'email': 'this_is_definitely_not_a_valid_kerb@mit.edu',
-                        'type': 'primary',
-                        'index': 0
-                    }
-                ],
-                'roles': []
-            }
-        ]
-        self.initial_approvals = ['approved', 'approved']
-        for project_info, initial_approval in zip(
-            self.project_info_list, self.initial_approvals
-        ):
-            project_info['project_id'] = db.add_project(
-                project_info, 'creator', initial_approval=initial_approval
-            )
-            project_info['approval'] = initial_approval
-
     def test_valid(self):
         if len(config.ADMIN_USERS) > 0:
             os.environ['SSL_CLIENT_S_DN_Email'] = \
@@ -1186,46 +936,6 @@ class Test_validate_id_is_int(unittest.TestCase):
 
 
 class Test_validate_project_id_exists(testutils.DatabaseWipeTestCase):
-    def setUp(self):
-        super(Test_validate_project_id_exists, self).setUp()
-
-        self.project_info_list = [
-            {
-                'name': 'test1',
-                'description': 'some test description',
-                'status': 'active',
-                'links': [],
-                'comm_channels': [],
-                'contacts': [
-                    {'email': 'foo@mit.edu', 'type': 'primary', 'index': 0}
-                ],
-                'roles': []
-            },
-            {
-                'name': 'test2',
-                'description': 'some test description',
-                'status': 'active',
-                'links': [],
-                'comm_channels': [],
-                'contacts': [
-                    {
-                        'email': 'this_is_definitely_not_a_valid_kerb@mit.edu',
-                        'type': 'primary',
-                        'index': 0
-                    }
-                ],
-                'roles': []
-            }
-        ]
-        self.initial_approvals = ['approved', 'approved']
-        for project_info, initial_approval in zip(
-            self.project_info_list, self.initial_approvals
-        ):
-            project_info['project_id'] = db.add_project(
-                project_info, 'creator', initial_approval=initial_approval
-            )
-            project_info['approval'] = initial_approval
-
     def test_valid(self):
         project_id = db.get_project_id('test1')
         is_ok, status_messages = valutils.validate_project_id_exists(
@@ -1246,46 +956,6 @@ class Test_validate_project_id_exists(testutils.DatabaseWipeTestCase):
 
 
 class Test_validate_project_id(testutils.DatabaseWipeTestCase):
-    def setUp(self):
-        super(Test_validate_project_id, self).setUp()
-
-        self.project_info_list = [
-            {
-                'name': 'test1',
-                'description': 'some test description',
-                'status': 'active',
-                'links': [],
-                'comm_channels': [],
-                'contacts': [
-                    {'email': 'foo@mit.edu', 'type': 'primary', 'index': 0}
-                ],
-                'roles': []
-            },
-            {
-                'name': 'test2',
-                'description': 'some test description',
-                'status': 'active',
-                'links': [],
-                'comm_channels': [],
-                'contacts': [
-                    {
-                        'email': 'this_is_definitely_not_a_valid_kerb@mit.edu',
-                        'type': 'primary',
-                        'index': 0
-                    }
-                ],
-                'roles': []
-            }
-        ]
-        self.initial_approvals = ['approved', 'approved']
-        for project_info, initial_approval in zip(
-            self.project_info_list, self.initial_approvals
-        ):
-            project_info['project_id'] = db.add_project(
-                project_info, 'creator', initial_approval=initial_approval
-            )
-            project_info['approval'] = initial_approval
-
     def test_valid(self):
         project_id = db.get_project_id('test1')
         is_ok, status_messages = valutils.validate_project_id(project_id)

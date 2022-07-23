@@ -11,6 +11,8 @@ import creds
 assert creds.mode == 'test'
 
 import unittest
+
+import db
 import schema
 
 
@@ -87,14 +89,58 @@ class EnvironmentOverrideTestCase(MultiManagerTestCase):
         )
 
 
-class DatabaseWipeTestCase(MultiManagerTestCase):
+class DatabasePopulatorMixin(object):
+    def setUp(self):
+        super(DatabaseWipeTestCase, self).setUp()
+
+        self.project_info_list = [
+            {
+                'name': 'test1',
+                'description': 'some test description',
+                'status': 'active',
+                'links': [],
+                'comm_channels': [],
+                'contacts': [
+                    {'email': 'foo@mit.edu', 'type': 'primary', 'index': 0}
+                ],
+                'roles': []
+            },
+            {
+                'name': 'test2',
+                'description': 'some test description',
+                'status': 'active',
+                'links': [],
+                'comm_channels': [],
+                'contacts': [
+                    {
+                        'email': 'this_is_definitely_not_a_valid_kerb@mit.edu',
+                        'type': 'primary',
+                        'index': 0
+                    }
+                ],
+                'roles': []
+            }
+        ]
+        self.initial_approvals = ['approved', 'approved']
+        for project_info, initial_approval in zip(
+            self.project_info_list, self.initial_approvals
+        ):
+            project_info['project_id'] = db.add_project(
+                project_info, 'creator', initial_approval=initial_approval
+            )
+            project_info['approval'] = initial_approval
+
+
+class DatabaseWipeTestCase(MultiManagerTestCase, DatabasePopulatorMixin):
     def __init__(self, *args, **kwargs):
         super(DatabaseWipeTestCase, self).__init__(
             *args, managers=[DatabaseWiper()], **kwargs
         )
 
 
-class EnvironmentOverrideDatabaseWipeTestCase(MultiManagerTestCase):
+class EnvironmentOverrideDatabaseWipeTestCase(
+    MultiManagerTestCase, DatabasePopulatorMixin
+):
     def __init__(self, *args, **kwargs):
         super(EnvironmentOverrideDatabaseWipeTestCase, self).__init__(
             *args, managers=[EnvironmentOverrider(), DatabaseWiper()], **kwargs
