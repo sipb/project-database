@@ -3,7 +3,7 @@ set -e -u
 
 cmd_path=$(dirname -- "$( readlink -f -- "$0"; )")
 
-if [[ cmd_path == "/afs/sipb.mit.edu/project/sipb-projectdb"* ]]
+if [[ $cmd_path == "/afs/sipb.mit.edu/project/sipb-projectdb"* ]]
 then
     web_scripts_path=/mit/sipb-projectdb/web_scripts/
 else
