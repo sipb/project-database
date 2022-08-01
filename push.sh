@@ -10,7 +10,7 @@ else
     web_scripts_path=/mit/sipb-projectdb/web_scripts/
 fi
 
-echo $web_scripts_path
+echo $cmd_path
 
 
 cd "$(dirname "$0")"
