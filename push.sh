@@ -1,8 +1,10 @@
 #!/bin/bash
 set -e -u
 
+# Get the path to the currently executing command, resolving links:
 cmd_path=$(dirname -- "$( readlink -f -- "$0"; )")
 
+# Assume the locker will always live at the following path:
 if [[ $cmd_path == "/afs/sipb.mit.edu/project/sipb-projectdb"* ]]
 then
     web_scripts_path=/mit/sipb-projectdb/web_scripts/
