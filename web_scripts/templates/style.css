@@ -10,8 +10,15 @@ body{
 h2 {
     color: #a31f34;
 }
+h3 {
+    color: #941C2F
+}
 #content-block{
     margin: 1em;
+}
+#faq-block {
+    margin: 2em;
+    margin-right: 6em;  
 }
 
 table {

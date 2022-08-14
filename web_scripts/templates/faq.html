@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <title>FAQ | SIPB ProjectDB</title>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" type="text/css" href="templates/style.css" />
+        <script type="text/javascript" src="templates/roles.js"></script>
+        <script type="text/javascript" src="templates/links.js"></script>
+    </head>
+        <body>
+        <div id="faq-block">
+            <a id="top"></a>
+            {% include 'navigationlinks.html' %}
+            <h2>SIPB Project Database - Frequently Asked Questions (FAQ)</h2>
+            <h3>1. Who can create or submit a project?</h3>
+                <p>Anyone with a valid MIT certificate can log in and submit a project proposal. If you are a <a href="https://sipb.mit.edu/members/">SIBP keyholder</a>, your project is automatically accepted by the system and will show up on the <a href="projectlist.py">Active Project listing</a> right after submissions. For non-keyholders, a copy of your project will be sent to the project approvers, who will then manually review the submission and either approve or deny it.</p>
+                <p>If your project is approved, no further actions need to be taken. Otherwise, if it is declined, we will provide a reason why and provide suggestions to make it better, at which point you can go back, edit the project info, and re-submit for approval.</p>
+            <h3>2. Who can edit a project?</h3>
+                <p>For any project listing, the people who can edit the project are:</p>
+                <ul>
+                    <li>The project creator (the person who submitted the initial form)</li>
+                    <li>All emails listed in project Contacts [<b>Important! </b>see note below]</li>
+                    <li>SIPB ProjectDB project approvers</li>
+                    </ul>
+                <p><b>Note:</b> Due to a known issue, SIPB Scripts service is unable to query Moira mailing lists for memberships. As a result, the projectDB website will be unable to infer edit permissions from mailing list memberships. For now, all project members outside of yourself that you want to have edit access for will need to have their their emails listed explicitly in the Contacts section of the project.</p>
+            <h3>3. Why do some edits require approval?</h3>
+                <p>Currently edits that changes the project name requires admin approval, since we want to make sure that the new proposed name is appropriate and doesn't conflict with any other project in the database</p>
+            <h3>4. How do project listings stay up-to-date?</h3>
+                <p>When a project's last edit timestamp is close to exceeding a certain time horizon (currently 365 days), then all of the project contacts will be emailed letting them know that their project listing is about to expire. A reminder will be sent on the 30, 21, 14, 7, and finally last 3 days before expiration, after which point the project will be set to "inactive" and will no longer be available on the Active Project listing. To avoid this issue, project maintainers will need to log in and update their project info before this deadline. </p>
+            <a href="#top">Back to top</a>
+        </div>
+
+    </body>
+</html>
