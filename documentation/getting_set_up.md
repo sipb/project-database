@@ -15,7 +15,7 @@ Unfortunately, due to the specialized environment in Scripts, the setup environm
 3. Clone the repo to your home folder on AFS
 4. Run push.sh (check out the code before running it!)
 5. Log into your Scripts account from AFS, usually `ssh [kerb]@scripts.mit.edu`
-6. Create a `creds.py` file with the proper permission  
-    * You can get a copy of the production credentials from the project maintainers. However, if you're adding a new capability with the backend, it's recommended to use your own SQL account
-    * If using the production credentials, make sure to set the OS environment variable `PROJECTS_DATABASE_MODE` in your Scripts locker to `test` (if using the testing database) or `prod` (if using the official database)
+6. Create a `creds.py` file in the Scripts locker and populate it with the necessary permissions
+    * You can get a copy of the production credentials from the project maintainers. However, if you're adding a new capability with the backend, it's recommended to modify the file to use your own SQL account with Scripts
+    * When using the production credentials, make sure to set the OS environment variable `PROJECTS_DATABASE_MODE` in your Scripts locker to `test` (if using the testing database) or `prod` (if using the official database)
 7. From there, you can run any of the project code file in isolation, like `python3 db.py`. You can also access the web-facing html pages at `[kerb].scripts.mit.edu/`
