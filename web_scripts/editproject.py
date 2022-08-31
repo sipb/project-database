@@ -50,7 +50,7 @@ def format_edit_project(project_id):
         deauthlink=deauthlink,
         can_add=can_add,
         operation='Update project',
-        last_edit=project_info['last_edit_timestamp']
+        # last_edit=project_info['revision_info']['timestamp']
     ).encode('utf-8')
     return result
 
