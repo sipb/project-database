@@ -298,6 +298,31 @@ def validate_project_contacts(contacts):
     return is_ok, status_messages
 
 
+def validate_project_roles_len(roles):
+    """Check if the length of the project roles field is valid.
+
+    Parameters
+    ----------
+    roles : list of dict
+        The list of roles.
+
+    Returns
+    -------
+    is_ok : bool
+        Whether or not the validation was passed.
+    status_messages : list of str
+        A list of status messages.
+    """
+    if len(roles) == 0:
+        is_ok = False
+        status_messages = ['Must have at least one role!']
+    else:
+        is_ok = True
+        status_messages = []
+
+    return is_ok, status_messages
+
+
 def validate_project_role_fields(roles):
     """Check if the project roles all have names and descriptions.
 
@@ -373,6 +398,10 @@ def validate_project_roles(roles):
     """
     is_ok = True
     status_messages = []
+
+    len_ok, len_msgs = validate_project_roles_len(roles)
+    is_ok &= len_ok
+    status_messages.extend(len_msgs)
 
     fields_ok, fields_msgs = validate_project_role_fields(roles)
     is_ok &= fields_ok

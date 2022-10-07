@@ -328,6 +328,27 @@ class Test_validate_project_contacts(unittest.TestCase):
         self.assertGreaterEqual(len(status_messages), 1)
 
 
+class Test_validate_project_roles_len(unittest.TestCase):
+    def test_empty(self):
+        is_ok, status_messages = valutils.validate_project_roles_len([])
+        self.assertFalse(is_ok)
+        self.assertGreaterEqual(len(status_messages), 1)
+
+    def test_valid(self):
+        is_ok, status_messages = valutils.validate_project_roles_len(
+            [
+                {
+                    'role': 'foo',
+                    'description': 'bar',
+                    'prereq': '',
+                    'index': 0
+                }
+            ]
+        )
+        self.assertTrue(is_ok)
+        self.assertEqual(len(status_messages), 0)
+
+
 class Test_validate_project_role_fields(unittest.TestCase):
     def test_empty(self):
         is_ok, status_messages = valutils.validate_project_role_fields([])
@@ -441,8 +462,8 @@ class Test_validate_project_roles_unique(unittest.TestCase):
 class Test_validate_project_roles(unittest.TestCase):
     def test_empty(self):
         is_ok, status_messages = valutils.validate_project_roles([])
-        self.assertTrue(is_ok)
-        self.assertEqual(len(status_messages), 0)
+        self.assertFalse(is_ok)
+        self.assertGreaterEqual(len(status_messages), 1)
 
     def test_valid(self):
         is_ok, status_messages = valutils.validate_project_roles(
@@ -582,7 +603,14 @@ class Test_validate_project_info(testutils.DatabaseWipeTestCase):
                     'index': 0
                 }
             ],
-            'roles': []
+            'roles': [
+                {
+                    'role': 'foo',
+                    'description': 'bar',
+                    'prereq': '',
+                    'index': 0
+                }
+            ]
         }
         is_ok, status_messages = valutils.validate_project_info(project_info)
         self.assertTrue(is_ok)
@@ -602,7 +630,14 @@ class Test_validate_project_info(testutils.DatabaseWipeTestCase):
                     'index': 0
                 }
             ],
-            'roles': []
+            'roles': [
+                {
+                    'role': 'foo',
+                    'description': 'bar',
+                    'prereq': '',
+                    'index': 0
+                }
+            ]
         }
         is_ok, status_messages = valutils.validate_project_info(project_info)
         self.assertFalse(is_ok)
@@ -622,7 +657,14 @@ class Test_validate_project_info(testutils.DatabaseWipeTestCase):
                     'index': 0
                 }
             ],
-            'roles': []
+            'roles': [
+                {
+                    'role': 'foo',
+                    'description': 'bar',
+                    'prereq': '',
+                    'index': 0
+                }
+            ]
         }
         is_ok, status_messages = valutils.validate_project_info(
             project_info, previous_name='test1'
@@ -644,7 +686,14 @@ class Test_validate_project_info(testutils.DatabaseWipeTestCase):
                     'index': 0
                 }
             ],
-            'roles': []
+            'roles': [
+                {
+                    'role': 'foo',
+                    'description': 'bar',
+                    'prereq': '',
+                    'index': 0
+                }
+            ]
         }
         is_ok, status_messages = valutils.validate_project_info(
             project_info, previous_name='test2'
@@ -671,7 +720,14 @@ class Test_validate_add_project(
                     'index': 0
                 }
             ],
-            'roles': []
+            'roles': [
+                {
+                    'role': 'foo',
+                    'description': 'bar',
+                    'prereq': '',
+                    'index': 0
+                }
+            ]
         }
         is_ok, status_messages = valutils.validate_add_project(project_info)
         self.assertTrue(is_ok)
@@ -692,7 +748,14 @@ class Test_validate_add_project(
                     'index': 0
                 }
             ],
-            'roles': []
+            'roles': [
+                {
+                    'role': 'foo',
+                    'description': 'bar',
+                    'prereq': '',
+                    'index': 0
+                }
+            ]
         }
         is_ok, status_messages = valutils.validate_add_project(project_info)
         self.assertFalse(is_ok)
@@ -743,7 +806,14 @@ class Test_validate_edit_project(
                     'index': 0
                 }
             ],
-            'roles': []
+            'roles': [
+                {
+                    'role': 'foo',
+                    'description': 'bar',
+                    'prereq': '',
+                    'index': 0
+                }
+            ]
         }
         project_id = db.get_project_id('test1')
         is_ok, status_messages = valutils.validate_edit_project(
@@ -767,7 +837,14 @@ class Test_validate_edit_project(
                     'index': 0
                 }
             ],
-            'roles': []
+            'roles': [
+                {
+                    'role': 'foo',
+                    'description': 'bar',
+                    'prereq': '',
+                    'index': 0
+                }
+            ]
         }
         project_id = db.get_project_id('test1')
         is_ok, status_messages = valutils.validate_edit_project(
@@ -791,7 +868,14 @@ class Test_validate_edit_project(
                     'index': 0
                 }
             ],
-            'roles': []
+            'roles': [
+                {
+                    'role': 'foo',
+                    'description': 'bar',
+                    'prereq': '',
+                    'index': 0
+                }
+            ]
         }
         project_id = db.get_project_id('test1')
         is_ok, status_messages = valutils.validate_edit_project(
@@ -888,7 +972,14 @@ class Test_validate_approve_project(
                 'contacts': [
                     {'email': 'foo@mit.edu', 'type': 'primary', 'index': 0}
                 ],
-                'roles': []
+                'roles': [
+                    {
+                        'role': 'foo',
+                        'description': 'bar',
+                        'prereq': '',
+                        'index': 0
+                    }
+                ]
             }
             project_id = db.get_project_id(project_info['name'])
             approval_action = 'accepted'
@@ -911,7 +1002,14 @@ class Test_validate_approve_project(
             'contacts': [
                 {'email': 'foo@mit.edu', 'type': 'primary', 'index': 0}
             ],
-            'roles': []
+            'roles': [
+                {
+                    'role': 'foo',
+                    'description': 'bar',
+                    'prereq': '',
+                    'index': 0
+                }
+            ]
         }
         project_id = db.get_project_id(project_info['name'])
         approval_action = 'accepted'
