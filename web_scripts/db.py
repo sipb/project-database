@@ -555,7 +555,7 @@ def get_all_info_for_project(project_id, revision_id=None):
     return project_info
 
 
-def get_all_project_info(filter_method='approved', contact_email=None):
+def get_all_project_info(filter_method='active', contact_email=None):
     """Get the information for all projects.
 
     Parameters
