@@ -72,7 +72,7 @@ def main():
     """
     arguments = cgi.FieldStorage()
     filter_method = formutils.safe_cgi_field_get(
-        arguments, 'filter_by', default='approved'
+        arguments, 'filter_by', default='active'
     )
 
     if filter_method == 'contact':
