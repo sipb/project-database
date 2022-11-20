@@ -64,7 +64,6 @@ def main():
             project, project['project_id'], 'projects-database-admin'
         )
         mail.send_deactivation_message(project)
-    mail.send(mail.APPROVERS_LIST,mail.SERVICE_EMAIL,"Testing reminders cronjob","If you see this message, it means that cronjob for sendreminders.py ran. Please remove this test email now. Thank you.")
 
 if __name__ == '__main__':
     main()
