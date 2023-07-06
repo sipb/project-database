@@ -3,3 +3,6 @@ web_scripts/creds.py
 __pycache__
 documentation/*.png
 documentation/*.pdf
+
+env/
+venv*/
