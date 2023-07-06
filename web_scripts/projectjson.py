@@ -14,7 +14,7 @@ def main():
     """
     
     jenv = templateutils.get_jenv()
-    all_projects_list = db.list_dict_convert(db.get_all_projects(),remove_sql_ref=True)
+    all_projects_list = db.list_dict_convert(db.get_all_approved_projects(),remove_sql_ref=True)
     all_projects_json = json.dumps({"projects:":all_projects_list})
     
     result = ''
