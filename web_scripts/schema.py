@@ -4,7 +4,7 @@ import sqlalchemy.orm
 import creds
 
 DATABASE_NAME = creds.database_name
-SQL_URL = "mysql://%s:%s@sql.mit.edu/%s" % (
+SQL_URL = "mysql+mysqlconnector://%s:%s@sql.mit.edu/%s?charset=utf8" % (
     creds.user, creds.password, DATABASE_NAME
 )
 
