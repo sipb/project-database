@@ -18,10 +18,8 @@ def main():
     all_projects_json = json.dumps({"projects:":all_projects_list})
     
     result = ''
-    result += 'Content-type: text/html\n\n'
-    result += jenv.get_template('projectjson.html').render(
-        all_projects_json=all_projects_json
-    )
+    result += 'Content-type: application/json\n\n'
+    result += all_projects_json
     print(result)
 
 
