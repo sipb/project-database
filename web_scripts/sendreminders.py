@@ -7,7 +7,7 @@ import mail
 
 from config import EXPIRATION_BY_NUM_DAYS
 EXPIRATION_HORIZON = datetime.timedelta(days=EXPIRATION_BY_NUM_DAYS)
-REMIND_DAYS = set(datetime.timedelta(days=d) for d in [30, 21, 14, 7, 3, 2, 1])
+REMIND_DAYS = set(datetime.timedelta(days=(EXPIRATION_BY_NUM_DAYS-d)) for d in [30, 21, 14, 7, 3, 2, 1])
 
 
 def round_timedelta(in_timedelta):
