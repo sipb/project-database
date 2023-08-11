@@ -52,7 +52,8 @@ def main():
             now - project['last_edit_timestamp']
         )
         if last_edit_age_rounded in REMIND_DAYS:
-            mail.send_confirm_reminder_message(project,last_edit_age_rounded)
+            num_days_left = EXPIRATION_BY_NUM_DAYS - last_edit_age_rounded.days
+            mail.send_confirm_reminder_message(project, num_days_left)
 
     stale_projects = db.get_stale_projects(
         now,
