@@ -562,8 +562,8 @@ def get_all_project_info(filter_method='active', contact_email=None):
     ----------
     filter_method : {'all', 'active', 'inactive'}, optional
         The filter to apply. Options are:
-        * 'approved' (default): return all approved projects
-        * 'active': return all active approved projects
+        * 'approved': return all approved projects
+        * 'active' (default): return all active approved projects
         * 'inactive': return all inactive approved projects
         * 'contact': return projects for which the given contact_email is in
             the contact list.
