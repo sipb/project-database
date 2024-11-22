@@ -190,6 +190,18 @@ def db_update(
             db_add(new_x[idx], author_kerberos, 'create', revision_id)
 
 
+# Presumably we are doing this because of the "There's probably a way to do this with joins..."
+# comment above, as the get_all_project_info output has a slightly different format...
+def get_dict(dict_or_dictable):
+    """Given either an object with a __dict__ method, or an
+    actual dict, get a dict.
+    """
+    if isinstance(dict_or_dictable, dict):
+        return dict_or_dictable
+    else:
+        return dict_or_dictable.__dict__
+
+
 def list_dict_convert(query_res_lst, remove_sql_ref=False):
     """Given a list which contains query results from SQLalchemy,
     return a list of their Python dictionary representation
@@ -207,12 +219,12 @@ def list_dict_convert(query_res_lst, remove_sql_ref=False):
     if remove_sql_ref:
         converted_lst = []
         for entry in query_res_lst:
-            entry_dict = entry.__dict__.copy()
+            entry_dict = get_dict(entry).copy()
             entry_dict.pop('_sa_instance_state')
             converted_lst.append(entry_dict)
         return converted_lst
     else:
-        return [r.__dict__.copy() for r in query_res_lst]
+        return [get_dict(r).copy() for r in query_res_lst]
 
 
 def check_object_params(dict, req_params):
