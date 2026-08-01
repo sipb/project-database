@@ -1,7 +1,7 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 import cgi
+
+# TODO: May want to turn error listing off once stable?
+import cgitb
 
 import authutils
 import db
@@ -9,8 +9,6 @@ import formutils
 import strutils
 import templateutils
 
-# TODO: May want to turn error listing off once stable?
-import cgitb
 cgitb.enable()
 
 
@@ -30,55 +28,54 @@ def format_project_list(project_list, filter_method, contact_email):
     jenv = templateutils.get_jenv()
     user = authutils.get_kerberos()
     user_email = authutils.get_email()
-    project_list = authutils.enrich_project_list_with_permissions(
-        user, project_list
-    )
+    project_list = authutils.enrich_project_list_with_permissions(user, project_list)
     project_list = strutils.decode_utf_nested_dict_list(project_list)
     authlink = authutils.get_auth_url(True)
     deauthlink = authutils.get_auth_url(False)
     can_add = authutils.can_add(user)
     can_approve = authutils.can_approve(user)
 
-    if filter_method == 'approved':
-        title = 'SIPB Project List'
-    elif filter_method == 'active':
-        title = 'SIPB Active Project List'
-    elif filter_method == 'inactive':
-        title = 'SIPB Inactive Project List'
-    elif filter_method == 'contact':
-        title = 'SIPB Projects for Which %s Is a Contact' % contact_email
-    elif filter_method == 'awaiting_approval':
-        title = 'SIPB Projects Awaiting Approval'
+    if filter_method == "approved":
+        title = "SIPB Project List"
+    elif filter_method == "active":
+        title = "SIPB Active Project List"
+    elif filter_method == "inactive":
+        title = "SIPB Inactive Project List"
+    elif filter_method == "contact":
+        title = f"SIPB Projects for Which {contact_email} Is a Contact"
+    elif filter_method == "awaiting_approval":
+        title = "SIPB Projects Awaiting Approval"
     else:
-        raise ValueError('Unknown filter method!')
+        raise ValueError("Unknown filter method!")
 
-    result = ''
-    result += 'Content-type: text/html\n\n'
-    result += jenv.get_template('projectlist.html').render(
-        project_list=project_list,
-        user=user,
-        user_email=user_email,
-        authlink=authlink,
-        deauthlink=deauthlink,
-        can_add=can_add,
-        title=title,
-        can_approve=can_approve
-    ).encode('utf-8')
+    result = ""
+    result += "Content-type: text/html\n\n"
+    result += (
+        jenv.get_template("projectlist.html")
+        .render(
+            project_list=project_list,
+            user=user,
+            user_email=user_email,
+            authlink=authlink,
+            deauthlink=deauthlink,
+            can_add=can_add,
+            title=title,
+            can_approve=can_approve,
+        )
+        .encode("utf-8")
+    )
     return result
 
 
 def main():
-    """Display the info for all projects.
-    """
+    """Display the info for all projects."""
     arguments = cgi.FieldStorage()
     filter_method = formutils.safe_cgi_field_get(
-        arguments, 'filter_by', default='active'
+        arguments, "filter_by", default="active"
     )
 
-    if filter_method == 'contact':
-        contact_email = formutils.safe_cgi_field_get(
-            arguments, 'email', default=''
-        )
+    if filter_method == "contact":
+        contact_email = formutils.safe_cgi_field_get(arguments, "email", default="")
     else:
         contact_email = None
 
@@ -89,5 +86,5 @@ def main():
     print(page)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

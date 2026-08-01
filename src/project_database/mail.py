@@ -1,93 +1,84 @@
 import smtplib
-from email.mime.text import MIMEText
-from xml.etree.ElementTree import Comment
-
-import db
-import creds
 from datetime import datetime
+from email.mime.text import MIMEText
+
+import creds
+import db
 from config import EXPIRATION_BY_NUM_DAYS
 
 APPROVERS_LIST = "sipb-projectdb-approvers@mit.edu"
 # APPROVERS_LIST = 'markchil@mit.edu'
-SERVICE_EMAIL = "sipb-projectdb-bot@mit.edu" #Email identifying as coming from this service
+SERVICE_EMAIL = (
+    "sipb-projectdb-bot@mit.edu"  # Email identifying as coming from this service
+)
 
-ALL_PROJECTS_URL = "https://{locker}.scripts.mit.edu:444/projectlist.py".format(locker=creds.user)
-AWAITING_APPROVAL_URL = "https://{locker}.scripts.mit.edu:444/projectlist.py?filter_by=awaiting_approval".format(locker=creds.user)
-BASE_EDIT_URL = "https://{locker}.scripts.mit.edu:444/editproject.py?project_id=".format(locker=creds.user) #Need to provide project id at the end
-BASE_HISTORY_URL = "https://{locker}.scripts.mit.edu:444/projecthistory.py?project_id=".format(locker=creds.user) #Need to provide project id at the end
+ALL_PROJECTS_URL = f"https://{creds.user}.scripts.mit.edu:444/projectlist.py"
+AWAITING_APPROVAL_URL = f"https://{creds.user}.scripts.mit.edu:444/projectlist.py?filter_by=awaiting_approval"
+BASE_EDIT_URL = f"https://{creds.user}.scripts.mit.edu:444/editproject.py?project_id="  # Need to provide project id at the end
+BASE_HISTORY_URL = f"https://{creds.user}.scripts.mit.edu:444/projecthistory.py?project_id="  # Need to provide project id at the end
 
 ## Helper function
 
+
 def get_point_of_contacts(project_info):
     """
-    Given a project, return a list of strings of all the email contacts 
+    Given a project, return a list of strings of all the email contacts
     associated with the project (including the creator)
     """
-    creator_email = db.get_project_creator(project_info['project_id']) + '@mit.edu'
+    creator_email = db.get_project_creator(project_info["project_id"]) + "@mit.edu"
     all_contacts = [creator_email]
-    for contact in project_info['contacts']:
-        if contact not in project_info['contacts']: #Avoid duplicates
-            all_contacts.append(contact['email'])
+    for contact in project_info["contacts"]:
+        if contact not in project_info["contacts"]:  # Avoid duplicates
+            all_contacts.append(contact["email"])
     return all_contacts
 
 
 def format_project_links(links):
-    result = ''
+    result = ""
     for link in links:
         result += """
         Link: {link}
         Anchortext: {anchortext}
 
-        """.format(
-            link=link['link'],
-            anchortext=link['anchortext']
-        )
+        """.format(link=link["link"], anchortext=link["anchortext"])
     return result
 
 
 def format_project_comm_channels(comm_channels):
-    result = ''
+    result = ""
     for channel in comm_channels:
         result += """
         Channel: {channel}
 
-        """.format(
-            channel=channel['commchannel']
-        )
+        """.format(channel=channel["commchannel"])
     return result
 
 
 def format_project_roles(roles):
-    result = ''
+    result = ""
     for role in roles:
         result += """
         Role: {role}
         Description: {description}
         Prereq: {prereq}
         """.format(
-            role=role['role'],
-            description=role['description'],
-            prereq=role['prereq']
+            role=role["role"], description=role["description"], prereq=role["prereq"]
         )
     return result
 
 
 def format_project_contacts(contacts):
-    result = ''
+    result = ""
     for contact in contacts:
         result += """
         Contact: {email}
         Type: {type}
-        """.format(
-            email=contact['email'],
-            type=contact['type']
-        )
+        """.format(email=contact["email"], type=contact["type"])
     return result
 
 
 def format_project_info(project_info):
-    """Format a string with all of the various project info.
-    """
+    """Format a string with all of the various project info."""
     result = """
     Name: {name}
 
@@ -108,15 +99,13 @@ def format_project_info(project_info):
     Contact(s):
     {contacts}
     """.format(
-        name=project_info['name'],
-        description=project_info['description'],
-        status=project_info['status'],
-        links=format_project_links(project_info['links']),
-        comm_channels=format_project_comm_channels(
-            project_info['comm_channels']
-        ),
-        roles=format_project_roles(project_info['roles']),
-        contacts=format_project_contacts(project_info['contacts'])
+        name=project_info["name"],
+        description=project_info["description"],
+        status=project_info["status"],
+        links=format_project_links(project_info["links"]),
+        comm_channels=format_project_comm_channels(project_info["comm_channels"]),
+        roles=format_project_roles(project_info["roles"]),
+        contacts=format_project_contacts(project_info["contacts"]),
     )
     return result
 
@@ -134,16 +123,16 @@ def send(recipients, sender, subject, message):
         message (str): Actual content of email
     """
     msg = MIMEText(message)
-    msg['Subject'] = subject
-    msg['From'] = sender
+    msg["Subject"] = subject
+    msg["From"] = sender
     if isinstance(recipients, str):
-        msg['To'] = recipients
+        msg["To"] = recipients
     elif isinstance(recipients, list):
-        msg['To'] = ','.join(recipients)
+        msg["To"] = ",".join(recipients)
     else:
         raise Exception("Email recipient neither a list or a string")
-    
-    s = smtplib.SMTP('outgoing.mit.edu', 25)
+
+    s = smtplib.SMTP("outgoing.mit.edu", 25)
     s.sendmail(sender, recipients, msg.as_string())
     s.quit()
 
@@ -152,9 +141,11 @@ def send_to_approvers(project_info):
     """Send a message to the approver mailing list notifying that a project is
     ready for review.
     """
-    project_creator = db.get_project_creator(project_info['project_id'])
+    project_creator = db.get_project_creator(project_info["project_id"])
     current_time = datetime.now().strftime("%H:%M:%S on %m/%d/%Y")
-    subject = "[Action Required] SIPB project '{name}' needs approval".format(name=project_info['name'])
+    subject = "[Action Required] SIPB project '{name}' needs approval".format(
+        name=project_info["name"]
+    )
     msg = """
     Dear SIPB Project Approvers,
     
@@ -168,12 +159,13 @@ def send_to_approvers(project_info):
     Sincerely,
     SIPB ProjectDB service bot
     """.format(
-        name=project_info['name'],
+        name=project_info["name"],
         creator=project_creator,
         time=current_time,
-        url=AWAITING_APPROVAL_URL)
-    
-    send(APPROVERS_LIST,SERVICE_EMAIL,subject,msg)
+        url=AWAITING_APPROVAL_URL,
+    )
+
+    send(APPROVERS_LIST, SERVICE_EMAIL, subject, msg)
 
 
 def send_edit_notice_to_approvers(project_info, editor_kerberos):
@@ -182,7 +174,7 @@ def send_edit_notice_to_approvers(project_info, editor_kerberos):
     """
     current_time = datetime.now().strftime("%H:%M:%S on %m/%d/%Y")
     subject = "[NOTICE] SIPB project '{name}' has been edited".format(
-        name=project_info['name']
+        name=project_info["name"]
     )
     msg = """
     Dear SIPB Project Approvers,
@@ -204,14 +196,14 @@ def send_edit_notice_to_approvers(project_info, editor_kerberos):
     Sincerely,
     SIPB ProjectDB service bot
     """.format(
-        name=project_info['name'],
+        name=project_info["name"],
         info=format_project_info(project_info),
         editor=editor_kerberos,
         time=current_time,
-        url=BASE_EDIT_URL + str(project_info['project_id']),
-        history_url=BASE_HISTORY_URL + str(project_info['project_id'])
+        url=BASE_EDIT_URL + str(project_info["project_id"]),
+        history_url=BASE_HISTORY_URL + str(project_info["project_id"]),
     )
-    
+
     send(APPROVERS_LIST, SERVICE_EMAIL, subject, msg)
 
 
@@ -220,7 +212,9 @@ def send_approve_message(project_info, approver_kerberos, approver_comments):
     that the project has been accepted.
     """
     current_time = datetime.now().strftime("%H:%M:%S on %m/%d/%Y")
-    subject = "SIPB project '{name}' has been approved".format(name=project_info['name'])
+    subject = "SIPB project '{name}' has been approved".format(
+        name=project_info["name"]
+    )
     msg = """
     Dear {name}'s project team,
     
@@ -235,14 +229,16 @@ def send_approve_message(project_info, approver_kerberos, approver_comments):
     
     Sincerely,
     SIPB ProjectDB service bot
-    """.format(name=project_info['name'],
-               url=ALL_PROJECTS_URL,
-               time=current_time,
-               approver=approver_kerberos,
-               comment=approver_comments if approver_comments else "None")
-    
+    """.format(
+        name=project_info["name"],
+        url=ALL_PROJECTS_URL,
+        time=current_time,
+        approver=approver_kerberos,
+        comment=approver_comments if approver_comments else "None",
+    )
+
     recipients = get_point_of_contacts(project_info) + [APPROVERS_LIST]
-    send(recipients,SERVICE_EMAIL,subject,msg)
+    send(recipients, SERVICE_EMAIL, subject, msg)
 
 
 def send_reject_message(project_info, approver_kerberos, approver_comments):
@@ -250,7 +246,9 @@ def send_reject_message(project_info, approver_kerberos, approver_comments):
     that the project has been rejected.
     """
     current_time = datetime.now().strftime("%H:%M:%S on %m/%d/%Y")
-    subject = "SIPB project '{name}' has been rejected".format(name=project_info['name'])
+    subject = "SIPB project '{name}' has been rejected".format(
+        name=project_info["name"]
+    )
     msg = """
     Dear {name}'s project team,
     
@@ -267,22 +265,26 @@ def send_reject_message(project_info, approver_kerberos, approver_comments):
     
     Sincerely,
     SIPB ProjectDB service bot
-    """.format(name=project_info['name'],
-               time=current_time,
-               approver=approver_kerberos,
-               url= BASE_EDIT_URL + str(project_info['project_id']),
-               comment=approver_comments) # There *must* be a comment for rejection
-    
+    """.format(
+        name=project_info["name"],
+        time=current_time,
+        approver=approver_kerberos,
+        url=BASE_EDIT_URL + str(project_info["project_id"]),
+        comment=approver_comments,
+    )  # There *must* be a comment for rejection
+
     recipients = get_point_of_contacts(project_info) + [APPROVERS_LIST]
-    send(recipients,SERVICE_EMAIL,subject,msg)
+    send(recipients, SERVICE_EMAIL, subject, msg)
 
 
-def send_confirm_reminder_message(project_info,num_days_left):
+def send_confirm_reminder_message(project_info, num_days_left):
     """Send a message to the project contact(s) reminding them to confirm the
-    project details. 
+    project details.
     """
     current_time = datetime.now().strftime("%H:%M:%S on %m/%d/%Y")
-    subject = "[ACTION NEEDED] SIPB project '{name}' needs to be renewed".format(name=project_info['name'])
+    subject = "[ACTION NEEDED] SIPB project '{name}' needs to be renewed".format(
+        name=project_info["name"]
+    )
     msg = """
     Dear {name}'s project team,
     
@@ -299,14 +301,18 @@ def send_confirm_reminder_message(project_info,num_days_left):
     
     Sincerely,
     SIPB ProjectDB service bot
-    """.format(name=project_info['name'],
-               time=current_time,
-               policy_num_days=EXPIRATION_BY_NUM_DAYS,
-               num_days=num_days_left,
-               url= BASE_EDIT_URL + str(project_info['project_id']))
-    
-    recipients = get_point_of_contacts(project_info) #No need to spam approvers with reminders
-    send(recipients,SERVICE_EMAIL,subject,msg)
+    """.format(
+        name=project_info["name"],
+        time=current_time,
+        policy_num_days=EXPIRATION_BY_NUM_DAYS,
+        num_days=num_days_left,
+        url=BASE_EDIT_URL + str(project_info["project_id"]),
+    )
+
+    recipients = get_point_of_contacts(
+        project_info
+    )  # No need to spam approvers with reminders
+    send(recipients, SERVICE_EMAIL, subject, msg)
 
 
 def send_deactivation_message(project_info):
@@ -315,7 +321,9 @@ def send_deactivation_message(project_info):
     the list of active projects.
     """
     current_time = datetime.now().strftime("%H:%M:%S on %m/%d/%Y")
-    subject = "[NOTICE] SIPB project '{name}' has been marked as inactive".format(name=project_info['name'])
+    subject = "[NOTICE] SIPB project '{name}' has been marked as inactive".format(
+        name=project_info["name"]
+    )
     msg = """
     Dear {name}'s project team,
     
@@ -334,10 +342,12 @@ def send_deactivation_message(project_info):
     
     Sincerely,
     SIPB ProjectDB service bot
-    """.format(name=project_info['name'],
-               time=current_time,
-               policy_num_days=EXPIRATION_BY_NUM_DAYS,
-               url= BASE_EDIT_URL + str(project_info['project_id'])) 
-    
+    """.format(
+        name=project_info["name"],
+        time=current_time,
+        policy_num_days=EXPIRATION_BY_NUM_DAYS,
+        url=BASE_EDIT_URL + str(project_info["project_id"]),
+    )
+
     recipients = get_point_of_contacts(project_info) + [APPROVERS_LIST]
-    send(recipients,SERVICE_EMAIL,subject,msg)
+    send(recipients, SERVICE_EMAIL, subject, msg)

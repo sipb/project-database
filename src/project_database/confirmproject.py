@@ -1,7 +1,7 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 import cgi
+
+# TODO: May want to turn error listing off once stable?
+import cgitb
 
 import authutils
 import db
@@ -10,8 +10,6 @@ import strutils
 import templateutils
 import valutils
 
-# TODO: May want to turn error listing off once stable?
-import cgitb
 cgitb.enable()
 
 
@@ -34,35 +32,38 @@ def format_confirm_project(project_id):
     project_info = db.get_all_info_for_project(project_id)
     project_info = strutils.decode_utf_nested_dict_list(project_info)
 
-    result = ''
-    result += 'Content-type: text/html\n\n'
-    result += jenv.get_template('confirmproject.html').render(
-        user=user,
-        is_valid=is_valid,
-        validation_status=(
-            strutils.html_listify(status_messages) if not is_valid else ''
-        ),
-        can_edit=can_edit,
-        help_address='sipb-projectdb-team [at] mit [dot] edu',
-        authlink=authlink,
-        project_info=project_info,
-        project_id=project_id,
-        deauthlink=deauthlink,
-        can_add=can_add,
-        operation='Submit'
-    ).encode('utf-8')
+    result = ""
+    result += "Content-type: text/html\n\n"
+    result += (
+        jenv.get_template("confirmproject.html")
+        .render(
+            user=user,
+            is_valid=is_valid,
+            validation_status=(
+                strutils.html_listify(status_messages) if not is_valid else ""
+            ),
+            can_edit=can_edit,
+            help_address="sipb-projectdb-team [at] mit [dot] edu",
+            authlink=authlink,
+            project_info=project_info,
+            project_id=project_id,
+            deauthlink=deauthlink,
+            can_add=can_add,
+            operation="Submit",
+        )
+        .encode("utf-8")
+    )
     return result
 
 
 def main():
-    """Display the confirm project interface.
-    """
+    """Display the confirm project interface."""
     arguments = cgi.FieldStorage()
-    project_id = formutils.safe_cgi_field_get(arguments, 'project_id')
+    project_id = formutils.safe_cgi_field_get(arguments, "project_id")
 
     page = format_confirm_project(project_id)
     print(page)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

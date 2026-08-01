@@ -5,9 +5,9 @@
 
 import os
 
+import config
 import db
 import roster
-import config
 
 
 def get_kerberos():
@@ -20,7 +20,7 @@ def get_kerberos():
     """
     email = get_email()
     if email:
-        return email[:email.index('@')]
+        return email[: email.index("@")]
     else:
         return None
 
@@ -33,11 +33,11 @@ def get_email():
     email : str
         The email for the user.
     """
-    email = os.getenv('SSL_CLIENT_S_DN_Email')
+    email = os.getenv("SSL_CLIENT_S_DN_Email")
     if (
-        (email is None) or
-        (not email.lower().endswith('@mit.edu')) or
-        (email.count('@') != 1)
+        (email is None)
+        or (not email.lower().endswith("@mit.edu"))
+        or (email.count("@") != 1)
     ):
         return None
     else:
@@ -57,11 +57,11 @@ def get_base_url(do_authenticate):
     url : str
         The base URL.
     """
-    host = os.environ['HTTP_HOST'].split(':')[0]
+    host = os.environ["HTTP_HOST"].split(":")[0]
     if do_authenticate:
-        return 'https://%s:444' % host
+        return f"https://{host}:444"
     else:
-        return 'https://%s' % host
+        return f"https://{host}"
 
 
 def get_auth_url(do_authenticate):
@@ -77,7 +77,7 @@ def get_auth_url(do_authenticate):
     url : str
         The authentication URL.
     """
-    return get_base_url(do_authenticate) + os.environ['REQUEST_URI']
+    return get_base_url(do_authenticate) + os.environ["REQUEST_URI"]
 
 
 def is_sipb(user):
@@ -91,7 +91,7 @@ def is_keyholder(user):
     # NOTE: the roster uses the older "prospective" vs. "member" distinction,
     # rather than "member" vs. "keyholder".
     if user:
-        return roster.sipb_roster.get(user, 'other') == 'member'
+        return roster.sipb_roster.get(user, "other") == "member"
     else:
         return False
 
@@ -111,10 +111,7 @@ def can_add(user):
     """
     if not user:
         return False
-    elif is_sipb(user) or is_admin(user) or is_approver(user):
-        return True
-    else:
-        return False
+    return bool(is_sipb(user) or is_admin(user) or is_approver(user))
 
 
 def is_admin(user):
@@ -130,10 +127,7 @@ def is_admin(user):
     is_admin : bool
         Whether or not the user is an admin.
     """
-    if user and user in config.ADMIN_USERS:
-        return True
-    else:
-        return False
+    return bool(user and user in config.ADMIN_USERS)
 
 
 def is_approver(user):
@@ -149,10 +143,7 @@ def is_approver(user):
     is_approver : bool
         Whether or not the user is an approver.
     """
-    if user and user in config.APPROVER_USERS:
-        return True
-    else:
-        return False
+    return bool(user and user in config.APPROVER_USERS)
 
 
 def can_edit(user, project_id):
@@ -172,21 +163,16 @@ def can_edit(user, project_id):
     """
     if not user:
         return False
-    elif is_admin(user):
-        return True
-    elif is_approver(user):
-        return True
-    elif db.get_project_creator(project_id) == user:
+    elif (
+        is_admin(user)
+        or is_approver(user)
+        or db.get_project_creator(project_id) == user
+    ):
         return True
     else:
         project_contacts = db.get_contacts(project_id)
-        project_contact_emails = [
-            contact['email'] for contact in project_contacts
-        ]
-        if user + '@mit.edu' in project_contact_emails:
-            return True
-        else:
-            return False
+        project_contact_emails = [contact["email"] for contact in project_contacts]
+        return user + "@mit.edu" in project_contact_emails
 
 
 def requires_approval(user):
@@ -205,10 +191,7 @@ def requires_approval(user):
     """
     if not user:
         return True
-    elif is_admin(user) or is_approver(user) or is_keyholder(user):
-        return False
-    else:
-        return True
+    return not (is_admin(user) or is_approver(user) or is_keyholder(user))
 
 
 def can_approve(user):
@@ -226,12 +209,7 @@ def can_approve(user):
     """
     if not user:
         return False
-    elif is_admin(user):
-        return True
-    elif is_approver(user):
-        return True
-    else:
-        return False
+    return bool(is_admin(user) or is_approver(user))
 
 
 def enrich_project_list_with_permissions(user, project_list):
@@ -251,9 +229,8 @@ def enrich_project_list_with_permissions(user, project_list):
     """
     user_can_approve = can_approve(user)
     for project in project_list:
-        project['can_edit'] = can_edit(user, project['project_id'])
-        project['can_approve'] = (
-            user_can_approve and
-            project['approval'] == 'awaiting_approval'
+        project["can_edit"] = can_edit(user, project["project_id"])
+        project["can_approve"] = (
+            user_can_approve and project["approval"] == "awaiting_approval"
         )
     return project_list

@@ -1,9 +1,8 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-import traceback
-
 import cgi
+
+# TODO: May want to turn error listing off once stable?
+import cgitb
+import traceback
 
 import authutils
 import db
@@ -13,8 +12,6 @@ import performutils
 import strutils
 import valutils
 
-# TODO: May want to turn error listing off once stable?
-import cgitb
 cgitb.enable()
 
 
@@ -29,44 +26,43 @@ def main():
     if is_ok:
         requestor_kerberos = authutils.get_kerberos()
         requires_approval = authutils.requires_approval(requestor_kerberos)
-        initial_approval = \
-            'awaiting_approval' if requires_approval else 'approved'
+        initial_approval = "awaiting_approval" if requires_approval else "approved"
         try:
             project_id = db.add_project(
                 project_info,
                 authutils.get_kerberos(),
-                initial_approval=initial_approval
+                initial_approval=initial_approval,
             )
             assert project_id != -1
-            project_info['project_id'] = project_id
+            project_info["project_id"] = project_id
         except Exception:
             is_ok = False
-            status = ''
-            status += 'add_project failed with the following exception:\n'
+            status = ""
+            status += "add_project failed with the following exception:\n"
             status += traceback.format_exc()
             status_messages = [status]
 
     if is_ok:
         if requires_approval:
             message = (
-                'The following project details have been sent to the '
-                'moderators for approval. You will be notified once the '
-                'posting has been reviewed.'
+                "The following project details have been sent to the "
+                "moderators for approval. You will be notified once the "
+                "posting has been reviewed."
             )
             mail.send_to_approvers(project_info)
         else:
             message = None
 
         page = performutils.format_success_page(
-            project_id, 'Add Project', message=message
+            project_id, "Add Project", message=message
         )
     else:
         page = performutils.format_failure_page(
-            strutils.html_listify(status_messages), 'Add Project'
+            strutils.html_listify(status_messages), "Add Project"
         )
 
     print(page)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

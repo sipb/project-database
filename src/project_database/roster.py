@@ -1,9 +1,9 @@
-ROSTER_LOCATION = '/afs/sipb/admin/text/members/members_and_prospectives'
+ROSTER_LOCATION = "/afs/sipb/admin/text/members/members_and_prospectives"
 
 sipb_roster = {}
 with open(ROSTER_LOCATION) as f:
     for line in f:
-        if line.startswith('#'):
+        if line.startswith("#"):
             continue
 
         contents = line.split()

@@ -49,7 +49,7 @@ def validate_add_permission():
     if can_add:
         status_messages = []
     else:
-        status_messages = ['User is not authorized to add projects!']
+        status_messages = ["User is not authorized to add projects!"]
     return can_add, status_messages
 
 
@@ -68,16 +68,14 @@ def validate_project_name_text(name):
     status_messages : list of str
         A list of status messages.
     """
-    max_len = schema.Projects.__table__.columns['name'].type.length
+    max_len = schema.Projects.__table__.columns["name"].type.length
 
     if len(name) < 1:
         name_ok = False
-        status_messages = ['Project name must be non-empty!']
+        status_messages = ["Project name must be non-empty!"]
     elif len(name) > max_len:
         name_ok = False
-        status_messages = [
-            'Project name must be less than %d characters!' % max_len
-        ]
+        status_messages = ["Project name must be less than %d characters!" % max_len]
     else:
         name_ok = True
         status_messages = []
@@ -102,7 +100,7 @@ def validate_project_name_available(name):
     """
     project_id = db.get_project_id(name)
     if project_id:
-        return False, ['A project with name "%s" already exists!' % name]
+        return False, [f'A project with name "{name}" already exists!']
     else:
         return True, []
 
@@ -158,9 +156,7 @@ def validate_project_description(description):
     if description_ok:
         status_messages = []
     else:
-        status_messages = [
-            'Project description must have at least three words!'
-        ]
+        status_messages = ["Project description must have at least three words!"]
     return description_ok, status_messages
 
 
@@ -183,7 +179,7 @@ def validate_project_contacts_nonempty(contacts):
     if is_ok:
         status_messages = []
     else:
-        status_messages = ['There must be at least one contact!']
+        status_messages = ["There must be at least one contact!"]
     return is_ok, status_messages
 
 
@@ -203,36 +199,34 @@ def validate_project_contact_addresses(contacts):
     status_messages : list of str
         A list of status messages.
     """
-    max_len = schema.ContactEmails.__table__.columns['email'].type.length
+    max_len = schema.ContactEmails.__table__.columns["email"].type.length
 
     is_ok = True
     status_messages = []
 
     contains_plain_mit = False
     for contact in contacts:
-        if not strutils.is_mit_email(contact['email']):
+        if not strutils.is_mit_email(contact["email"]):
             is_ok = False
             status_messages.append(
-                '"%s" is not an mit.edu email address!' % contact['email']
+                '"{}" is not an mit.edu email address!'.format(contact["email"])
             )
 
-        if len(contact['email']) > max_len:
+        if len(contact["email"]) > max_len:
             is_ok = False
             status_messages.append(
-                '"%s" is too long (%d character limit)!' % (
-                    contact['email'], max_len
-                )
+                '"%s" is too long (%d character limit)!' % (contact["email"], max_len)
             )
 
-        if strutils.is_plain_mit_email(contact['email']):
+        if strutils.is_plain_mit_email(contact["email"]):
             contains_plain_mit = True
 
     if not contains_plain_mit:
         is_ok = False
         status_messages.append(
-            'At least one contact must have an email address of the form '
+            "At least one contact must have an email address of the form "
             '"<username>@mit.edu" (otherwise no contacts will be able to edit '
-            'project info).'
+            "project info)."
         )
 
     return is_ok, status_messages
@@ -253,11 +247,11 @@ def validate_project_contacts_unique(contacts):
     status_messages : list of str
         A list of status messages.
     """
-    is_ok = all_unique([contact['email'] for contact in contacts])
+    is_ok = all_unique([contact["email"] for contact in contacts])
     if is_ok:
         status_messages = []
     else:
-        status_messages = ['Contact emails must be unique.']
+        status_messages = ["Contact emails must be unique."]
 
     return is_ok, status_messages
 
@@ -285,9 +279,7 @@ def validate_project_contacts(contacts):
     status_messages.extend(nonempty_msgs)
 
     if is_nonempty:
-        addresses_ok, addresses_msgs = validate_project_contact_addresses(
-            contacts
-        )
+        addresses_ok, addresses_msgs = validate_project_contact_addresses(contacts)
         is_ok &= addresses_ok
         status_messages.extend(addresses_msgs)
 
@@ -315,7 +307,7 @@ def validate_project_roles_len(roles):
     """
     if len(roles) == 0:
         is_ok = False
-        status_messages = ['Must have at least one role!']
+        status_messages = ["Must have at least one role!"]
     else:
         is_ok = True
         status_messages = []
@@ -338,20 +330,20 @@ def validate_project_role_fields(roles):
     status_messages : list of str
         A list of status messages.
     """
-    max_len = schema.Roles.__table__.columns['role'].type.length
+    max_len = schema.Roles.__table__.columns["role"].type.length
 
     is_ok = True
     status_messages = []
     for role in roles:
-        if (len(role['role']) == 0) or (len(role['description']) == 0):
+        if (len(role["role"]) == 0) or (len(role["description"]) == 0):
             is_ok = False
-            status_messages = ['Each role must have a name and a description!']
+            status_messages = ["Each role must have a name and a description!"]
             break
 
-        if len(role['role']) > max_len:
+        if len(role["role"]) > max_len:
             is_ok = False
             status_messages = [
-                'Role names can be no longer than %d characters!' % max_len
+                "Role names can be no longer than %d characters!" % max_len
             ]
             break
     return is_ok, status_messages
@@ -372,11 +364,11 @@ def validate_project_roles_unique(roles):
     status_messages : list of str
         A list of status messages.
     """
-    is_ok = all_unique([role['role'] for role in roles])
+    is_ok = all_unique([role["role"] for role in roles])
     if is_ok:
         status_messages = []
     else:
-        status_messages = ['Role names must be unique.']
+        status_messages = ["Role names must be unique."]
 
     return is_ok, status_messages
 
@@ -429,11 +421,11 @@ def validate_project_links(links):
     status_messages : list of str
         A list of status messages.
     """
-    is_ok = all_unique([link['link'] for link in links])
+    is_ok = all_unique([link["link"] for link in links])
     if is_ok:
         status_messages = []
     else:
-        status_messages = ['Links must be unique.']
+        status_messages = ["Links must be unique."]
 
     return is_ok, status_messages
 
@@ -453,13 +445,11 @@ def validate_project_comm_channels(comm_channels):
     status_messages : list of str
         A list of status messages.
     """
-    is_ok = all_unique(
-        [comm_channel['commchannel'] for comm_channel in comm_channels]
-    )
+    is_ok = all_unique([comm_channel["commchannel"] for comm_channel in comm_channels])
     if is_ok:
         status_messages = []
     else:
-        status_messages = ['Comm channels must be unique.']
+        status_messages = ["Comm channels must be unique."]
 
     return is_ok, status_messages
 
@@ -485,34 +475,30 @@ def validate_project_info(project_info, previous_name=None):
     status_messages = []
 
     name_ok, name_msgs = validate_project_name(
-        project_info['name'], previous_name=previous_name
+        project_info["name"], previous_name=previous_name
     )
     is_ok &= name_ok
     status_messages.extend(name_msgs)
 
     description_ok, description_msgs = validate_project_description(
-        project_info['description']
+        project_info["description"]
     )
     is_ok &= description_ok
     status_messages.extend(description_msgs)
 
-    contacts_ok, contacts_msgs = validate_project_contacts(
-        project_info['contacts']
-    )
+    contacts_ok, contacts_msgs = validate_project_contacts(project_info["contacts"])
     is_ok &= contacts_ok
     status_messages.extend(contacts_msgs)
 
-    roles_ok, roles_msgs = validate_project_roles(project_info['roles'])
+    roles_ok, roles_msgs = validate_project_roles(project_info["roles"])
     is_ok &= roles_ok
     status_messages.extend(roles_msgs)
 
-    links_ok, links_msgs = validate_project_links(project_info['links'])
+    links_ok, links_msgs = validate_project_links(project_info["links"])
     is_ok &= links_ok
     status_messages.extend(links_msgs)
 
-    comms_ok, comms_msgs = validate_project_comm_channels(
-        project_info['comm_channels']
-    )
+    comms_ok, comms_msgs = validate_project_comm_channels(project_info["comm_channels"])
     is_ok &= comms_ok
     status_messages.extend(comms_msgs)
 
@@ -575,7 +561,7 @@ def validate_edit_permission(project_id):
     if can_edit:
         return True, []
     else:
-        return False, ['User is not authorized to edit this project!']
+        return False, ["User is not authorized to edit this project!"]
 
 
 def validate_edit_project(project_info, project_id):
@@ -631,7 +617,7 @@ def validate_approval_permission():
     if is_ok:
         status_messages = []
     else:
-        status_messages = ['User is not authorized to approve projects!']
+        status_messages = ["User is not authorized to approve projects!"]
     return is_ok, status_messages
 
 
@@ -650,13 +636,11 @@ def validate_approval_action(approval_action):
     status_messages : list of str
         A list of status messages.
     """
-    is_ok = approval_action in ['approved', 'rejected']
+    is_ok = approval_action in ["approved", "rejected"]
     if is_ok:
         status_messages = []
     else:
-        status_messages = [
-            '"%s" is not a valid approval action!' % approval_action
-        ]
+        status_messages = [f'"{approval_action}" is not a valid approval action!']
     return is_ok, status_messages
 
 
@@ -677,7 +661,7 @@ def validate_approval_comments(approval_action, approver_comments):
     status_messages : list of str
         A list of status messages.
     """
-    if approval_action == 'rejected':
+    if approval_action == "rejected":
         is_ok = len(approver_comments.split()) >= 3
     else:
         is_ok = True
@@ -686,7 +670,7 @@ def validate_approval_comments(approval_action, approver_comments):
         status_messages = []
     else:
         status_messages = [
-            'Comments must have at least three words when rejecting a project!'
+            "Comments must have at least three words when rejecting a project!"
         ]
 
     return is_ok, status_messages
@@ -731,7 +715,7 @@ def validate_approve_project(
     is_ok &= info_ok
     status_messages.extend(info_msgs)
 
-    action_ok, action_msgs = validate_approval_action(approval_action)
+    _action_ok, _action_msgs = validate_approval_action(approval_action)
 
     comments_ok, comments_msgs = validate_approval_comments(
         approval_action, approver_comments
@@ -760,7 +744,7 @@ def validate_id_is_int(id_):
     try:
         id_ = int(id_)
     except ValueError:
-        return False, ['"%s" is not a valid project ID!' % id_]
+        return False, [f'"{id_}" is not a valid project ID!']
     else:
         return True, []
 
@@ -791,9 +775,7 @@ def validate_project_id_exists(project_id):
     else:
         is_ok = False
         status_messages = [
-            'There are %d projects with id "%d"!' % (
-                len(project_info), project_id
-            )
+            'There are %d projects with id "%d"!' % (len(project_info), project_id)
         ]
 
     return is_ok, status_messages
@@ -853,8 +835,8 @@ def validate_revision_id_exists(project_id, revision_id):
     if len(project_info) == 0:
         is_ok = False
         status_messages = [
-            'There is no revision with id "%d" for the project with id "%d"!' %
-            (revision_id, project_id)
+            'There is no revision with id "%d" for the project with id "%d"!'
+            % (revision_id, project_id)
         ]
     elif len(project_info) == 1:
         is_ok = True
@@ -862,10 +844,8 @@ def validate_revision_id_exists(project_id, revision_id):
     else:
         is_ok = False
         status_messages = [
-            'There are %d projects with project id "%d" ' +
-            'and revision id "%d"!' % (
-                len(project_info), project_id, revision_id
-            )
+            'There are %d projects with project id "%d" '
+            + 'and revision id "%d"!' % (len(project_info), project_id, revision_id)
         ]
 
     return is_ok, status_messages

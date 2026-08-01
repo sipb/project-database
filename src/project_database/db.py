@@ -1,19 +1,27 @@
-#!/usr/bin/python
-
 import datetime
 
 import sqlalchemy as sa
-from schema import \
-    session, Projects, ContactEmails, Roles, Links, CommChannels, \
-    ProjectsHistory, ContactEmailsHistory, RolesHistory, LinksHistory, \
-    CommChannelsHistory, CLASS_TO_HISTORY_CLASS_MAP
-
+from schema import (
+    CLASS_TO_HISTORY_CLASS_MAP,
+    CommChannels,
+    CommChannelsHistory,
+    ContactEmails,
+    ContactEmailsHistory,
+    Links,
+    LinksHistory,
+    Projects,
+    ProjectsHistory,
+    Roles,
+    RolesHistory,
+    session,
+)
 
 ##############################################################
 # Database Operations
 ##############################################################
 
 # General Purpose Functions
+
 
 def make_history_entry(x, author_kerberos, action, revision_id):
     """Make a Schema object for the history table representing the added
@@ -36,9 +44,9 @@ def make_history_entry(x, author_kerberos, action, revision_id):
         The history row object.
     """
     x_history = CLASS_TO_HISTORY_CLASS_MAP[type(x)]()
-    for key in x.__table__.columns.keys():
+    for key in x.__table__.columns:
         # Skip 'id' to allow auto-increment:
-        if key != 'id':
+        if key != "id":
             setattr(x_history, key, getattr(x, key))
 
     # Handle edge case of project creation, where project_id is not available
@@ -91,7 +99,7 @@ def db_delete(x, author_kerberos, revision_id):
     revision_id : int
         The revision ID to associate with the action.
     """
-    x_history = make_history_entry(x, author_kerberos, 'delete', revision_id)
+    x_history = make_history_entry(x, author_kerberos, "delete", revision_id)
     session.delete(x)
     session.add(x_history)
 
@@ -114,18 +122,13 @@ def db_update_record(current_x, new_x, author_kerberos, revision_id):
         The revision ID to associate with the action.
     """
     changed = False
-    for field in current_x.__table__.columns.keys():
-        if (
-            (field != 'id') and
-            (getattr(current_x, field) != getattr(new_x, field))
-        ):
+    for field in current_x.__table__.columns:
+        if (field != "id") and (getattr(current_x, field) != getattr(new_x, field)):
             setattr(current_x, field, getattr(new_x, field))
             changed = True
 
-    action = 'update' if changed else 'same'
-    x_history = make_history_entry(
-        current_x, author_kerberos, action, revision_id
-    )
+    action = "update" if changed else "same"
+    x_history = make_history_entry(current_x, author_kerberos, action, revision_id)
     session.add(x_history)
 
 
@@ -147,9 +150,7 @@ def make_key_idx_map(x, match_key):
     return {getattr(x_val, match_key): idx for idx, x_val in enumerate(x)}
 
 
-def db_update(
-    current_x, new_x, match_key, author_kerberos, revision_id
-):
+def db_update(current_x, new_x, match_key, author_kerberos, revision_id):
     """Update a set of rows to match the new version, tracking
     create/update/delete relationships.
 
@@ -183,11 +184,13 @@ def db_update(
     for key, idx in new_key_idx_map.items():
         if key in current_key_idx_map:
             db_update_record(
-                current_x[current_key_idx_map[key]], new_x[idx],
-                author_kerberos, revision_id
+                current_x[current_key_idx_map[key]],
+                new_x[idx],
+                author_kerberos,
+                revision_id,
             )
         else:
-            db_add(new_x[idx], author_kerberos, 'create', revision_id)
+            db_add(new_x[idx], author_kerberos, "create", revision_id)
 
 
 # Presumably we are doing this because of the "There's probably a way to do this with joins..."
@@ -205,14 +208,14 @@ def get_dict(dict_or_dictable):
 def list_dict_convert(query_res_lst, remove_sql_ref=False):
     """Given a list which contains query results from SQLalchemy,
     return a list of their Python dictionary representation
-    
+
     If `remove_sql_ref` set to True, the `_sa_instance_state`
-    key automatically inserted by SQLalchemy will be removed 
+    key automatically inserted by SQLalchemy will be removed
     from each list entry
-    
+
     Safety: For value safety this function gets the shallow copy
     of each entry's dictionary representation
-    
+
     Source:
     https://stackoverflow.com/questions/1958219/how-to-convert-sqlalchemy-row-object-to-a-python-dict
     """
@@ -220,7 +223,7 @@ def list_dict_convert(query_res_lst, remove_sql_ref=False):
         converted_lst = []
         for entry in query_res_lst:
             entry_dict = get_dict(entry).copy()
-            entry_dict.pop('_sa_instance_state')
+            entry_dict.pop("_sa_instance_state")
             converted_lst.append(entry_dict)
         return converted_lst
     else:
@@ -228,8 +231,7 @@ def list_dict_convert(query_res_lst, remove_sql_ref=False):
 
 
 def check_object_params(dict, req_params):
-    """Check if a given dictionary has all of the keys defined in req_params (lst)
-    """
+    """Check if a given dictionary has all of the keys defined in req_params (lst)"""
     res = True
     for param in req_params:
         if param not in dict:
@@ -239,72 +241,75 @@ def check_object_params(dict, req_params):
 
 # Get Functions
 
+
 def get_all_projects():
-    """Get metadata all of projects in database
-    """
-    return session.query(Projects).order_by(
-        Projects.status, Projects.name
-    ).all()
+    """Get metadata all of projects in database"""
+    return session.query(Projects).order_by(Projects.status, Projects.name).all()
 
 
 def get_all_approved_projects():
-    """Get data for all approved projects in the database.
-    """
-    return session.query(Projects).filter_by(
-        approval='approved'
-    ).order_by(
-        Projects.status, Projects.name
-    ).all()
+    """Get data for all approved projects in the database."""
+    return (
+        session.query(Projects)
+        .filter_by(approval="approved")
+        .order_by(Projects.status, Projects.name)
+        .all()
+    )
 
 
 def get_all_awaiting_approval_projects():
-    """Get data for all projects which are awaiting approval.
-    """
-    return session.query(Projects).filter_by(
-        approval='awaiting_approval'
-    ).order_by(
-        Projects.status, Projects.name
-    ).all()
+    """Get data for all projects which are awaiting approval."""
+    return (
+        session.query(Projects)
+        .filter_by(approval="awaiting_approval")
+        .order_by(Projects.status, Projects.name)
+        .all()
+    )
 
 
 def get_active_approved_projects():
-    """Get data for all active projects in the database.
-    """
-    return session.query(Projects).filter_by(
-        status='active', approval='approved'
-    ).order_by(
-        Projects.name
-    ).all()
+    """Get data for all active projects in the database."""
+    return (
+        session.query(Projects)
+        .filter_by(status="active", approval="approved")
+        .order_by(Projects.name)
+        .all()
+    )
 
 
 def get_inactive_approved_projects():
-    """Get data for all inactive projects in the database.
-    """
-    return session.query(Projects).filter_by(
-        status='inactive', approval='approved'
-    ).order_by(
-        Projects.name
-    ).all()
+    """Get data for all inactive projects in the database."""
+    return (
+        session.query(Projects)
+        .filter_by(status="inactive", approval="approved")
+        .order_by(Projects.name)
+        .all()
+    )
 
 
 def get_projects_for_contact(email):
-    """Get all projects for which the given email is a contact.
-    """
-    return session.query(Projects).join(
-        ContactEmails, Projects.project_id == ContactEmails.project_id
-    ).filter(ContactEmails.email == email).order_by(
-        Projects.status, Projects.name
-    ).all()
+    """Get all projects for which the given email is a contact."""
+    return (
+        session.query(Projects)
+        .join(ContactEmails, Projects.project_id == ContactEmails.project_id)
+        .filter(ContactEmails.email == email)
+        .order_by(Projects.status, Projects.name)
+        .all()
+    )
 
 
 def get_project_info(
-    model, project_id, raw_input=False, sort_by_index=False, revision_id=None,
-    filter_deleted=True
+    model,
+    project_id,
+    raw_input=False,
+    sort_by_index=False,
+    revision_id=None,
+    filter_deleted=True,
 ):
     """Given an SQL class model (e.g. ContactEmail, Roles, Links, etc.), query
     that table for all entries associated with project_id and return the result
     in the form of list of dictionaries
-    
+
     If `raw_input` is set to True, we will return the SQLobject instead. This
     allows for direct object modification
 
@@ -317,7 +322,7 @@ def get_project_info(
     If `filter_deleted` is provided, it is assumed that `model` is a history
     table, and entries with action == 'delete' will be removed. This has no
     effect if `revision_id` is not provided.
-    
+
     Useful for building higher-level queries
     """
     query = session.query(model).filter_by(project_id=project_id)
@@ -327,7 +332,7 @@ def get_project_info(
 
         # Can only filter delete actions on revisions.
         if filter_deleted:
-            query = query.filter(model.action != 'delete')
+            query = query.filter(model.action != "delete")
 
     if sort_by_index:
         query = query.order_by(model.index)
@@ -341,7 +346,7 @@ def get_project_info(
 
 
 # Shorthand functions to get all table entries associated with a project ID
-# `id` 
+# `id`
 # If `get_raw` is set to True, return SQL object instead of dictionary.
 # Tables which have an index column are sorted by the index.
 
@@ -362,9 +367,7 @@ get_comm = lambda id, get_raw=False: get_project_info(
 )
 
 
-def get_project_revision(
-    id, revision_id=None, get_raw=False, filter_deleted=True
-):
+def get_project_revision(id, revision_id=None, get_raw=False, filter_deleted=True):
     if revision_id is None:
         return get_project_info(Projects, id, raw_input=get_raw)
     else:
@@ -373,13 +376,11 @@ def get_project_revision(
             id,
             raw_input=get_raw,
             revision_id=revision_id,
-            filter_deleted=filter_deleted
+            filter_deleted=filter_deleted,
         )
 
 
-def get_contacts_revision(
-    id, revision_id=None, get_raw=False, filter_deleted=True
-):
+def get_contacts_revision(id, revision_id=None, get_raw=False, filter_deleted=True):
     if revision_id is None:
         return get_project_info(
             ContactEmails, id, raw_input=get_raw, sort_by_index=True
@@ -391,17 +392,13 @@ def get_contacts_revision(
             raw_input=get_raw,
             sort_by_index=True,
             revision_id=revision_id,
-            filter_deleted=filter_deleted
+            filter_deleted=filter_deleted,
         )
 
 
-def get_roles_revision(
-    id, revision_id=None, get_raw=False, filter_deleted=True
-):
+def get_roles_revision(id, revision_id=None, get_raw=False, filter_deleted=True):
     if revision_id is None:
-        return get_project_info(
-            Roles, id, raw_input=get_raw, sort_by_index=True
-        )
+        return get_project_info(Roles, id, raw_input=get_raw, sort_by_index=True)
     else:
         return get_project_info(
             RolesHistory,
@@ -409,17 +406,13 @@ def get_roles_revision(
             raw_input=get_raw,
             sort_by_index=True,
             revision_id=revision_id,
-            filter_deleted=filter_deleted
+            filter_deleted=filter_deleted,
         )
 
 
-def get_links_revision(
-    id, revision_id=None, get_raw=False, filter_deleted=True
-):
+def get_links_revision(id, revision_id=None, get_raw=False, filter_deleted=True):
     if revision_id is None:
-        return get_project_info(
-            Links, id, raw_input=get_raw, sort_by_index=True
-        )
+        return get_project_info(Links, id, raw_input=get_raw, sort_by_index=True)
     else:
         return get_project_info(
             LinksHistory,
@@ -427,17 +420,13 @@ def get_links_revision(
             raw_input=get_raw,
             sort_by_index=True,
             revision_id=revision_id,
-            filter_deleted=filter_deleted
+            filter_deleted=filter_deleted,
         )
 
 
-def get_comm_revision(
-    id, revision_id=None, get_raw=False, filter_deleted=True
-):
+def get_comm_revision(id, revision_id=None, get_raw=False, filter_deleted=True):
     if revision_id is None:
-        return get_project_info(
-            CommChannels, id, raw_input=get_raw, sort_by_index=True
-        )
+        return get_project_info(CommChannels, id, raw_input=get_raw, sort_by_index=True)
     else:
         return get_project_info(
             CommChannelsHistory,
@@ -445,7 +434,7 @@ def get_comm_revision(
             raw_input=get_raw,
             sort_by_index=True,
             revision_id=revision_id,
-            filter_deleted=filter_deleted
+            filter_deleted=filter_deleted,
         )
 
 
@@ -460,27 +449,21 @@ def get_project_name(project_id):
     """Get the name of the project with the given project_id, if it exists.
     Otherwise returns None.
     """
-    return session.query(
-        Projects.name
-    ).filter_by(project_id=project_id).scalar()
+    return session.query(Projects.name).filter_by(project_id=project_id).scalar()
 
 
 def get_project_creator(project_id):
     """Get the kerberos of the creator of the project with the given
     project_id, if it exists. Otherwise returns None.
     """
-    return session.query(
-        Projects.creator
-    ).filter_by(project_id=project_id).scalar()
+    return session.query(Projects.creator).filter_by(project_id=project_id).scalar()
 
 
 def get_project_approval_status(project_id):
     """Get the approval status of the project with the given project_id, if it
     exists. Otherwise returns None.
     """
-    return session.query(
-        Projects.approval
-    ).filter_by(project_id=project_id).scalar()
+    return session.query(Projects.approval).filter_by(project_id=project_id).scalar()
 
 
 def enrich_project_with_auxiliary_fields(project_info, revision_id=None):
@@ -497,17 +480,13 @@ def enrich_project_with_auxiliary_fields(project_info, revision_id=None):
     project_info : dict
         The updated project info.
     """
-    project_id = project_info['project_id']
-    project_info['links'] = get_links_revision(
+    project_id = project_info["project_id"]
+    project_info["links"] = get_links_revision(project_id, revision_id=revision_id)
+    project_info["comm_channels"] = get_comm_revision(
         project_id, revision_id=revision_id
     )
-    project_info['comm_channels'] = get_comm_revision(
-        project_id, revision_id=revision_id
-    )
-    project_info['roles'] = get_roles_revision(
-        project_id, revision_id=revision_id
-    )
-    project_info['contacts'] = get_contacts_revision(
+    project_info["roles"] = get_roles_revision(project_id, revision_id=revision_id)
+    project_info["contacts"] = get_contacts_revision(
         project_id, revision_id=revision_id
     )
     project_info = enrich_project_with_revision_info(
@@ -530,15 +509,15 @@ def enrich_project_with_revision_info(project_info, revision_id=None):
         The updated project info.
     """
     if revision_id is None:
-        revision_id = get_current_revision(project_info['project_id'])
+        revision_id = get_current_revision(project_info["project_id"])
 
-    project_id = project_info['project_id']
+    project_id = project_info["project_id"]
 
     history_info = get_project_revision(project_id, revision_id=revision_id)[0]
 
-    project_info['revision_info'] = {
-        'timestamp': history_info['timestamp'],
-        'editor': history_info['author']
+    project_info["revision_info"] = {
+        "timestamp": history_info["timestamp"],
+        "editor": history_info["author"],
     }
     return project_info
 
@@ -567,7 +546,7 @@ def get_all_info_for_project(project_id, revision_id=None):
     return project_info
 
 
-def get_all_project_info(filter_method='active', contact_email=None):
+def get_all_project_info(filter_method="active", contact_email=None):
     """Get the information for all projects.
 
     Parameters
@@ -588,18 +567,18 @@ def get_all_project_info(filter_method='active', contact_email=None):
     project_list : list of dict
         List of all projects.
     """
-    if filter_method == 'approved':
+    if filter_method == "approved":
         projects = get_all_approved_projects()
-    elif filter_method == 'active':
+    elif filter_method == "active":
         projects = get_active_approved_projects()
-    elif filter_method == 'inactive':
+    elif filter_method == "inactive":
         projects = get_inactive_approved_projects()
-    elif filter_method == 'contact':
+    elif filter_method == "contact":
         projects = get_projects_for_contact(contact_email)
-    elif filter_method == 'awaiting_approval':
+    elif filter_method == "awaiting_approval":
         projects = get_all_awaiting_approval_projects()
     else:
-        raise ValueError('Unknown status filter!')
+        raise ValueError("Unknown status filter!")
 
     project_list = list_dict_convert(projects)
     # There's probably a way to do this with joins...
@@ -607,7 +586,7 @@ def get_all_project_info(filter_method='active', contact_email=None):
         enrich_project_with_auxiliary_fields(project_info)
         for project_info in project_list
     ]
-        
+
     return project_list
 
 
@@ -624,9 +603,11 @@ def get_current_revision(project_id):
     revision_id : int
         The current revision's ID.
     """
-    return session.query(
-        sa.func.max(ProjectsHistory.revision_id)
-    ).filter_by(project_id=project_id).one()[0]
+    return (
+        session.query(sa.func.max(ProjectsHistory.revision_id))
+        .filter_by(project_id=project_id)
+        .one()[0]
+    )
 
 
 def get_project_history(project_id):
@@ -646,25 +627,25 @@ def get_project_history(project_id):
         session.query(ProjectsHistory).filter_by(project_id=project_id).all()
     )
     for revision in project_history:
-        revision['contacts'] = list_dict_convert(
-            session.query(ContactEmailsHistory).filter_by(
-                project_id=project_id, revision_id=revision['revision_id']
-            ).all()
+        revision["contacts"] = list_dict_convert(
+            session.query(ContactEmailsHistory)
+            .filter_by(project_id=project_id, revision_id=revision["revision_id"])
+            .all()
         )
-        revision['roles'] = list_dict_convert(
-            session.query(RolesHistory).filter_by(
-                project_id=project_id, revision_id=revision['revision_id']
-            ).all()
+        revision["roles"] = list_dict_convert(
+            session.query(RolesHistory)
+            .filter_by(project_id=project_id, revision_id=revision["revision_id"])
+            .all()
         )
-        revision['links'] = list_dict_convert(
-            session.query(LinksHistory).filter_by(
-                project_id=project_id, revision_id=revision['revision_id']
-            ).all()
+        revision["links"] = list_dict_convert(
+            session.query(LinksHistory)
+            .filter_by(project_id=project_id, revision_id=revision["revision_id"])
+            .all()
         )
-        revision['comm_channels'] = list_dict_convert(
-            session.query(CommChannelsHistory).filter_by(
-                project_id=project_id, revision_id=revision['revision_id']
-            ).all()
+        revision["comm_channels"] = list_dict_convert(
+            session.query(CommChannelsHistory)
+            .filter_by(project_id=project_id, revision_id=revision["revision_id"])
+            .all()
         )
     return project_history
 
@@ -695,24 +676,27 @@ def get_stale_projects(
         The (full) info for each project. Includes the timestamp of the most
         recent edit in the field 'last_edit_timestamp'.
     """
-    most_recent_revision_dates = session.query(
-        sa.func.max(ProjectsHistory.timestamp).label('last_edit_timestamp'),
-        ProjectsHistory.project_id
-    ).group_by(ProjectsHistory.project_id).subquery()
-
-    condition = (
-        most_recent_revision_dates.c.last_edit_timestamp <=
-        now - time_horizon
+    most_recent_revision_dates = (
+        session.query(
+            sa.func.max(ProjectsHistory.timestamp).label("last_edit_timestamp"),
+            ProjectsHistory.project_id,
+        )
+        .group_by(ProjectsHistory.project_id)
+        .subquery()
     )
-    if active_only:
-        condition &= (Projects.status == 'active')
 
-    query = session.query(
-        Projects, most_recent_revision_dates.c.last_edit_timestamp
-    ).join(
-        most_recent_revision_dates,
-        Projects.project_id == most_recent_revision_dates.c.project_id
-    ).filter(condition)
+    condition = most_recent_revision_dates.c.last_edit_timestamp <= now - time_horizon
+    if active_only:
+        condition &= Projects.status == "active"
+
+    query = (
+        session.query(Projects, most_recent_revision_dates.c.last_edit_timestamp)
+        .join(
+            most_recent_revision_dates,
+            Projects.project_id == most_recent_revision_dates.c.project_id,
+        )
+        .filter(condition)
+    )
     results = query.all()
     if len(results) > 0:
         stale_projects, last_edit_timestamps = zip(*results)
@@ -726,15 +710,14 @@ def get_stale_projects(
         for project_info in stale_projects
     ]
 
-    for project, last_edit_timestamp in zip(
-        stale_projects, last_edit_timestamps
-    ):
-        project['last_edit_timestamp'] = last_edit_timestamp
+    for project, last_edit_timestamp in zip(stale_projects, last_edit_timestamps):
+        project["last_edit_timestamp"] = last_edit_timestamp
 
     return stale_projects
 
 
 # Adding operations
+
 
 def form_row(model, project_id, entry):
     """Form a row object from a dict.
@@ -755,8 +738,8 @@ def form_row(model, project_id, entry):
     """
     result = model()
     result.project_id = int(project_id)
-    for key in result.__table__.columns.keys():
-        if (key != 'id') and (key != 'project_id') and (key in entry):
+    for key in result.__table__.columns:
+        if (key != "id") and (key != "project_id") and (key in entry):
             setattr(result, key, entry[key])
     return result
 
@@ -851,30 +834,36 @@ def add_project_metadata(args):
     project_id : int or None
         The ID of the newly-created project, or None if the operation failed.
     """
-    args_lst = ['name', 'status', 'description', 'creator']
+    args_lst = ["name", "status", "description", "creator"]
     assert check_object_params(args, args_lst)
-    assert args['status'] in ['active', 'inactive']
-    
+    assert args["status"] in ["active", "inactive"]
+
     # Check if project already exists
-    exists = True if get_project_id(args['name']) else False
+    exists = bool(get_project_id(args["name"]))
     assert not exists
 
     project = Projects()
-    project.name = args['name']
-    project.status = args['status']
-    project.description = args['description']
-    project.creator = args['creator']
-    project.approval = args['approval']
-    db_add(project, args['creator'], 'create', 0)
+    project.name = args["name"]
+    project.status = args["status"]
+    project.description = args["description"]
+    project.creator = args["creator"]
+    project.approval = args["approval"]
+    db_add(project, args["creator"], "create", 0)
 
-    project_id = get_project_id(args['name'])
+    project_id = get_project_id(args["name"])
 
     return project_id
 
 
 def add_project_table(
-    get_current_fn, form_row_fn, validate_fn, project_id, args,
-    author_kerberos, action='create', revision_id=0
+    get_current_fn,
+    form_row_fn,
+    validate_fn,
+    project_id,
+    args,
+    author_kerberos,
+    action="create",
+    revision_id=0,
 ):
     """Add entries for a project to a given table. Caller is responsible for
     committing the change.
@@ -895,7 +884,7 @@ def add_project_table(
         The kerb of the user adding the rows.
     action : {'create', 'update', 'delete'}, optional
         The action being taken. Default is 'create'.
-    revision_id : int, optional 
+    revision_id : int, optional
         The revision ID. Default is 0.
 
     Returns
@@ -920,14 +909,14 @@ def validate_contacts(args):
     args : list of dict
         The contacts to validate.
     """
-    args_lst = ['type', 'email', 'index']
+    args_lst = ["type", "email", "index"]
     for dict in args:
         assert check_object_params(dict, args_lst)
-        assert dict['type'] in ['primary', 'secondary']
+        assert dict["type"] in ["primary", "secondary"]
 
 
 def add_project_contacts(
-    project_id, args, author_kerberos, action='create', revision_id=0
+    project_id, args, author_kerberos, action="create", revision_id=0
 ):
     """Add a list of emails associated with a project to the database. Caller
     is responsible for committing the change.
@@ -943,7 +932,7 @@ def add_project_contacts(
         The kerb of the user adding the contacts.
     action : {'create', 'update', 'delete'}, optional
         The action being taken. Default is 'create'.
-    revision_id : int, optional 
+    revision_id : int, optional
         The revision ID. Default is 0.
 
     Returns
@@ -952,8 +941,14 @@ def add_project_contacts(
         The contacts for the project.
     """
     return add_project_table(
-        get_contacts, form_contact_row, validate_contacts, project_id, args,
-        author_kerberos, action=action, revision_id=revision_id
+        get_contacts,
+        form_contact_row,
+        validate_contacts,
+        project_id,
+        args,
+        author_kerberos,
+        action=action,
+        revision_id=revision_id,
     )
 
 
@@ -965,13 +960,13 @@ def validate_roles(args):
     args : list of dict
         The roles to validate.
     """
-    args_lst = ['role', 'description', 'index']  # 'prereq' optional 
+    args_lst = ["role", "description", "index"]  # 'prereq' optional
     for dict in args:
         assert check_object_params(dict, args_lst)
 
 
 def add_project_roles(
-    project_id, args, author_kerberos, action='create', revision_id=0
+    project_id, args, author_kerberos, action="create", revision_id=0
 ):
     """Add a list of roles associated with a project to the database. Caller is
     responsible for committing the change.
@@ -987,7 +982,7 @@ def add_project_roles(
         The kerb of the user adding the roles.
     action : {'create', 'update', 'delete'}, optional
         The action being taken. Default is 'create'.
-    revision_id : int, optional 
+    revision_id : int, optional
         The revision ID. Default is 0.
 
     Returns
@@ -996,8 +991,14 @@ def add_project_roles(
         The roles for the project.
     """
     return add_project_table(
-        get_roles, form_role_row, validate_roles, project_id, args,
-        author_kerberos, action=action, revision_id=revision_id
+        get_roles,
+        form_role_row,
+        validate_roles,
+        project_id,
+        args,
+        author_kerberos,
+        action=action,
+        revision_id=revision_id,
     )
 
 
@@ -1009,13 +1010,13 @@ def validate_links(args):
     args : list of dict
         The links to validate.
     """
-    args_lst = ['link', 'index']  # 'anchortext' optional
+    args_lst = ["link", "index"]  # 'anchortext' optional
     for dict in args:
         assert check_object_params(dict, args_lst)
 
 
 def add_project_links(
-    project_id, args, author_kerberos, action='create', revision_id=0
+    project_id, args, author_kerberos, action="create", revision_id=0
 ):
     """Add a list of website links associated with a project to the database.
     Caller is responsible for committing the change.
@@ -1031,7 +1032,7 @@ def add_project_links(
         The kerb of the user adding the links.
     action : {'create', 'update', 'delete'}, optional
         The action being taken. Default is 'create'.
-    revision_id : int, optional 
+    revision_id : int, optional
         The revision ID. Default is 0.
 
     Returns
@@ -1040,8 +1041,14 @@ def add_project_links(
         The links for the project.
     """
     return add_project_table(
-        get_links, form_link_row, validate_links, project_id, args,
-        author_kerberos, action=action, revision_id=revision_id
+        get_links,
+        form_link_row,
+        validate_links,
+        project_id,
+        args,
+        author_kerberos,
+        action=action,
+        revision_id=revision_id,
     )
 
 
@@ -1053,18 +1060,18 @@ def validate_comms(args):
     args : list of dict
         The comms to validate.
     """
-    args_lst = ['commchannel', 'index']
+    args_lst = ["commchannel", "index"]
     for dict in args:
         assert check_object_params(dict, args_lst)
 
 
 def add_project_comms(
-    project_id, args, author_kerberos, action='create', revision_id=0
+    project_id, args, author_kerberos, action="create", revision_id=0
 ):
     """Add a list of communication channels associated with a project to the
     database CommChannels can be text description rather than just HTML links.
     Caller is responsible for committing the change.
-    
+
     Parameters
     ----------
     project_id : int
@@ -1075,7 +1082,7 @@ def add_project_comms(
         The kerb of the user adding the comms.
     action : {'create', 'update', 'delete'}, optional
         The action being taken. Default is 'create'.
-    revision_id : int, optional 
+    revision_id : int, optional
         The revision ID. Default is 0.
 
     Returns
@@ -1084,14 +1091,18 @@ def add_project_comms(
         The comms for the project.
     """
     return add_project_table(
-        get_comm, form_comms_row, validate_comms, project_id, args,
-        author_kerberos, action=action, revision_id=revision_id
+        get_comm,
+        form_comms_row,
+        validate_comms,
+        project_id,
+        args,
+        author_kerberos,
+        action=action,
+        revision_id=revision_id,
     )
 
 
-def add_project(
-    project_info, creator_kerberos, initial_approval='awaiting_approval'
-):
+def add_project(project_info, creator_kerberos, initial_approval="awaiting_approval"):
     """Add the given project to the database and commits the change.
 
     Raises ValueError if project with the given name already exists.
@@ -1112,31 +1123,28 @@ def add_project(
         If success, return the project_id (primary key) for the newly-added
         project.
     """
-    project_id = get_project_id(project_info['name'])
+    project_id = get_project_id(project_info["name"])
     if project_id:
-        raise ValueError('Project with that name already exists!')
-    
+        raise ValueError("Project with that name already exists!")
+
     metadata = {
-        'name': project_info['name'],
-        'description': project_info['description'],
-        'status': project_info['status'],
-        'creator': creator_kerberos,
-        'approval': initial_approval
+        "name": project_info["name"],
+        "description": project_info["description"],
+        "status": project_info["status"],
+        "creator": creator_kerberos,
+        "approval": initial_approval,
     }
     project_id = add_project_metadata(metadata)
-    add_project_links(project_id, project_info['links'], creator_kerberos)
-    add_project_comms(
-        project_id, project_info['comm_channels'], creator_kerberos
-    )
-    add_project_contacts(
-        project_id, project_info['contacts'], creator_kerberos
-    )
-    add_project_roles(project_id, project_info['roles'], creator_kerberos)
+    add_project_links(project_id, project_info["links"], creator_kerberos)
+    add_project_comms(project_id, project_info["comm_channels"], creator_kerberos)
+    add_project_contacts(project_id, project_info["contacts"], creator_kerberos)
+    add_project_roles(project_id, project_info["roles"], creator_kerberos)
     session.commit()
     return project_id
 
 
 # Update an existing project
+
 
 def update_project_metadata(project_id, args, editor_kerberos):
     """Update the metadata entries for a project in the database.
@@ -1154,11 +1162,15 @@ def update_project_metadata(project_id, args, editor_kerberos):
         The kerb of the user making the edit.
     """
     allowed_fields = [
-        'name', 'description', 'status', 'approval', 'approver',
-        'approver_comments'
+        "name",
+        "description",
+        "status",
+        "approval",
+        "approver",
+        "approver_comments",
     ]
     metadata = get_project(project_id, True)[0]  # Returns SQL object
-    
+
     for field in allowed_fields:  # Only look for changes in the allowed fields
         if (field in args) and (args[field] != getattr(metadata, field)):
             setattr(metadata, field, args[field])
@@ -1176,7 +1188,7 @@ def update_project_metadata(project_id, args, editor_kerberos):
     project_history.approver = metadata.approver
     project_history.approver_comments = metadata.approver_comments
     project_history.author = editor_kerberos
-    project_history.action = 'update'
+    project_history.action = "update"
     project_history.revision_id = revision_id
     session.add(project_history)
 
@@ -1184,8 +1196,13 @@ def update_project_metadata(project_id, args, editor_kerberos):
 
 
 def update_project_table(
-    get_current_fn, form_row_fn, match_key, project_id, args, editor_kerberos,
-    revision_id
+    get_current_fn,
+    form_row_fn,
+    match_key,
+    project_id,
+    args,
+    editor_kerberos,
+    revision_id,
 ):
     """Update a given table with new entries. Caller is responsible for
     committing the change.
@@ -1213,9 +1230,7 @@ def update_project_table(
     for entry in args:
         new_x.append(form_row_fn(project_id, entry))
 
-    db_update(
-        current_x, new_x, match_key, editor_kerberos, revision_id
-    )
+    db_update(current_x, new_x, match_key, editor_kerberos, revision_id)
 
 
 def update_project_contacts(project_id, args, editor_kerberos, revision_id):
@@ -1235,8 +1250,13 @@ def update_project_contacts(project_id, args, editor_kerberos, revision_id):
         The revision ID associated with the edit.
     """
     update_project_table(
-        get_contacts, form_contact_row, 'email', project_id, args,
-        editor_kerberos, revision_id
+        get_contacts,
+        form_contact_row,
+        "email",
+        project_id,
+        args,
+        editor_kerberos,
+        revision_id,
     )
 
 
@@ -1250,7 +1270,7 @@ def update_project_roles(project_id, args, editor_kerberos, revision_id):
         ID of the project we want to modify
     args : dict
         - args is a list of dictionaries with keys 'role', 'description', and
-            (optional) 'prereq' 
+            (optional) 'prereq'
         - 'type' is either 'primary' or 'secondary'
     editor_kerberos : str
         The kerb of the user making the edit.
@@ -1258,8 +1278,7 @@ def update_project_roles(project_id, args, editor_kerberos, revision_id):
         The revision ID associated with the edit.
     """
     update_project_table(
-        get_roles, form_role_row, 'role', project_id, args, editor_kerberos,
-        revision_id
+        get_roles, form_role_row, "role", project_id, args, editor_kerberos, revision_id
     )
 
 
@@ -1280,8 +1299,7 @@ def update_project_links(project_id, args, editor_kerberos, revision_id):
         The revision ID associated with the edit.
     """
     update_project_table(
-        get_links, form_link_row, 'link', project_id, args, editor_kerberos,
-        revision_id
+        get_links, form_link_row, "link", project_id, args, editor_kerberos, revision_id
     )
 
 
@@ -1301,8 +1319,13 @@ def update_project_comms(project_id, args, editor_kerberos, revision_id):
         The revision ID associated with the edit.
     """
     update_project_table(
-        get_comm, form_comms_row, 'commchannel', project_id, args,
-        editor_kerberos, revision_id
+        get_comm,
+        form_comms_row,
+        "commchannel",
+        project_id,
+        args,
+        editor_kerberos,
+        revision_id,
     )
 
 
@@ -1310,16 +1333,16 @@ def update_project_auxiliary_tables(
     project_info, project_id, editor_kerberos, revision_id
 ):
     update_project_links(
-        project_id, project_info['links'], editor_kerberos, revision_id
+        project_id, project_info["links"], editor_kerberos, revision_id
     )
     update_project_comms(
-        project_id, project_info['comm_channels'], editor_kerberos, revision_id
+        project_id, project_info["comm_channels"], editor_kerberos, revision_id
     )
     update_project_contacts(
-        project_id, project_info['contacts'], editor_kerberos, revision_id
+        project_id, project_info["contacts"], editor_kerberos, revision_id
     )
     update_project_roles(
-        project_id, project_info['roles'], editor_kerberos, revision_id
+        project_id, project_info["roles"], editor_kerberos, revision_id
     )
 
 
@@ -1335,27 +1358,25 @@ def update_project(project_info, project_id, editor_kerberos):
         The project ID for the existing project.
     editor_kerberos : str
         The kerberos of the user editing the project.
-        
+
     Returns
     -------
     original_project : dict, int
         Return a dictionary formatted like `project_info` representing the view
         of the project prior to making the update.
     """
-    project_exists = True if get_project_name(project_id) else False
+    project_exists = bool(get_project_name(project_id))
     if not project_exists:
-        raise ValueError('No project with id %d exists!' % int(project_id))
+        raise ValueError("No project with id %d exists!" % int(project_id))
 
     new_metadata = {
-        'name': project_info['name'], 
-        'description': project_info['description'],
-        'status': project_info['status']
+        "name": project_info["name"],
+        "description": project_info["description"],
+        "status": project_info["status"],
         # `creator` and `approval` fields are intentionally not supplied
     }
     orig_project = get_all_info_for_project(project_id)
-    revision_id = update_project_metadata(
-        project_id, new_metadata, editor_kerberos
-    )
+    revision_id = update_project_metadata(project_id, new_metadata, editor_kerberos)
     update_project_auxiliary_tables(
         project_info, project_id, editor_kerberos, revision_id
     )
@@ -1363,9 +1384,7 @@ def update_project(project_info, project_id, editor_kerberos):
     return orig_project
 
 
-def approve_project(
-    project_info, project_id, approver_kerberos, approver_comments
-):
+def approve_project(project_info, project_id, approver_kerberos, approver_comments):
     """Approve a project.
 
     Parameters
@@ -1381,22 +1400,18 @@ def approve_project(
     """
     # Change status to "approved"
     new_metadata = {
-        'approval': 'approved',
-        'approver': approver_kerberos,
-        'approver_comments': approver_comments
+        "approval": "approved",
+        "approver": approver_kerberos,
+        "approver_comments": approver_comments,
     }
-    revision_id = update_project_metadata(
-        project_id, new_metadata, approver_kerberos
-    )
+    revision_id = update_project_metadata(project_id, new_metadata, approver_kerberos)
     update_project_auxiliary_tables(
         project_info, project_id, approver_kerberos, revision_id
     )
     session.commit()
 
 
-def reject_project(
-    project_info, project_id, approver_kerberos, approver_comments
-):
+def reject_project(project_info, project_id, approver_kerberos, approver_comments):
     """Reject a project.
 
     Parameters
@@ -1412,22 +1427,18 @@ def reject_project(
     """
     # Change status to "rejected"
     new_metadata = {
-        'approval': 'rejected',
-        'approver': approver_kerberos,
-        'approver_comments': approver_comments
+        "approval": "rejected",
+        "approver": approver_kerberos,
+        "approver_comments": approver_comments,
     }
-    revision_id = update_project_metadata(
-        project_id, new_metadata, approver_kerberos
-    )
+    revision_id = update_project_metadata(project_id, new_metadata, approver_kerberos)
     update_project_auxiliary_tables(
         project_info, project_id, approver_kerberos, revision_id
     )
     session.commit()
 
 
-def set_project_status_to_awaiting_approval(
-    project_info, project_id, editor_kerberos
-):
+def set_project_status_to_awaiting_approval(project_info, project_id, editor_kerberos):
     """Set a project back to "awaiting_approval"
 
     Parameters
@@ -1440,12 +1451,8 @@ def set_project_status_to_awaiting_approval(
         The kerberos of the user editing the project.
     """
     # Change status to "rejected"
-    new_metadata = {
-        'approval': 'awaiting_approval'
-    }
-    revision_id = update_project_metadata(
-        project_id, new_metadata, editor_kerberos
-    )
+    new_metadata = {"approval": "awaiting_approval"}
+    revision_id = update_project_metadata(project_id, new_metadata, editor_kerberos)
     update_project_auxiliary_tables(
         project_info, project_id, editor_kerberos, revision_id
     )
@@ -1464,15 +1471,13 @@ def rollback_project(project_id, revision_id, editor_kerberos):
     editor_kerberos : str
         The username of the person performing the rollback.
     """
-    project_exists = True if get_project_name(project_id) else False
+    project_exists = bool(get_project_name(project_id))
     if not project_exists:
-        raise ValueError('No project with id %d exists!' % int(project_id))
+        raise ValueError("No project with id %d exists!" % int(project_id))
 
-    project_info = get_all_info_for_project(
-        project_id, revision_id=revision_id
-    )
+    project_info = get_all_info_for_project(project_id, revision_id=revision_id)
     if project_info is None:
-        raise ValueError('No revision with id %d exists!' % int(revision_id))
+        raise ValueError("No revision with id %d exists!" % int(revision_id))
 
     rollback_revision_id = update_project_metadata(
         project_id, project_info, editor_kerberos
@@ -1482,9 +1487,9 @@ def rollback_project(project_id, revision_id, editor_kerberos):
     )
     session.commit()
 
-    
+
 ######################################################################
-# Testing Code 
+# Testing Code
 ######################################################################
 
 # Example usage
@@ -1554,9 +1559,9 @@ def rollback_project(project_id, revision_id, editor_kerberos):
 #         "status":"active",
 #         "description":"April Fools"
 # }
-    
+
 # print(update_metadata(1, project_mod))
-    
+
 # update_project1 = {
 # 'name': 'myproject',
 # 'description': 'something something something',

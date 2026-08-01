@@ -16,7 +16,7 @@ def is_email(text):
     is_email : bool
         Whether or not the string appears to be an email address.
     """
-    return text.count('@') == 1
+    return text.count("@") == 1
 
 
 def obfuscate_email(email):
@@ -34,7 +34,7 @@ def obfuscate_email(email):
         The obfuscated email address.
     """
     if is_email(email):
-        return email.replace('@', ' [at] ').replace('.', ' [dot] ')
+        return email.replace("@", " [at] ").replace(".", " [dot] ")
     else:
         return email
 
@@ -52,7 +52,7 @@ def split_comma_sep(input_str):
     element_list : list of str
         The elements of input_str, with leading/trailing whitespace stripped.
     """
-    result = [s.strip() for s in input_str.split(',')]
+    result = [s.strip() for s in input_str.split(",")]
     result = [s for s in result if len(s) > 0]
     return result
 
@@ -70,13 +70,11 @@ def html_listify(items):
     result : str
         The HTML list.
     """
-    items = [
-        cgi.escape(item, quote=True) for item in items
-    ]
-    result = '<ul>\n'
+    items = [cgi.escape(item, quote=True) for item in items]
+    result = "<ul>\n"
     for item in items:
-        result += '    <li>%s</li>\n' % item
-    result += '</ul>\n'
+        result += f"    <li>{item}</li>\n"
+    result += "</ul>\n"
     return result
 
 
@@ -97,7 +95,7 @@ def is_mit_email(email):
     is_mit : bool
         Whether or not the address is an MIT address.
     """
-    return email.lower().endswith('mit.edu') and (email.count('@') == 1)
+    return email.lower().endswith("mit.edu") and (email.count("@") == 1)
 
 
 def is_plain_mit_email(email):
@@ -117,7 +115,7 @@ def is_plain_mit_email(email):
     is_mit : bool
         Whether or not the address is an MIT address.
     """
-    return email.lower().endswith('@mit.edu') and (email.count('@') == 1)
+    return email.lower().endswith("@mit.edu") and (email.count("@") == 1)
 
 
 def make_url_absolute(url):
@@ -134,25 +132,19 @@ def make_url_absolute(url):
     url_updated : str
         The absolute URL.
     """
-    if not (
-        url.lower().startswith('http://') or url.lower().startswith('https://')
-    ):
-        url = 'http://' + url
+    if not (url.lower().startswith("http://") or url.lower().startswith("https://")):
+        url = "http://" + url
     return url
 
 
 def decode_utf_nested_dict_list(args):
-    """Decode all strings in a nested list of dicts.
-    """
+    """Decode all strings in a nested list of dicts."""
     if type(args) == dict:
-        return {
-            key: decode_utf_nested_dict_list(value)
-            for key, value in args.items()
-        }
+        return {key: decode_utf_nested_dict_list(value) for key, value in args.items()}
     elif type(args) == list:
         return [decode_utf_nested_dict_list(value) for value in args]
     else:
         try:
-            return args.decode('utf-8')
+            return args.decode("utf-8")
         except AttributeError:
             return args

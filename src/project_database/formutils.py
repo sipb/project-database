@@ -1,7 +1,7 @@
 import strutils
 
 
-def safe_cgi_field_get(arguments, field, default=''):
+def safe_cgi_field_get(arguments, field, default=""):
     """Get a field from CGI arguments, with failback for absent fields.
 
     Parameters
@@ -41,13 +41,11 @@ def contact_list_to_dict_list(contact_list):
     idx = 0
     for contact in contact_list:
         if len(contact) > 0:
-            result.append(
-                {'email': contact, 'type': 'secondary', 'index': idx}
-            )
+            result.append({"email": contact, "type": "secondary", "index": idx})
             idx += 1
 
     if len(result) > 0:
-        result[0]['type'] = 'primary'
+        result[0]["type"] = "primary"
     return result
 
 
@@ -65,15 +63,15 @@ def get_role_ids(arguments):
         The sorted role IDs present in the arguments.
     """
     role_ids = set()
-    for key in arguments.keys():
+    for key in arguments:
         # Check all fields so that we can catch mal-formed inputs:
-        if key.startswith('role_name_'):
-            role_ids.add(int(key[len('role_name_'):]))
-        elif key.startswith('role_description_'):
-            role_ids.add(int(key[len('role_description_'):]))
-        elif key.startswith('role_prereqs_'):
-            role_ids.add(int(key[len('role_prereqs_'):]))
-    return sorted(list(role_ids))
+        if key.startswith("role_name_"):
+            role_ids.add(int(key[len("role_name_") :]))
+        elif key.startswith("role_description_"):
+            role_ids.add(int(key[len("role_description_") :]))
+        elif key.startswith("role_prereqs_"):
+            role_ids.add(int(key[len("role_prereqs_") :]))
+    return sorted(role_ids)
 
 
 def get_link_ids(arguments):
@@ -90,13 +88,13 @@ def get_link_ids(arguments):
         The sorted link IDs present in the arguments.
     """
     link_ids = set()
-    for key in arguments.keys():
+    for key in arguments:
         # Check all fields so that we can catch mal-formed inputs:
-        if key.startswith('link_'):
-            link_ids.add(int(key[len('link_'):]))
-        elif key.startswith('anchortext_'):
-            link_ids.add(int(key[len('anchortext_'):]))
-    return sorted(list(link_ids))
+        if key.startswith("link_"):
+            link_ids.add(int(key[len("link_") :]))
+        elif key.startswith("anchortext_"):
+            link_ids.add(int(key[len("anchortext_") :]))
+    return sorted(link_ids)
 
 
 def extract_roles(arguments):
@@ -117,20 +115,16 @@ def extract_roles(arguments):
     for index, role_id in enumerate(role_ids):
         roles.append(
             {
-                'role': safe_cgi_field_get(
-                    arguments, 'role_name_%d' % role_id
+                "role": safe_cgi_field_get(arguments, "role_name_%d" % role_id),
+                "description": safe_cgi_field_get(
+                    arguments, "role_description_%d" % role_id
                 ),
-                'description': safe_cgi_field_get(
-                    arguments, 'role_description_%d' % role_id
-                ),
-                'prereq': safe_cgi_field_get(
-                    arguments, 'role_prereqs_%d' % role_id
-                ),
-                'index': index
+                "prereq": safe_cgi_field_get(arguments, "role_prereqs_%d" % role_id),
+                "index": index,
             }
         )
-        if len(roles[-1]['prereq']) == 0:
-            roles[-1]['prereq'] = None
+        if len(roles[-1]["prereq"]) == 0:
+            roles[-1]["prereq"] = None
     return roles
 
 
@@ -152,19 +146,15 @@ def extract_links(arguments):
     for index, link_id in enumerate(link_ids):
         links.append(
             {
-                'link': strutils.make_url_absolute(
-                    safe_cgi_field_get(
-                        arguments, 'link_%d' % link_id
-                    )
+                "link": strutils.make_url_absolute(
+                    safe_cgi_field_get(arguments, "link_%d" % link_id)
                 ),
-                'anchortext': safe_cgi_field_get(
-                    arguments, 'anchortext_%d' % link_id
-                ),
-                'index': index
+                "anchortext": safe_cgi_field_get(arguments, "anchortext_%d" % link_id),
+                "index": index,
             }
         )
-        if len(links[-1]['anchortext']) == 0:
-            links[-1]['anchortext'] = None
+        if len(links[-1]["anchortext"]) == 0:
+            links[-1]["anchortext"] = None
     return links
 
 
@@ -183,9 +173,7 @@ def index_dictify_list(str_list, key):
     dict_list : list of dict
         The wrapped values from str_list.
     """
-    return [
-        {key: value, 'index': index} for index, value in enumerate(str_list)
-    ]
+    return [{key: value, "index": index} for index, value in enumerate(str_list)]
 
 
 def args_to_dict(arguments):
@@ -202,20 +190,16 @@ def args_to_dict(arguments):
         The project info dict.
     """
     return {
-        'name': safe_cgi_field_get(arguments, 'name'),
-        'description': safe_cgi_field_get(arguments, 'description'),
-        'status': safe_cgi_field_get(arguments, 'status'),
-        'links': extract_links(arguments),
-        'comm_channels': index_dictify_list(
-            strutils.split_comma_sep(
-                safe_cgi_field_get(arguments, 'comm_channels')
-            ),
-            'commchannel'
+        "name": safe_cgi_field_get(arguments, "name"),
+        "description": safe_cgi_field_get(arguments, "description"),
+        "status": safe_cgi_field_get(arguments, "status"),
+        "links": extract_links(arguments),
+        "comm_channels": index_dictify_list(
+            strutils.split_comma_sep(safe_cgi_field_get(arguments, "comm_channels")),
+            "commchannel",
         ),
-        'contacts': contact_list_to_dict_list(
-            strutils.split_comma_sep(
-                safe_cgi_field_get(arguments, 'contacts')
-            )
+        "contacts": contact_list_to_dict_list(
+            strutils.split_comma_sep(safe_cgi_field_get(arguments, "contacts"))
         ),
-        'roles': extract_roles(arguments)
+        "roles": extract_roles(arguments),
     }

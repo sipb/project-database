@@ -1,12 +1,10 @@
+import creds
 import sqlalchemy as db
 import sqlalchemy.ext.declarative
 import sqlalchemy.orm
-import creds
 
 DATABASE_NAME = creds.database_name
-SQL_URL = "mysql://%s:%s@sql.mit.edu/%s" % (
-    creds.user, creds.password, DATABASE_NAME
-)
+SQL_URL = f"mysql://{creds.user}:{creds.password}@sql.mit.edu/{DATABASE_NAME}"
 
 
 ##############################################################
@@ -31,36 +29,30 @@ SQLBase.metadata.create_all(sqlengine)
 # "Base" mixin and SQLBase. The history table then inherits from the "Base"
 # mixin, SQLBase, and the HistoryMixin which adds the columns needed for edit
 # logging. (Columns which have different constraints in the main table vs. the
-# history table must be defined in the subclasses.) 
+# history table must be defined in the subclasses.)
 
 
-class HistoryMixin(object):
+class HistoryMixin:
     author = db.Column(db.String(50), nullable=False)
     # action can be 'create', 'update', 'delete', 'same'
     action = db.Column(db.String(25), nullable=False)
     revision_id = db.Column(db.Integer(), nullable=False)
-    timestamp = db.Column(
-        db.TIMESTAMP, nullable=False, server_default=db.func.now()
-    )
+    timestamp = db.Column(db.TIMESTAMP, nullable=False, server_default=db.func.now())
 
-    @sqlalchemy.orm.validates('author')
+    @sqlalchemy.orm.validates("author")
     def validate_author(self, key, author):
         if len(author) > self.__table__.columns[key].type.length:
-            raise ValueError(
-                'Value of "%s" for key "author" is too long!' % author
-            )
+            raise ValueError(f'Value of "{author}" for key "author" is too long!')
         return author
 
-    @sqlalchemy.orm.validates('action')
+    @sqlalchemy.orm.validates("action")
     def validate_action(self, key, action):
-        if action not in ['create', 'update', 'delete', 'same']:
-            raise ValueError(
-                'Value of "%s" for key "action" is invalid!' % action
-            )
+        if action not in ["create", "update", "delete", "same"]:
+            raise ValueError(f'Value of "{action}" for key "action" is invalid!')
         return action
 
 
-class ProjectsBase(object):
+class ProjectsBase:
     # project_id and name must be defined in subclasses, as they have special
     # constraints which differ between the main table and the history table.
 
@@ -76,52 +68,41 @@ class ProjectsBase(object):
     # Comments from user who approved the project:
     approver_comments = db.Column(db.Text(), nullable=True)
 
-    @sqlalchemy.orm.validates('status')
+    @sqlalchemy.orm.validates("status")
     def validate_status(self, key, status):
-        if status not in ['active', 'inactive']:
-            raise ValueError(
-                'Value of "%s" for key "status" is invalid!' % status
-            )
+        if status not in ["active", "inactive"]:
+            raise ValueError(f'Value of "{status}" for key "status" is invalid!')
         return status
 
-    @sqlalchemy.orm.validates('approval')
+    @sqlalchemy.orm.validates("approval")
     def validate_approval(self, key, approval):
-        if approval not in ['awaiting_approval', 'approved', 'rejected']:
-            raise ValueError(
-                'Value of "%s" for key "approval" in invalid!' % approval
-            )
+        if approval not in ["awaiting_approval", "approved", "rejected"]:
+            raise ValueError(f'Value of "{approval}" for key "approval" in invalid!')
         return approval
 
-    @sqlalchemy.orm.validates('creator')
+    @sqlalchemy.orm.validates("creator")
     def validate_creator(self, key, creator):
         if len(creator) > self.__table__.columns[key].type.length:
-            raise ValueError(
-                'Value of "%s" for key "creator" is too long!' % creator
-            )
+            raise ValueError(f'Value of "{creator}" for key "creator" is too long!')
         return creator
 
-    @sqlalchemy.orm.validates('approver')
+    @sqlalchemy.orm.validates("approver")
     def validate_approver(self, key, approver):
-        if (
-            (approver is not None) and
-            (len(approver) > self.__table__.columns[key].type.length)
+        if (approver is not None) and (
+            len(approver) > self.__table__.columns[key].type.length
         ):
-            raise ValueError(
-                'Value of "%s" for key "approver" is too long!' % approver
-            )
+            raise ValueError(f'Value of "{approver}" for key "approver" is too long!')
         return approver
 
-    @sqlalchemy.orm.validates('name')
+    @sqlalchemy.orm.validates("name")
     def validate_name(self, key, name):
         if len(name) > self.__table__.columns[key].type.length:
-            raise ValueError(
-                'Value of "%s" for key "name" is too long!' % name
-            )
+            raise ValueError(f'Value of "{name}" for key "name" is too long!')
         return name
 
 
 class Projects(SQLBase, ProjectsBase):
-    __tablename__ = 'projects'
+    __tablename__ = "projects"
     project_id = db.Column(
         db.Integer(), nullable=False, primary_key=True, autoincrement=True
     )
@@ -129,24 +110,20 @@ class Projects(SQLBase, ProjectsBase):
 
 
 class ProjectsHistory(SQLBase, ProjectsBase, HistoryMixin):
-    __tablename__ = 'projectshistory'
-    id = db.Column(
-        db.Integer(), nullable=False, primary_key=True, autoincrement=True
-    )
+    __tablename__ = "projectshistory"
+    id = db.Column(db.Integer(), nullable=False, primary_key=True, autoincrement=True)
     name = db.Column(db.String(50), nullable=False)
 
     # Foreign key constraint requires special handling.
     @sqlalchemy.ext.declarative.declared_attr
     def project_id(cls):
         return db.Column(
-            db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
+            db.Integer(), db.ForeignKey("projects.project_id"), nullable=False
         )
 
 
-class ContactEmailsBase(object):
-    id = db.Column(
-        db.Integer(), nullable=False, primary_key=True, autoincrement=True
-    )
+class ContactEmailsBase:
+    id = db.Column(db.Integer(), nullable=False, primary_key=True, autoincrement=True)
     # type can be either "primary" or "secondary". By convention, there should
     # be exactly one primary contact for each project.
     type = db.Column(db.String(25), nullable=False)
@@ -159,23 +136,19 @@ class ContactEmailsBase(object):
     @sqlalchemy.ext.declarative.declared_attr
     def project_id(cls):
         return db.Column(
-            db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
+            db.Integer(), db.ForeignKey("projects.project_id"), nullable=False
         )
 
-    @sqlalchemy.orm.validates('type')
+    @sqlalchemy.orm.validates("type")
     def validate_type(self, key, type):
-        if type not in ['primary', 'secondary']:
-            raise ValueError(
-                'Value of "%s" for key "type" is invalid!' % type
-            )
+        if type not in ["primary", "secondary"]:
+            raise ValueError(f'Value of "{type}" for key "type" is invalid!')
         return type
 
-    @sqlalchemy.orm.validates('email')
+    @sqlalchemy.orm.validates("email")
     def validate_email(self, key, email):
         if len(email) > self.__table__.columns[key].type.length:
-            raise ValueError(
-                'Value of "%s" for key "email" is too long!' % email
-            )
+            raise ValueError(f'Value of "{email}" for key "email" is too long!')
         return email
 
 
@@ -184,13 +157,12 @@ class ContactEmails(SQLBase, ContactEmailsBase):
 
 
 class ContactEmailsHistory(SQLBase, ContactEmailsBase, HistoryMixin):
-    __tablename__ = 'contactemailshistory'
+    __tablename__ = "contactemailshistory"
 
 
-class RolesBase(object):
+class RolesBase:
     id = sqlalchemy.Column(
-        sqlalchemy.Integer(), nullable=False, primary_key=True,
-        autoincrement=True
+        sqlalchemy.Integer(), nullable=False, primary_key=True, autoincrement=True
     )
     role = db.Column(db.String(50), nullable=False)
     description = db.Column(db.Text(), nullable=False)
@@ -202,15 +174,13 @@ class RolesBase(object):
     @sqlalchemy.ext.declarative.declared_attr
     def project_id(cls):
         return db.Column(
-            db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
+            db.Integer(), db.ForeignKey("projects.project_id"), nullable=False
         )
 
-    @sqlalchemy.orm.validates('role')
+    @sqlalchemy.orm.validates("role")
     def validate_role(self, key, role):
         if len(role) > self.__table__.columns[key].type.length:
-            raise ValueError(
-                'Value of "%s" for key "role" is too long!' % role
-            )
+            raise ValueError(f'Value of "{role}" for key "role" is too long!')
         return role
 
 
@@ -219,14 +189,11 @@ class Roles(SQLBase, RolesBase):
 
 
 class RolesHistory(SQLBase, RolesBase, HistoryMixin):
-    __tablename__ = 'roleshistory'
+    __tablename__ = "roleshistory"
 
 
-class LinksBase(object):
-    id = db.Column(
-        db.Integer(), nullable=False, primary_key=True,
-        autoincrement=True
-    )
+class LinksBase:
+    id = db.Column(db.Integer(), nullable=False, primary_key=True, autoincrement=True)
     link = db.Column(db.Text(), nullable=False)
     # index sets the order which links are listed in:
     index = db.Column(db.Integer(), nullable=False)
@@ -236,7 +203,7 @@ class LinksBase(object):
     @sqlalchemy.ext.declarative.declared_attr
     def project_id(cls):
         return db.Column(
-            db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
+            db.Integer(), db.ForeignKey("projects.project_id"), nullable=False
         )
 
 
@@ -245,14 +212,11 @@ class Links(SQLBase, LinksBase):
 
 
 class LinksHistory(SQLBase, LinksBase, HistoryMixin):
-    __tablename__ = 'linkshistory'
+    __tablename__ = "linkshistory"
 
 
-class CommChannelsBase(object):
-    id = db.Column(
-        db.Integer(), nullable=False, primary_key=True,
-        autoincrement=True
-    )
+class CommChannelsBase:
+    id = db.Column(db.Integer(), nullable=False, primary_key=True, autoincrement=True)
     commchannel = db.Column(db.Text(), nullable=False)
     # index sets the order which comm channels are listed in:
     index = db.Column(db.Integer(), nullable=False)
@@ -261,16 +225,16 @@ class CommChannelsBase(object):
     @sqlalchemy.ext.declarative.declared_attr
     def project_id(cls):
         return db.Column(
-            db.Integer(), db.ForeignKey('projects.project_id'), nullable=False
+            db.Integer(), db.ForeignKey("projects.project_id"), nullable=False
         )
 
 
 class CommChannels(SQLBase, CommChannelsBase):
     __tablename__ = "commchannels"
-    
+
 
 class CommChannelsHistory(SQLBase, CommChannelsBase, HistoryMixin):
-    __tablename__ = 'commchannelshistory'
+    __tablename__ = "commchannelshistory"
 
 
 # Implement schema
@@ -282,5 +246,5 @@ CLASS_TO_HISTORY_CLASS_MAP = {
     ContactEmails: ContactEmailsHistory,
     Roles: RolesHistory,
     Links: LinksHistory,
-    CommChannels: CommChannelsHistory
+    CommChannels: CommChannelsHistory,
 }
