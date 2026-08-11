@@ -76,7 +76,8 @@ def get_auth_url(do_authenticate):
     url : str
         The authentication URL.
     """
-    return get_base_url(do_authenticate) + request.environ.get("REQUEST_URI")
+    # TODO: Fix this
+    return get_base_url(do_authenticate) #+ request.environ.get("REQUEST_URI")
 
 
 def is_sipb(user):

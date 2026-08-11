@@ -1,0 +1,31 @@
+name: Build Docker image
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: krun
+    steps:
+      - name: Checkout
+        uses: https://github.com/actions/checkout@v7
+
+      - name: Build image
+        id: build
+        uses: https://github.com/redhat-actions/buildah-build@v3
+        with:
+          image: ${{ github.repository }}
+          tags: latest
+          containerfiles: ./Dockerfile
+          extra-args: --network=host
+
+      - name: Push to Forgejo registry
+        uses: https://github.com/redhat-actions/push-to-registry@v3
+        with:
+          image: ${{ steps.build.outputs.image }}
+          tags: ${{ steps.build.outputs.tags }}
+          registry: forgejo.mit.edu
+          username: ${{ github.actor }}
+          password: ${{ secrets.PACKAGE_TOKEN }}
