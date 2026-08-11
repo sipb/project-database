@@ -1,25 +1,4 @@
-import strutils
-
-
-def safe_cgi_field_get(arguments, field, default=""):
-    """Get a field from CGI arguments, with failback for absent fields.
-
-    Parameters
-    ----------
-    arguments : cgi.FieldStorage
-        The data from the form.
-    field : str
-        The field to get.
-    default : str, optional
-        The value to use when a field is not present. Default is the empty
-        string.
-
-    Returns
-    -------
-    value : str
-        The field value.
-    """
-    return arguments[field].value if field in arguments else default
+from . import strutils
 
 
 def contact_list_to_dict_list(contact_list):
@@ -54,8 +33,8 @@ def get_role_ids(arguments):
 
     Parameters
     ----------
-    arguments : cgi.FieldStorage
-        The data from the form.
+    arguments : werkzeug.datastructures.MultiDict
+        The combined query string and form data from the request.
 
     Returns
     -------
@@ -79,8 +58,8 @@ def get_link_ids(arguments):
 
     Parameters
     ----------
-    arguments : cgi.FieldStorage
-        The data from the form.
+    arguments : werkzeug.datastructures.MultiDict
+        The combined query string and form data from the request.
 
     Returns
     -------
@@ -102,8 +81,8 @@ def extract_roles(arguments):
 
     Parameters
     ----------
-    arguments : cgi.FieldStorage
-        The data from the form.
+    arguments : werkzeug.datastructures.MultiDict
+        The combined query string and form data from the request.
 
     Returns
     -------
@@ -115,11 +94,9 @@ def extract_roles(arguments):
     for index, role_id in enumerate(role_ids):
         roles.append(
             {
-                "role": safe_cgi_field_get(arguments, "role_name_%d" % role_id),
-                "description": safe_cgi_field_get(
-                    arguments, "role_description_%d" % role_id
-                ),
-                "prereq": safe_cgi_field_get(arguments, "role_prereqs_%d" % role_id),
+                "role": arguments.get(f"role_name_{role_id}", ""),
+                "description": arguments.get(f"role_description_{role_id}", ""),
+                "prereq": arguments.get(f"role_prereqs_{role_id}", ""),
                 "index": index,
             }
         )
@@ -133,8 +110,8 @@ def extract_links(arguments):
 
     Parameters
     ----------
-    arguments : cgi.FieldStorage
-        The data from the form.
+    arguments : werkzeug.datastructures.MultiDict
+        The combined query string and form data from the request.
 
     Returns
     -------
@@ -147,9 +124,9 @@ def extract_links(arguments):
         links.append(
             {
                 "link": strutils.make_url_absolute(
-                    safe_cgi_field_get(arguments, "link_%d" % link_id)
+                    arguments.get(f"link_{link_id}", "")
                 ),
-                "anchortext": safe_cgi_field_get(arguments, "anchortext_%d" % link_id),
+                "anchortext": arguments.get(f"anchortext_{link_id}", ""),
                 "index": index,
             }
         )
@@ -181,8 +158,8 @@ def args_to_dict(arguments):
 
     Parameters
     ----------
-    arguments : cgi.FieldStorage
-        The data from the form.
+    arguments : werkzeug.datastructures.MultiDict
+        The combined query string and form data from the request.
 
     Returns
     -------
@@ -190,16 +167,16 @@ def args_to_dict(arguments):
         The project info dict.
     """
     return {
-        "name": safe_cgi_field_get(arguments, "name"),
-        "description": safe_cgi_field_get(arguments, "description"),
-        "status": safe_cgi_field_get(arguments, "status"),
+        "name": arguments.get("name", ""),
+        "description": arguments.get("description", ""),
+        "status": arguments.get("status", ""),
         "links": extract_links(arguments),
         "comm_channels": index_dictify_list(
-            strutils.split_comma_sep(safe_cgi_field_get(arguments, "comm_channels")),
+            strutils.split_comma_sep(arguments.get("comm_channels", "")),
             "commchannel",
         ),
         "contacts": contact_list_to_dict_list(
-            strutils.split_comma_sep(safe_cgi_field_get(arguments, "contacts"))
+            strutils.split_comma_sep(arguments.get("contacts", ""))
         ),
         "roles": extract_roles(arguments),
     }

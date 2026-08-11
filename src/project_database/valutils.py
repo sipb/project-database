@@ -1,7 +1,4 @@
-import authutils
-import db
-import schema
-import strutils
+from . import authutils, db, schema, strutils
 
 # This module contains functions to validate data. Any function starting with
 # "validate_" shall return a bool (with True indicating that the condition is
@@ -75,7 +72,7 @@ def validate_project_name_text(name):
         status_messages = ["Project name must be non-empty!"]
     elif len(name) > max_len:
         name_ok = False
-        status_messages = ["Project name must be less than %d characters!" % max_len]
+        status_messages = [f"Project name must be less than {max_len} characters!"]
     else:
         name_ok = True
         status_messages = []
@@ -215,7 +212,7 @@ def validate_project_contact_addresses(contacts):
         if len(contact["email"]) > max_len:
             is_ok = False
             status_messages.append(
-                '"%s" is too long (%d character limit)!' % (contact["email"], max_len)
+                f'"{contact["email"]}" is too long ({max_len} character limit)!'
             )
 
         if strutils.is_plain_mit_email(contact["email"]):
@@ -343,7 +340,7 @@ def validate_project_role_fields(roles):
         if len(role["role"]) > max_len:
             is_ok = False
             status_messages = [
-                "Role names can be no longer than %d characters!" % max_len
+                f"Role names can be no longer than {max_len} characters!"
             ]
             break
     return is_ok, status_messages
@@ -768,14 +765,14 @@ def validate_project_id_exists(project_id):
     project_info = db.get_project(project_id)
     if len(project_info) == 0:
         is_ok = False
-        status_messages = ['There is no project with id "%d"!' % project_id]
+        status_messages = [f'There is no project with id "{project_id}"!']
     elif len(project_info) == 1:
         is_ok = True
         status_messages = []
     else:
         is_ok = False
         status_messages = [
-            'There are %d projects with id "%d"!' % (len(project_info), project_id)
+            f'There are {len(project_info)} projects with id "{project_id}"!'
         ]
 
     return is_ok, status_messages
@@ -835,8 +832,7 @@ def validate_revision_id_exists(project_id, revision_id):
     if len(project_info) == 0:
         is_ok = False
         status_messages = [
-            'There is no revision with id "%d" for the project with id "%d"!'
-            % (revision_id, project_id)
+            f'There is no revision with id "{revision_id}" for the project with id "{project_id}"!'
         ]
     elif len(project_info) == 1:
         is_ok = True
@@ -844,8 +840,7 @@ def validate_revision_id_exists(project_id, revision_id):
     else:
         is_ok = False
         status_messages = [
-            'There are %d projects with project id "%d" '
-            + 'and revision id "%d"!' % (len(project_info), project_id, revision_id)
+            f'There are {len(project_info)} projects with project id "{project_id}" and revision id "{revision_id}"!'
         ]
 
     return is_ok, status_messages

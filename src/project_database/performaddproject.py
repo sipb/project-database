@@ -1,25 +1,12 @@
-import cgi
-
-# TODO: May want to turn error listing off once stable?
-import cgitb
 import traceback
 
-import authutils
-import db
-import formutils
-import mail
-import performutils
-import strutils
-import valutils
-
-cgitb.enable()
+from . import authutils, db, formutils, mail, performutils, strutils, valutils
 
 
-def main():
+def view(arguments):
     """Respond to an add project request, displaying the appropriate status
     message.
     """
-    arguments = cgi.FieldStorage()
     project_info = formutils.args_to_dict(arguments)
     is_ok, status_messages = valutils.validate_add_project(project_info)
 
@@ -61,8 +48,4 @@ def main():
             strutils.html_listify(status_messages), "Add Project"
         )
 
-    print(page)
-
-
-if __name__ == "__main__":
-    main()
+    return page

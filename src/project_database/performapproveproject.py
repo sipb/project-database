@@ -1,26 +1,13 @@
-import cgi
-
-# TODO: May want to turn error listing off once stable?
-import cgitb
 import traceback
 
-import authutils
-import db
-import formutils
-import mail
-import performutils
-import strutils
-import valutils
-
-cgitb.enable()
+from . import authutils, db, formutils, mail, performutils, strutils, valutils
 
 
-def main():
-    arguments = cgi.FieldStorage()
+def view(arguments):
     project_info = formutils.args_to_dict(arguments)
-    project_id = formutils.safe_cgi_field_get(arguments, "project_id")
-    approval_action = formutils.safe_cgi_field_get(arguments, "approval_action")
-    approver_comments = formutils.safe_cgi_field_get(arguments, "approver_comments")
+    project_id = arguments.get("project_id", "")
+    approval_action = arguments.get("approval_action", "")
+    approver_comments = arguments.get("approver_comments", "")
     approver_kerberos = authutils.get_kerberos()
     is_ok, status_messages = valutils.validate_project_id(project_id)
     if is_ok:
@@ -77,8 +64,4 @@ def main():
             strutils.html_listify(status_messages), title
         )
 
-    print(page)
-
-
-if __name__ == "__main__":
-    main()
+    return page

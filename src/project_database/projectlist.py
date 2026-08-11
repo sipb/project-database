@@ -1,15 +1,4 @@
-import cgi
-
-# TODO: May want to turn error listing off once stable?
-import cgitb
-
-import authutils
-import db
-import formutils
-import strutils
-import templateutils
-
-cgitb.enable()
+from . import authutils, db, strutils, templateutils
 
 
 def format_project_list(project_list, filter_method, contact_email):
@@ -48,9 +37,7 @@ def format_project_list(project_list, filter_method, contact_email):
     else:
         raise ValueError("Unknown filter method!")
 
-    result = ""
-    result += "Content-type: text/html\n\n"
-    result += (
+    result = (
         jenv.get_template("projectlist.html")
         .render(
             project_list=project_list,
@@ -67,24 +54,16 @@ def format_project_list(project_list, filter_method, contact_email):
     return result
 
 
-def main():
+def view(arguments):
     """Display the info for all projects."""
-    arguments = cgi.FieldStorage()
-    filter_method = formutils.safe_cgi_field_get(
-        arguments, "filter_by", default="active"
-    )
+    filter_method = arguments.get("filter_by", "active")
 
     if filter_method == "contact":
-        contact_email = formutils.safe_cgi_field_get(arguments, "email", default="")
+        contact_email = arguments.get("email", "")
     else:
         contact_email = None
 
     project_list = db.get_all_project_info(
         filter_method=filter_method, contact_email=contact_email
     )
-    page = format_project_list(project_list, filter_method, contact_email)
-    print(page)
-
-
-if __name__ == "__main__":
-    main()
+    return format_project_list(project_list, filter_method, contact_email)

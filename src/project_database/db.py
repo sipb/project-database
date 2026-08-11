@@ -1,7 +1,8 @@
 import datetime
 
 import sqlalchemy as sa
-from schema import (
+
+from .schema import (
     CLASS_TO_HISTORY_CLASS_MAP,
     CommChannels,
     CommChannelsHistory,
@@ -1367,7 +1368,7 @@ def update_project(project_info, project_id, editor_kerberos):
     """
     project_exists = bool(get_project_name(project_id))
     if not project_exists:
-        raise ValueError("No project with id %d exists!" % int(project_id))
+        raise ValueError(f"No project with id {int(project_id)} exists!")
 
     new_metadata = {
         "name": project_info["name"],
@@ -1473,11 +1474,11 @@ def rollback_project(project_id, revision_id, editor_kerberos):
     """
     project_exists = bool(get_project_name(project_id))
     if not project_exists:
-        raise ValueError("No project with id %d exists!" % int(project_id))
+        raise ValueError(f"No project with id {int(project_id)} exists!")
 
     project_info = get_all_info_for_project(project_id, revision_id=revision_id)
     if project_info is None:
-        raise ValueError("No revision with id %d exists!" % int(revision_id))
+        raise ValueError(f"No revision with id {int(revision_id)} exists!")
 
     rollback_revision_id = update_project_metadata(
         project_id, project_info, editor_kerberos
@@ -1491,6 +1492,8 @@ def rollback_project(project_id, revision_id, editor_kerberos):
 ######################################################################
 # Testing Code
 ######################################################################
+
+# TODO make this an actual unit test
 
 # Example usage
 # project = {

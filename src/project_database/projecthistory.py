@@ -1,15 +1,4 @@
-import cgi
-
-# TODO: May want to turn error listing off once stable?
-import cgitb
-
-import authutils
-import db
-import formutils
-import strutils
-import templateutils
-
-cgitb.enable()
+from . import authutils, db, strutils, templateutils
 
 
 def format_project_history(project_history, project_id):
@@ -33,9 +22,7 @@ def format_project_history(project_history, project_id):
     can_add = authutils.can_add(user)
     can_edit = authutils.can_edit(user, project_id)
 
-    result = ""
-    result += "Content-type: text/html\n\n"
-    result += (
+    result = (
         jenv.get_template("projecthistory.html")
         .render(
             project_history=project_history,
@@ -52,19 +39,13 @@ def format_project_history(project_history, project_id):
     return result
 
 
-def main():
+def view(arguments):
     """Display the info for all project revisions."""
-    arguments = cgi.FieldStorage()
-    project_id = formutils.safe_cgi_field_get(arguments, "project_id", default=None)
+    project_id = arguments.get("project_id")
     # TODO: this should show a proper error page
     if project_id is None:
         raise RuntimeError("No project ID specified!")
 
     project_history = db.get_project_history(project_id)
     project_history = strutils.decode_utf_nested_dict_list(project_history)
-    page = format_project_history(project_history, project_id)
-    print(page)
-
-
-if __name__ == "__main__":
-    main()
+    return format_project_history(project_history, project_id)

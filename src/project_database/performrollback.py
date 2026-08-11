@@ -1,24 +1,11 @@
-import cgi
-
-# TODO: May want to turn error listing off once stable?
-import cgitb
 import traceback
 
-import authutils
-import db
-import formutils
-import mail
-import performutils
-import strutils
-import valutils
-
-cgitb.enable()
+from . import authutils, db, mail, performutils, strutils, valutils
 
 
-def main():
-    arguments = cgi.FieldStorage()
-    project_id = formutils.safe_cgi_field_get(arguments, "project_id")
-    revision_id = formutils.safe_cgi_field_get(arguments, "revision_id")
+def view(arguments):
+    project_id = arguments.get("project_id", "")
+    revision_id = arguments.get("revision_id", "")
     editor_kerberos = authutils.get_kerberos()
     is_ok, status_messages = valutils.validate_revision_id(project_id, revision_id)
 
@@ -88,8 +75,4 @@ def main():
             strutils.html_listify(status_messages), "Roll Back Project"
         )
 
-    print(page)
-
-
-if __name__ == "__main__":
-    main()
+    return page

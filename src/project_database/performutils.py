@@ -1,13 +1,6 @@
-import cgi
 import traceback
 
-import authutils
-import db
-import formutils
-import mail
-import strutils
-import templateutils
-import valutils
+from . import authutils, db, formutils, mail, strutils, templateutils, valutils
 
 
 def check_for_name_change(project_info, project_id):
@@ -177,9 +170,7 @@ def format_success_page(project_id, operation, message=None):
     authlink = authutils.get_auth_url(True)
     deauthlink = authutils.get_base_url(False) + "/projectlist.py"
     can_add = authutils.can_add(user)
-    result = ""
-    result += "Content-type: text/html\n\n"
-    result += (
+    result = (
         jenv.get_template("performsuccess.html")
         .render(
             project=project_info,
@@ -214,9 +205,7 @@ def format_failure_page(status, operation):
     deauthlink = authutils.get_base_url(False) + "/projectlist.py"
     can_add = authutils.can_add(user)
     status = strutils.decode_utf_nested_dict_list(status)
-    result = ""
-    result += "Content-type: text/html\n\n"
-    result += (
+    result = (
         jenv.get_template("performfailure.html")
         .render(
             status=status,
@@ -231,10 +220,9 @@ def format_failure_page(status, operation):
     return result
 
 
-def edit_confirm_main(task):
-    arguments = cgi.FieldStorage()
+def edit_confirm_main(task, arguments):
     project_info = formutils.args_to_dict(arguments)
-    project_id = formutils.safe_cgi_field_get(arguments, "project_id")
+    project_id = arguments.get("project_id", "")
     editor_kerberos = authutils.get_kerberos()
     is_ok, status_messages = valutils.validate_project_id(project_id)
     if is_ok:
@@ -303,4 +291,4 @@ def edit_confirm_main(task):
             strutils.html_listify(status_messages), f"{task} Project"
         )
 
-    print(page)
+    return page

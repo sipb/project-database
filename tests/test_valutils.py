@@ -1,5 +1,6 @@
 # testutils MUST be imported first to set up test configuration and module
 # paths properly!
+# TODO fix that
 import os
 import unittest
 
@@ -765,7 +766,3 @@ class Test_validate_revision_id(testutils.DatabaseWipeTestCase):
         is_ok, status_messages = valutils.validate_revision_id(project_id, "9999")
         self.assertFalse(is_ok)
         self.assertGreaterEqual(len(status_messages), 1)
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -1,16 +1,4 @@
-import cgi
-
-# TODO: May want to turn error listing off once stable?
-import cgitb
-
-import authutils
-import db
-import formutils
-import strutils
-import templateutils
-import valutils
-
-cgitb.enable()
+from . import authutils, db, strutils, templateutils, valutils
 
 
 def format_approve_project(project_id):
@@ -32,9 +20,7 @@ def format_approve_project(project_id):
     project_info = db.get_all_info_for_project(project_id)
     project_info = strutils.decode_utf_nested_dict_list(project_info)
 
-    result = ""
-    result += "Content-type: text/html\n\n"
-    result += (
+    result = (
         jenv.get_template("approveproject.html")
         .render(
             user=user,
@@ -56,14 +42,7 @@ def format_approve_project(project_id):
     return result
 
 
-def main():
+def view(arguments):
     """Display the edit project interface."""
-    arguments = cgi.FieldStorage()
-    project_id = formutils.safe_cgi_field_get(arguments, "project_id")
-
-    page = format_approve_project(project_id)
-    print(page)
-
-
-if __name__ == "__main__":
-    main()
+    project_id = arguments.get("project_id", "")
+    return format_approve_project(project_id)

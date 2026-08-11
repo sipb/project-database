@@ -1,14 +1,5 @@
-# TODO: May want to turn error listing off once stable?
-import cgitb
-
-import performutils
-
-cgitb.enable()
+from . import performutils
 
 
-def main():
-    performutils.edit_confirm_main("Confirm")
-
-
-if __name__ == "__main__":
-    main()
+def view(arguments):
+    return performutils.edit_confirm_main("Confirm", arguments)

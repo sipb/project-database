@@ -1,10 +1,10 @@
-import creds
+import os
+
 import sqlalchemy as db
 import sqlalchemy.ext.declarative
 import sqlalchemy.orm
 
-DATABASE_NAME = creds.database_name
-SQL_URL = f"mysql://{creds.user}:{creds.password}@sql.mit.edu/{DATABASE_NAME}"
+SQL_URL = "sqlite:///data/main.db"
 
 
 ##############################################################
@@ -12,6 +12,7 @@ SQL_URL = f"mysql://{creds.user}:{creds.password}@sql.mit.edu/{DATABASE_NAME}"
 ##############################################################
 
 # Initialization Steps
+os.makedirs("data", exist_ok=True)
 SQLBase = db.ext.declarative.declarative_base()
 sqlengine = db.create_engine(SQL_URL)
 SQLBase.metadata.bind = sqlengine

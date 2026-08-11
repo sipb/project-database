@@ -1,5 +1,6 @@
 # testutils MUST be imported first to set up test configuration and module
 # paths properly!
+# TODO fix that
 import os
 import unittest
 
@@ -357,7 +358,3 @@ class Test_enrich_project_list_with_permissions(
                     self.assertTrue(project_info["can_approve"])
                 else:
                     self.assertFalse(project_info["can_approve"])
-
-
-if __name__ == "__main__":
-    unittest.main()

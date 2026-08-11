@@ -1,4 +1,4 @@
-import cgi
+import html
 
 
 def is_email(text):
@@ -70,7 +70,7 @@ def html_listify(items):
     result : str
         The HTML list.
     """
-    items = [cgi.escape(item, quote=True) for item in items]
+    items = [html.escape(item, quote=True) for item in items]
     result = "<ul>\n"
     for item in items:
         result += f"    <li>{item}</li>\n"

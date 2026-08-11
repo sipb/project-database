@@ -1,5 +1,4 @@
-import authutils
-import templateutils
+from . import authutils, templateutils
 
 
 def format_add_project():
@@ -15,9 +14,7 @@ def format_add_project():
     authlink = authutils.get_auth_url(True)
     deauthlink = authutils.get_auth_url(False)
     can_add = authutils.can_add(user)
-    result = ""
-    result += "Content-type: text/html\n\n"
-    result += (
+    result = (
         jenv.get_template("addproject.html")
         .render(
             user=user,
@@ -32,11 +29,6 @@ def format_add_project():
     return result
 
 
-def main():
+def view():
     """Display the add project interface."""
-    page = format_add_project()
-    print(page)
-
-
-if __name__ == "__main__":
-    main()
+    return format_add_project()

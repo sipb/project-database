@@ -2,25 +2,19 @@
 # line in your test script. This ensures that the special handshake to put the
 # database in test mode gets run before any other modules get imported.
 
-# Add the web_scripts directory to the path:
-import sys
-
-sys.path.insert(0, "..")
-
 # Set the test mode flag:
 import os
 
 os.environ["PROJECTS_DATABASE_MODE"] = "test"
 
 # Ensure that we are actually in test mode:
-import creds
+from project_database import creds
 
 assert creds.mode == "test"
 
 import unittest
 
-import db
-import schema
+from project_database import db, schema
 
 
 def restore_env(key, value):

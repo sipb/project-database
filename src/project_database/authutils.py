@@ -5,9 +5,11 @@
 
 import os
 
-import config
-import db
-import roster
+from flask import request
+
+from . import config, db, roster
+
+
 
 
 def get_kerberos():

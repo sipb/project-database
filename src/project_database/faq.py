@@ -1,10 +1,4 @@
-# TODO: May want to turn error listing off once stable?
-import cgitb
-
-import authutils
-import templateutils
-
-cgitb.enable()
+from . import authutils, templateutils
 
 
 def format_faq():
@@ -23,9 +17,7 @@ def format_faq():
     can_add = authutils.can_add(user)
     can_approve = authutils.can_approve(user)
 
-    result = ""
-    result += "Content-type: text/html\n\n"
-    result += (
+    result = (
         jenv.get_template("faq.html")
         .render(
             user=user,
@@ -40,11 +32,6 @@ def format_faq():
     return result
 
 
-def main():
-    """Display the edit project interface."""
-    page = format_faq()
-    print(page)
-
-
-if __name__ == "__main__":
-    main()
+def view():
+    """Display the FAQ interface."""
+    return format_faq()

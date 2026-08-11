@@ -1,8 +1,7 @@
 import datetime
 
-import db
-import mail
-from config import EXPIRATION_BY_NUM_DAYS
+from . import db, mail
+from .config import EXPIRATION_BY_NUM_DAYS
 
 EXPIRATION_HORIZON = datetime.timedelta(days=EXPIRATION_BY_NUM_DAYS)
 REMIND_DAYS = {
@@ -57,7 +56,3 @@ def main():
         project["status"] = "inactive"
         db.update_project(project, project["project_id"], "projects-database-admin")
         mail.send_deactivation_message(project)
-
-
-if __name__ == "__main__":
-    main()

@@ -1,21 +1,28 @@
 import smtplib
+import zoneinfo
 from datetime import datetime
 from email.mime.text import MIMEText
 
-import creds
-import db
-from config import EXPIRATION_BY_NUM_DAYS
+from . import db
+from .config import EXPIRATION_BY_NUM_DAYS
 
+NYTZ = zoneinfo.ZoneInfo("America/New_York")
+
+URL = "https://sipb-projectdb.hyades.mit.edu"
 APPROVERS_LIST = "sipb-projectdb-approvers@mit.edu"
 # APPROVERS_LIST = 'markchil@mit.edu'
 SERVICE_EMAIL = (
     "sipb-projectdb-bot@mit.edu"  # Email identifying as coming from this service
 )
 
-ALL_PROJECTS_URL = f"https://{creds.user}.scripts.mit.edu:444/projectlist.py"
-AWAITING_APPROVAL_URL = f"https://{creds.user}.scripts.mit.edu:444/projectlist.py?filter_by=awaiting_approval"
-BASE_EDIT_URL = f"https://{creds.user}.scripts.mit.edu:444/editproject.py?project_id="  # Need to provide project id at the end
-BASE_HISTORY_URL = f"https://{creds.user}.scripts.mit.edu:444/projecthistory.py?project_id="  # Need to provide project id at the end
+ALL_PROJECTS_URL = f"{URL}/projectlist.py"
+AWAITING_APPROVAL_URL = f"{URL}/projectlist.py?filter_by=awaiting_approval"
+BASE_EDIT_URL = (
+    f"{URL}/editproject.py?project_id="  # Need to provide project id at the end
+)
+BASE_HISTORY_URL = (
+    f"{URL}/projecthistory.py?project_id="  # Need to provide project id at the end
+)
 
 ## Helper function
 
@@ -130,7 +137,7 @@ def send(recipients, sender, subject, message):
     elif isinstance(recipients, list):
         msg["To"] = ",".join(recipients)
     else:
-        raise Exception("Email recipient neither a list or a string")
+        raise TypeError("Email recipient neither a list or a string")
 
     s = smtplib.SMTP("outgoing.mit.edu", 25)
     s.sendmail(sender, recipients, msg.as_string())
@@ -142,7 +149,7 @@ def send_to_approvers(project_info):
     ready for review.
     """
     project_creator = db.get_project_creator(project_info["project_id"])
-    current_time = datetime.now().strftime("%H:%M:%S on %m/%d/%Y")
+    current_time = datetime.now(tz=NYTZ).strftime("%H:%M:%S on %m/%d/%Y")
     subject = "[Action Required] SIPB project '{name}' needs approval".format(
         name=project_info["name"]
     )
@@ -172,7 +179,7 @@ def send_edit_notice_to_approvers(project_info, editor_kerberos):
     """Send a message to the approver mailing list notifying that a project has
     been edited.
     """
-    current_time = datetime.now().strftime("%H:%M:%S on %m/%d/%Y")
+    current_time = datetime.now(tz=NYTZ).strftime("%H:%M:%S on %m/%d/%Y")
     subject = "[NOTICE] SIPB project '{name}' has been edited".format(
         name=project_info["name"]
     )
@@ -211,7 +218,7 @@ def send_approve_message(project_info, approver_kerberos, approver_comments):
     """Send a message to the project creator and points of contact indicating
     that the project has been accepted.
     """
-    current_time = datetime.now().strftime("%H:%M:%S on %m/%d/%Y")
+    current_time = datetime.now(tz=NYTZ).strftime("%H:%M:%S on %m/%d/%Y")
     subject = "SIPB project '{name}' has been approved".format(
         name=project_info["name"]
     )
@@ -245,7 +252,7 @@ def send_reject_message(project_info, approver_kerberos, approver_comments):
     """Send a message to the project creator and points of contact indicating
     that the project has been rejected.
     """
-    current_time = datetime.now().strftime("%H:%M:%S on %m/%d/%Y")
+    current_time = datetime.now(tz=NYTZ).strftime("%H:%M:%S on %m/%d/%Y")
     subject = "SIPB project '{name}' has been rejected".format(
         name=project_info["name"]
     )
@@ -281,7 +288,7 @@ def send_confirm_reminder_message(project_info, num_days_left):
     """Send a message to the project contact(s) reminding them to confirm the
     project details.
     """
-    current_time = datetime.now().strftime("%H:%M:%S on %m/%d/%Y")
+    current_time = datetime.now(tz=NYTZ).strftime("%H:%M:%S on %m/%d/%Y")
     subject = "[ACTION NEEDED] SIPB project '{name}' needs to be renewed".format(
         name=project_info["name"]
     )
@@ -320,7 +327,7 @@ def send_deactivation_message(project_info):
     project's status has been set to "inactive" and will no longer appear on
     the list of active projects.
     """
-    current_time = datetime.now().strftime("%H:%M:%S on %m/%d/%Y")
+    current_time = datetime.now(tz=NYTZ).strftime("%H:%M:%S on %m/%d/%Y")
     subject = "[NOTICE] SIPB project '{name}' has been marked as inactive".format(
         name=project_info["name"]
     )
