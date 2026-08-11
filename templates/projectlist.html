@@ -36,6 +36,16 @@
                 {% endif %}
             </p>
 
+            <form method="get" action="">
+                <select name="filter_by">
+                    <option value="approved">All</option>
+                    <option value="active" selected="selected">Active</option>
+                    <option value="contact">Inactive</option>
+                </select>
+                <input type="text" name="search" placeholder="Search for projects...">
+                <button type="submit">Search</button>
+            </form>
+
             {% for project in project_list %}
                 {% include 'projectrow.html' %}
             {% endfor %}

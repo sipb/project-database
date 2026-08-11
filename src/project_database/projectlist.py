@@ -1,4 +1,4 @@
-from . import authutils, db, strutils, templateutils
+from . import authutils, db, embedding, strutils, templateutils
 
 
 def format_project_list(project_list, filter_method, contact_email):
@@ -66,4 +66,9 @@ def view(arguments):
     project_list = db.get_all_project_info(
         filter_method=filter_method, contact_email=contact_email
     )
+
+    search = arguments.get("search")
+    if search is not None:
+        project_list = embedding.sort_projects_by_search(project_list, search)
+
     return format_project_list(project_list, filter_method, contact_email)

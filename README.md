@@ -17,5 +17,4 @@ Run linter: `ruff check`
 
 - Petrock auth
 - Update docs
-- Better CSS
 - Rig up the tests again (and the DB tests)

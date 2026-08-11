@@ -3,13 +3,10 @@
 # https://github.com/sipb/hwops/blob/master/web_scripts/main.py
 # https://github.com/sipb/hwops/blob/master/web_scripts/moira.py
 
-import os
 
 from flask import request
 
 from . import config, db, roster
-
-
 
 
 def get_kerberos():
