@@ -35,7 +35,7 @@ def get_email():
     email : str
         The email for the user.
     """
-    email = os.getenv("SSL_CLIENT_S_DN_Email")
+    email = request.environ.get("SSL_CLIENT_S_DN_Email")
     if (
         (email is None)
         or (not email.lower().endswith("@mit.edu"))
@@ -59,7 +59,7 @@ def get_base_url(do_authenticate):
     url : str
         The base URL.
     """
-    host = os.environ["HTTP_HOST"].split(":")[0]
+    host = request.environ.get("HTTP_HOST").split(":")[0]
     if do_authenticate:
         return f"https://{host}:444"
     else:
@@ -79,7 +79,7 @@ def get_auth_url(do_authenticate):
     url : str
         The authentication URL.
     """
-    return get_base_url(do_authenticate) + os.environ["REQUEST_URI"]
+    return get_base_url(do_authenticate) + request.environ.get("REQUEST_URI")
 
 
 def is_sipb(user):

@@ -1,55 +1,77 @@
-body{
+body {
     height: 100%;
+    width: min(1080px, 95%);
     font-family: Tahoma, Sans, sans-serif;
     color: #000000;
     line-height: 1.5em;
-    background: #c2c0bf;
     padding: 0;
-    margin: 0;
+    margin: auto;
 }
-h2 {
+
+h1 {
+    font-size: 2.5em;
+    text-align: center;
     color: #a31f34;
 }
+
 h3 {
     color: #941C2F
 }
-#content-block{
-    margin: 1em;
-}
+
 #faq-block {
     margin: 2em;
-    margin-right: 6em;  
+    margin-right: 6em;
 }
 
 table {
     border-collapse: collapse;
+    border: 1px solid;
     width: 100%;
+    margin-bottom: 25px;
 }
+
 td {
-    border: 1px solid black;
     padding: 5px;
 }
-tr {
-    background-color: white;
-}
+
 .header {
-    font-weight:  bold;
+    font-weight: bold;
     background-color: #a31f34;
     color: white;
     font-size: 120%;
 }
-.spacer {
-    background-color: #c2c0bf;
-}
+
 textarea {
     font-family: Tahoma, Sans, sans-serif;
 }
+
 input[type="text"] {
     font-family: Tahoma, Sans, sans-serif;
 }
-ul, li, dl, dt, dd {
+
+ul,
+li,
+dl,
+dt,
+dd {
     margin-top: 0;
     padding-top: 0;
     margin-bottom: 0;
     padding-bottom: 0;
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #222222;
+        color: #dddddd;
+    }
+
+    a:link {
+        color: skyblue;
+    }
+
+    a:visited {
+        color: pink;
+    }
 }

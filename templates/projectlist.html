@@ -7,7 +7,7 @@
     </head>
     <body>
         <div id="content-block">
-            <h2>{{ title }}</h2>
+            <h1>{{ title }}</h1>
 
             {% include 'navigationlinks.html' %}
             <a id="top"></a>
@@ -36,13 +36,9 @@
                 {% endif %}
             </p>
 
-            <table border="1">
-            {% include 'projectheader.html' %}
             {% for project in project_list %}
                 {% include 'projectrow.html' %}
-                <tr class="spacer"><td colspan="3"></td></tr>
             {% endfor %}
-            </table>
             <a href="#top">Back to top</a>
         </div>
     </body>
