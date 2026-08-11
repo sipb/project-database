@@ -1,8 +1,12 @@
-web_scripts/creds.py
-*.pyc
-__pycache__
-documentation/*.png
-documentation/*.pdf
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
 
-env/
-venv*/
+# Virtual environments
+.venv
+
+main.db
