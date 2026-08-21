@@ -14,7 +14,6 @@ from . import (
     projecthistory,
     projectjson,
     projectlist,
-    sendreminders,
     templateutils,
 )
 

@@ -7,25 +7,13 @@ on:
 
 jobs:
   build-and-push:
-    runs-on: krun
+    runs-on: ubuntu
     steps:
       - name: Checkout
         uses: https://github.com/actions/checkout@v7
 
-      - name: Build image
-        id: build
-        uses: https://github.com/redhat-actions/buildah-build@v3
+      - name: Build and deploy
+        uses: https://forgejo.mit.edu/SIPB/hyades-action@main
         with:
-          image: ${{ github.repository }}
-          tags: latest
-          containerfiles: ./Dockerfile
-          extra-args: --network=host
-
-      - name: Push to Forgejo registry
-        uses: https://github.com/redhat-actions/push-to-registry@v3
-        with:
-          image: ${{ steps.build.outputs.image }}
-          tags: ${{ steps.build.outputs.tags }}
-          registry: forgejo.mit.edu
-          username: ${{ github.actor }}
-          password: ${{ secrets.PACKAGE_TOKEN }}
+          package_token: ${{ secrets.PACKAGE_TOKEN }}
+          update_token: ${{ secrets.UPDATE_TOKEN }}
