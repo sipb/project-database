@@ -45,10 +45,10 @@ def make_history_entry(x, author_kerberos, action, revision_id):
         The history row object.
     """
     x_history = CLASS_TO_HISTORY_CLASS_MAP[type(x)]()
-    for key in x.__table__.columns.keys():  # noqa: SIM118
+    for column in x.__table__.columns:
         # Skip 'id' to allow auto-increment:
-        if key != "id":
-            setattr(x_history, key, getattr(x, key))
+        if column.name != "id":
+            setattr(x_history, column.name, getattr(x, column.name))
 
     # Handle edge case of project creation, where project_id is not available
     # in x:
@@ -123,9 +123,11 @@ def db_update_record(current_x, new_x, author_kerberos, revision_id):
         The revision ID to associate with the action.
     """
     changed = False
-    for field in current_x.__table__.columns.keys():  # noqa: SIM118
-        if (field != "id") and (getattr(current_x, field) != getattr(new_x, field)):
-            setattr(current_x, field, getattr(new_x, field))
+    for column in current_x.__table__.columns:
+        if (column.name != "id") and (
+            getattr(current_x, column.name) != getattr(new_x, column.name)
+        ):
+            setattr(current_x, column.name, getattr(new_x, column.name))
             changed = True
 
     action = "update" if changed else "same"
@@ -739,9 +741,13 @@ def form_row(model, project_id, entry):
     """
     result = model()
     result.project_id = int(project_id)
-    for key in result.__table__.columns.keys():  # noqa: SIM118
-        if (key != "id") and (key != "project_id") and (key in entry):
-            setattr(result, key, entry[key])
+    for column in result.__table__.columns:
+        if (
+            (column.name != "id")
+            and (column.name != "project_id")
+            and (column.name in entry)
+        ):
+            setattr(result, column.name, entry[column.name])
     return result
 
 
