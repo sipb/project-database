@@ -15,7 +15,7 @@ h1 {
 }
 
 h3 {
-    color: #941C2F
+    color: #941c2f;
 }
 
 #faq-block {
@@ -43,6 +43,50 @@ td {
 
 textarea {
     font-family: Tahoma, Sans, sans-serif;
+}
+
+.navigation {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    flex-wrap: wrap;
+    margin: 1em 0;
+}
+
+.navigation form {
+    margin: 0;
+}
+
+.navigation button {
+    border: 1px solid #941c2f;
+    border-radius: 4px;
+    background-color: #a31f34;
+    color: #ffffff;
+    cursor: pointer;
+    font: inherit;
+    line-height: 1.2;
+    padding: 0.45em 0.8em;
+}
+
+.navigation button:hover {
+    background-color: #941c2f;
+}
+
+.navigation button:focus-visible {
+    outline: 3px solid #e7a33e;
+    outline-offset: 2px;
+}
+
+@media (max-width: 600px) {
+    .navigation {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .navigation form,
+    .navigation button {
+        width: 100%;
+    }
 }
 
 input[type="text"] {

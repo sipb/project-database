@@ -1,15 +1,21 @@
-<p>
+<nav class="navigation" aria-label="Primary navigation">
     {% if not user %}
-        <a href="{{ authlink }}">Sign In</a>
+    <a href="{{ authlink }}">Sign In</a>
     {% else %}
-        Signed in as {{ user }} (<a href="{{ deauthlink }}">sign out</a>)
+    <span>Signed in as {{ user }}</span>
+    <form action="{{ deauthlink }}" method="get">
+        <button type="submit">Sign out</button>
+    </form>
     {% endif %}
-    |
-    <a href="projectlist.py">Project List</a>
+    <form action="projectlist.py" method="get">
+        <button type="submit">Project List</button>
+    </form>
     {% if can_add %}
-        |
-        <a href="addproject.py">Add Project</a>
+    <form action="addproject.py" method="get">
+        <button type="submit">Add Project</button>
+    </form>
     {% endif %}
-    | 
-    <a href="faq.py">FAQ</a>
-</p>
+    <form action="faq.py" method="get">
+        <button type="submit">FAQ</button>
+    </form>
+</nav>
