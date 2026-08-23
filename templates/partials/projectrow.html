@@ -1,0 +1,109 @@
+<table>
+    <tr class="header">
+        <td colspan="2">
+            {{ project.name }}
+        </td>
+    </tr>
+    <tr>
+        <td {% if not project.can_edit and not project.can_approve %}colspan="2"{% endif %}>
+            <b>Status:</b> {{ project.status }}
+            {% if project.approval == 'awaiting_approval' %}
+                (awaiting approval)
+            {% elif project.approval == 'rejected' %}
+                (rejected)
+            {% endif %}
+        </td>
+        {% if project.can_edit or project.can_approve %}
+            <td>
+                <b>Actions:</b>
+                <a href="projecthistory?project_id={{ project.project_id }}">view history</a>
+                {% if project.can_edit %}
+                    <a href="editproject?project_id={{ project.project_id }}">edit</a>
+                {% endif %}
+                {% if project.can_approve %}
+                    <a href="approveproject?project_id={{ project.project_id }}">review</a>
+                {% endif %}
+            </td>
+        {% endif %}
+    </tr>
+    <tr>
+        <td colspan="2">
+            <b>Description:</b>
+            {{ project.description }}
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <b>Link(s):</b>
+            <ul>
+                {% for link in project.links %}
+                    <li>
+                        {% if link.anchortext %}
+                            <a href="{{ link.link }}">{{ link.anchortext }}</a>
+                        {% else %}
+                            <a href="{{ link.link }}">{{ link.link }}</a>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <b>Communications Channel(s):</b>
+            <ul>
+                {% for channel in project.comm_channels %}
+                    <li>
+                        {% if user %}
+                            {{ channel.commchannel|urlize }}
+                        {% else %}
+                            {{ channel.commchannel|obfuscate_email }}
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <b>Role(s):</b>
+            <dl>
+                {% for role in project.roles %}
+                    <dt>{{ role.role }}</dt>
+                    <dd>
+                        <i>Description:</i> {{ role.description }}
+                    </dd>
+                    <dd>
+                        {% if role.prereq == None %}
+                            <i>Prereqs:</i> none
+                        {% else %}
+                            <i>Prereqs:</i> {{ role.prereq }}
+                        {% endif %}
+                    </dd>
+                {% endfor %}
+            </dl>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <b>Contact(s):</b>
+            <ul>
+                {% for contact in project.contacts %}
+                    <li>
+                        {% if user %}
+                            {{ contact.email|urlize }}
+                        {% else %}
+                            {{ contact.email|obfuscate_email }}
+                        {% endif %}
+                        ({{ contact.type }})
+                    </li>
+                {% endfor %}
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            Last revised by {{ project.revision_info.editor }} at {{ project.revision_info.timestamp }}
+        </td>
+    </tr>
+</table>

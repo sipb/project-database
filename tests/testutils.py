@@ -7,14 +7,12 @@ import os
 
 os.environ["PROJECTS_DATABASE_MODE"] = "test"
 
-# Ensure that we are actually in test mode:
-from project_database import creds
-
-assert creds.mode == "test"
-
 import unittest
 
-from project_database import db, schema
+from project_database.models import db, schema
+
+# Ensure that we are actually in test mode (i.e. not pointed at the real DB):
+assert schema.MODE == "test"
 
 
 def restore_env(key, value):
@@ -65,7 +63,7 @@ class DatabaseWiper:
 
     def drop_test_projects(self):
         """Empty all of the tables in the database."""
-        assert creds.mode == "test"
+        assert schema.MODE == "test"
 
         # NOTE: this is done with .delete() rather than drop_all() because the
         # latter was found to be unacceptably slow. This method will need to be

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Failure</title>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" type="text/css" href="templates/assets/style.css" />
+    </head>
+    <body>
+        <div id="content-block">
+            <h2>SIPB Project Database -- Add Project Failed</h2>
+
+            <p>The attempt to add your project failed with the following issues:</p>
+            {{ status|safe }}
+            <p>Please fix these issues and try again.</p>
+        </div>
+    </body>
+</html>

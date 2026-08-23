@@ -1,0 +1,18 @@
+<!doctype html>
+
+<html lang="en">
+    <head>
+        <title>AUTH DEBUG | SIPB ProjectDB</title>
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" type="text/css" href="templates/assets/style.css" />
+    </head>
+    <body>
+        Only used for debugging with a fake user during development. This page should only be accessible when `app.run(debug=True)`
+
+        <form action="authdebug" method="post">
+            <label for="debugemail">(Debug) Email: </label>
+            <input type="text" id="debugemail" name="debugemail" required />
+            <input type="submit" value="Login" />
+        </form>
+    </body>
+</html>

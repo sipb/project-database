@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Add Project</title>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" type="text/css" href="templates/assets/style.css" />
+        <script type="text/javascript" src="templates/assets/roles.js"></script>
+        <script type="text/javascript" src="templates/assets/links.js"></script>
+    </head>
+    {% if user and can_add %}
+        <body onload="add_role(); add_link();">
+    {% else %}
+        <body>
+    {% endif %}
+        <div id="content-block">
+            <h2>SIPB Project Database -- Add Project</h2>
+
+            {% include 'layout/navigationlinks.html' %}
+
+            {% if not user %}
+                <p><a href="{{ authlink }}">Sign in to create a project.</a></p>
+            {% elif not can_add %}
+                <p>You do not have access to create new projects. Please contact {{ help_address }} for help.</p>
+            {% else %}
+                <form action="performaddproject" method="POST">
+                    {% include 'partials/projectform.html' %}
+                </form>
+            {% endif %}
+            </div>
+    </body>
+</html>

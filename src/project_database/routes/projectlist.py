@@ -1,0 +1,77 @@
+<<<<<<< HEAD:src/project_database/projectlist.py
+from . import authutils, db, strutils, templateutils
+||||||| parent of 1f1f2ac (Reorganize file structure):src/project_database/projectlist.py
+from . import authutils, db, embedding, strutils, templateutils
+=======
+from ..models import db
+from ..services import embedding
+from ..utils import authutils, strutils, templateutils
+>>>>>>> 1f1f2ac (Reorganize file structure):src/project_database/routes/projectlist.py
+
+
+def format_project_list(project_list, filter_method, contact_email):
+    """Format a list of projects into an HTML page.
+
+    Parameters
+    ----------
+    project_list : list of dict
+        The projects to list.
+
+    Returns
+    -------
+    result : str
+        The HTML to display.
+    """
+    jenv = templateutils.get_jenv()
+    user = authutils.get_kerberos()
+    user_email = authutils.get_email()
+    project_list = authutils.enrich_project_list_with_permissions(user, project_list)
+    project_list = strutils.decode_utf_nested_dict_list(project_list)
+    authlink = authutils.get_auth_url(True)
+    deauthlink = authutils.get_auth_url(False)
+    can_add = authutils.can_add(user)
+    can_approve = authutils.can_approve(user)
+
+    if filter_method == "approved":
+        title = "SIPB Project List"
+    elif filter_method == "active":
+        title = "SIPB Active Project List"
+    elif filter_method == "inactive":
+        title = "SIPB Inactive Project List"
+    elif filter_method == "contact":
+        title = f"SIPB Projects for Which {contact_email} Is a Contact"
+    elif filter_method == "awaiting_approval":
+        title = "SIPB Projects Awaiting Approval"
+    else:
+        raise ValueError("Unknown filter method!")
+
+    result = (
+        jenv.get_template("pages/projectlist.html")
+        .render(
+            project_list=project_list,
+            user=user,
+            user_email=user_email,
+            authlink=authlink,
+            deauthlink=deauthlink,
+            can_add=can_add,
+            title=title,
+            can_approve=can_approve,
+        )
+        .encode("utf-8")
+    )
+    return result
+
+
+def view(arguments):
+    """Display the info for all projects."""
+    filter_method = arguments.get("filter_by", "active")
+
+    if filter_method == "contact":
+        contact_email = arguments.get("email", "")
+    else:
+        contact_email = None
+
+    project_list = db.get_all_project_info(
+        filter_method=filter_method, contact_email=contact_email
+    )
+    return format_project_list(project_list, filter_method, contact_email)

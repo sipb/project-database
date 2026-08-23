@@ -1,13 +1,13 @@
 # testutils MUST be imported first to set up test configuration and module
 # paths properly!
-# TODO fix that
 import os
 import unittest
 
-import config
-import db
 import testutils
-import valutils
+
+from project_database import config
+from project_database.models import db
+from project_database.utils import valutils
 
 
 class Test_all_unique(unittest.TestCase):

@@ -1,9 +1,11 @@
-from flask import Flask, Response, request, send_from_directory, abort, redirect
+import os
 
-# to do, make a better file structure
-from . import (
+from flask import Flask, Response, abort, redirect, request, send_from_directory
+
+from .routes import (
     addproject,
     approveproject,
+    authdebug,
     confirmproject,
     editproject,
     faq,
@@ -18,8 +20,8 @@ from . import (
     templateutils,
     authdebug
 )
-
-import os
+from .services import sendreminders as sendreminders
+from .utils import templateutils
 
 app = Flask(__name__)
 
@@ -39,67 +41,67 @@ def route_static_templates(filename):
     return send_from_directory(templateutils.TEMPLATES_DIR, filename)
 
 
-@app.route("/addproject.py")
+@app.route("/addproject")
 def route_addproject():
     return Response(addproject.view(), mimetype="text/html")
 
 
-@app.route("/approveproject.py")
+@app.route("/approveproject")
 def route_approveproject():
     return Response(approveproject.view(request.values), mimetype="text/html")
 
 
-@app.route("/confirmproject.py")
+@app.route("/confirmproject")
 def route_confirmproject():
     return Response(confirmproject.view(request.values), mimetype="text/html")
 
 
-@app.route("/editproject.py")
+@app.route("/editproject")
 def route_editproject():
     return Response(editproject.view(request.values), mimetype="text/html")
 
 
-@app.route("/faq.py")
+@app.route("/faq")
 def route_faq():
     return Response(faq.view(), mimetype="text/html")
 
 
-@app.route("/performaddproject.py", methods=["POST"])
+@app.route("/performaddproject", methods=["POST"])
 def route_performaddproject():
     return Response(performaddproject.view(request.values), mimetype="text/html")
 
 
-@app.route("/performapproveproject.py", methods=["POST"])
+@app.route("/performapproveproject", methods=["POST"])
 def route_performapproveproject():
     return Response(performapproveproject.view(request.values), mimetype="text/html")
 
 
-@app.route("/performconfirmproject.py", methods=["POST"])
+@app.route("/performconfirmproject", methods=["POST"])
 def route_performconfirmproject():
     return Response(performconfirmproject.view(request.values), mimetype="text/html")
 
 
-@app.route("/performeditproject.py", methods=["POST"])
+@app.route("/performeditproject", methods=["POST"])
 def route_performeditproject():
     return Response(performeditproject.view(request.values), mimetype="text/html")
 
 
-@app.route("/performrollback.py")
+@app.route("/performrollback")
 def route_performrollback():
     return Response(performrollback.view(request.values), mimetype="text/html")
 
 
-@app.route("/projecthistory.py")
+@app.route("/projecthistory")
 def route_projecthistory():
     return Response(projecthistory.view(request.values), mimetype="text/html")
 
 
-@app.route("/projectjson.py")
+@app.route("/projectjson")
 def route_projectjson():
     return Response(projectjson.view(), mimetype="application/json")
 
 
-@app.route("/projectlist.py")
+@app.route("/projectlist")
 def route_projectlist():
     print(request.values)
     return Response(projectlist.view(request.values), mimetype="text/html")
@@ -109,7 +111,7 @@ def route_projectlist():
 def route_index():
     return route_projectlist()
 
-@app.route("/authdebug.py", methods=["GET", "POST"])
+@app.route("/authdebug", methods=["GET", "POST"])
 def route_authdebug():
     if not app.debug:
         abort(404)
@@ -119,12 +121,12 @@ def route_authdebug():
         email = (request.form.get("debugemail") or "").strip().lower()
         from flask import session
         session["debug_email"] = email
-        return redirect("/projectlist.py")
+        return redirect("/projectlist")
     
     if action == "logout":
         from flask import session
         session.pop("debug_email", None)
-        return redirect("/projectlist.py")
+        return redirect("/projectlist")
     
     return Response(authdebug.view(), mimetype="text/html")
 
