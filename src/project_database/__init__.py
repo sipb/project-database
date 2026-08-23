@@ -1,5 +1,6 @@
-from flask import Flask, Response, redirect, request, send_from_directory
+from flask import Flask, Response, request, send_from_directory, abort, redirect
 
+# to do, make a better file structure
 from . import (
     addproject,
     approveproject,
@@ -15,10 +16,23 @@ from . import (
     projectjson,
     projectlist,
     templateutils,
+    authdebug
 )
+
+import os
 
 app = Flask(__name__)
 
+debug = os.environ.get("FLASK_DEBUG", "1") == "1"
+app.config["DEBUG"] = debug
+print("DEBUG =", debug)
+
+app.config["SECRET_KEY"] = os.environ.get("FLASK_SECRET_KEY")
+if app.config["SECRET_KEY"] is None:
+    if debug:
+        app.config["SECRET_KEY"] = "dev-only-9KyhcON59Gl9HsoEC6"
+    else:
+        raise RuntimeError("FLASK_SECRET_KEY must be set when debug is off.")
 
 @app.route("/templates/<path:filename>")
 def route_static_templates(filename):
@@ -87,12 +101,32 @@ def route_projectjson():
 
 @app.route("/projectlist.py")
 def route_projectlist():
+    print(request.values)
     return Response(projectlist.view(request.values), mimetype="text/html")
 
 
 @app.route("/")
 def route_index():
     return route_projectlist()
+
+@app.route("/authdebug.py", methods=["GET", "POST"])
+def route_authdebug():
+    if not app.debug:
+        abort(404)
+    
+    action = request.values.get("action", "login")
+    if request.method == "POST":
+        email = (request.form.get("debugemail") or "").strip().lower()
+        from flask import session
+        session["debug_email"] = email
+        return redirect("/projectlist.py")
+    
+    if action == "logout":
+        from flask import session
+        session.pop("debug_email", None)
+        return redirect("/projectlist.py")
+    
+    return Response(authdebug.view(), mimetype="text/html")
 
 
 @app.route("/hlogin")
@@ -108,4 +142,4 @@ def route_logout():
 def main():
     """Run the dev server"""
     # TODO: Run sendreminders every hour
-    app.run(debug=True)
+    app.run(debug=debug)

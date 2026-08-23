@@ -3,7 +3,8 @@
 # https://github.com/sipb/hwops/blob/master/web_scripts/main.py
 # https://github.com/sipb/hwops/blob/master/web_scripts/moira.py
 
-from flask import request
+
+from flask import request, current_app, session
 
 from . import config, db, roster
 
@@ -31,7 +32,11 @@ def get_email():
     email : str
         The email for the user.
     """
-    email = request.headers.get("X-Forwarded-Email")
+    email = request.environ.get("SSL_CLIENT_S_DN_Email")
+
+    if current_app.debug and not email:
+        email = session.get("debug_email")
+    
     if (
         (email is None)
         or (not email.lower().endswith("@mit.edu"))
@@ -43,7 +48,7 @@ def get_email():
 
 
 def get_auth_url(do_authenticate):
-    """Get the authentication URL.
+    """Get the authentication URL. If debug is enabled, then will get debug auth.
 
     Parameters
     ----------
@@ -55,8 +60,11 @@ def get_auth_url(do_authenticate):
     url : str
         The authentication URL.
     """
+    if current_app.debug:
+            base = request.host_url.rstrip("/")
+            return f"{base}/authdebug.py"
+    
     return "/hlogin" if do_authenticate else "/hlogout"
-
 
 def is_sipb(user):
     if user:

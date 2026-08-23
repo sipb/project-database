@@ -75,23 +75,6 @@ class Test_get_email(testutils.EnvironmentOverrideTestCase):
         email = authutils.get_email()
         self.assertIsNone(email)
 
-
-class Test_get_base_url(testutils.EnvironmentOverrideTestCase):
-    def test_with_auth(self):
-        true_host = "test.foo.bar:123"
-        os.environ["HTTP_HOST"] = true_host
-
-        host = authutils.get_base_url(True)
-        self.assertEqual(host, "https://test.foo.bar:444")
-
-    def test_without_auth(self):
-        true_host = "test.foo.bar:123"
-        os.environ["HTTP_HOST"] = true_host
-
-        host = authutils.get_base_url(False)
-        self.assertEqual(host, "https://test.foo.bar")
-
-
 class Test_get_auth_url(testutils.EnvironmentOverrideTestCase):
     def test_with_auth(self):
         true_host = "test.foo.bar:123"

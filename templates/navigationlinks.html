@@ -4,6 +4,7 @@
     {% else %}
     <span>Signed in as {{ user }}</span>
     <form action="{{ deauthlink }}" method="get">
+        <input hidden name="action" value="logout" />
         <button type="submit">Sign out</button>
     </form>
     {% endif %}
