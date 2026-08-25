@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>Respond to New Member</title>
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" type="text/css" href="templates/assets/style.css" />
+    </head>
+    <body>
+        <div id="content-block">
+            <h2>SIPB Project Database - Respond to New Member</h2>
+
+            {% include 'layout/navigationlinks.html' %} {% if not user %}
+            <p><a href="{{ authlink }}">Sign in to respond to new member form submissions.</a></p>
+            {% elif not is_valid %}
+            <p>Invalid request:</p>
+            {{ validation_status|safe }} {% elif not can_approve %}
+            <p>You do not have access to respond to new member form submissions. Please contact {{ help_address }} for help.</p>
+            {% else %}
+            <h3>New member submission</h3>
+            <table border="1">
+                <tr>
+                    <td><b>Email</b></td>
+                    <td>{{ submission.email|obfuscate_email }}</td>
+                </tr>
+                <tr>
+                    <td><b>Interests</b></td>
+                    <td>{{ submission.interests }} {% if submission.interests_other %}<br />Other: {{ submission.interests_other }}{% endif %}</td>
+                </tr>
+                <tr>
+                    <td><b>Experience level</b></td>
+                    <td>{{ submission.experience_level }}</td>
+                </tr>
+                <tr>
+                    <td><b>Background</b></td>
+                    <td>{{ submission.experience_details or "(none provided)" }}</td>
+                </tr>
+                <tr>
+                    <td><b>Additional comments</b></td>
+                    <td>{{ submission.comments or "(none provided)" }}</td>
+                </tr>
+                <tr>
+                    <td><b>Submitted</b></td>
+                    <td>{{ submission.submitted_at }}</td>
+                </tr>
+            </table>
+
+            {% if submission.status == 'reviewed' %}
+            <p>
+                This submission was already reviewed by {{ submission.reviewer }} at {{ submission.reviewed_at }}. Submitting the form below will overwrite the
+                previous response and re-send the email to the new member.
+            </p>
+            {% endif %}
+
+            <p>
+                <b>Instructions:</b> select projects you'd like to suggest to this member, and leave a personalized note. This will be emailed directly to them,
+                and a copy will be sent to the contacts of each selected project.
+            </p>
+
+            <form action="performrespondnewmember" method="POST">
+                <input type="hidden" name="submission_id" value="{{ submission.submission_id }}" />
+                <p>
+                    <label><b>Suggested project(s):</b></label>
+                </p>
+                <ul>
+                    {% for project in all_projects %}
+                    <li>
+                        <input
+                            type="checkbox"
+                            id="project_{{ project.project_id }}"
+                            name="suggested_projects"
+                            value="{{ project.project_id }}"
+                            {%
+                            if
+                            project.project_id
+                            in
+                            suggested_ids
+                            %}checked{%
+                            endif
+                            %}
+                        />
+                        <label for="project_{{ project.project_id }}">{{ project.name }}</label>
+                    </li>
+                    {% else %}
+                    <li>There are currently no approved projects to suggest.</li>
+                    {% endfor %}
+                </ul>
+                <p>
+                    <label for="reviewer_notes"><b>Personalized note</b> (will be emailed to the new member):</label><br />
+                    <textarea id="reviewer_notes" name="reviewer_notes" rows="8" cols="80">{{ submission.reviewer_notes or "" }}</textarea>
+                </p>
+                <p>
+                    <input type="submit" value="Send Suggestions" />
+                </p>
+            </form>
+            {% endif %}
+        </div>
+    </body>
+</html>

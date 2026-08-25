@@ -239,6 +239,64 @@ class CommChannelsHistory(SQLBase, CommChannelsBase, HistoryMixin):
     __tablename__ = "commchannelshistory"
 
 
+class NewMemberSubmissions(SQLBase):
+    # This table intentionally does NOT use the HistoryMixin pattern used by
+    # Projects, etc. This is a single-pass review workflow (a new member
+    # submits once, an approver reviews/responds once), not an iteratively
+    # edited record that needs rollback support.
+    __tablename__ = "newmembersubmissions"
+
+    submission_id = db.Column(
+        db.Integer(), nullable=False, primary_key=True, autoincrement=True
+    )
+    # Kerb of the new member who submitted the form:
+    kerberos = db.Column(db.String(50), nullable=False)
+    email = db.Column(db.String(50), nullable=False)
+    # Comma-separated list of selected interest tags (see
+    # config.NEW_MEMBER_INTEREST_OPTIONS):
+    interests = db.Column(db.Text(), nullable=False)
+    interests_other = db.Column(db.Text(), nullable=True)
+    # experience_level can be one of config.NEW_MEMBER_EXPERIENCE_LEVELS:
+    experience_level = db.Column(db.String(25), nullable=False)
+    experience_details = db.Column(db.Text(), nullable=True)
+    comments = db.Column(db.Text(), nullable=True)
+    # status can be "pending" or "reviewed":
+    status = db.Column(db.String(25), nullable=False, default="pending")
+    submitted_at = db.Column(db.TIMESTAMP, nullable=False, server_default=db.func.now())
+    # Kerb of the approver who reviewed the submission:
+    reviewer = db.Column(db.String(50), nullable=True)
+    reviewer_notes = db.Column(db.Text(), nullable=True)
+    reviewed_at = db.Column(db.TIMESTAMP, nullable=True)
+
+    @sqlalchemy.orm.validates("status")
+    def validate_status(self, key, status):
+        if status not in ["pending", "reviewed"]:
+            raise ValueError(f'Value of "{status}" for key "status" is invalid!')
+        return status
+
+    @sqlalchemy.orm.validates("kerberos", "email", "reviewer")
+    def validate_length(self, key, value):
+        if (value is not None) and (
+            len(value) > self.__table__.columns[key].type.length
+        ):
+            raise ValueError(f'Value of "{value}" for key "{key}" is too long!')
+        return value
+
+
+class NewMemberSuggestedProjects(SQLBase):
+    __tablename__ = "newmembersuggestedprojects"
+
+    id = db.Column(db.Integer(), nullable=False, primary_key=True, autoincrement=True)
+    submission_id = db.Column(
+        db.Integer(),
+        db.ForeignKey("newmembersubmissions.submission_id"),
+        nullable=False,
+    )
+    project_id = db.Column(
+        db.Integer(), db.ForeignKey("projects.project_id"), nullable=False
+    )
+
+
 # Implement schema
 SQLBase.metadata.create_all(sqlengine)
 

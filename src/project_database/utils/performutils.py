@@ -222,6 +222,42 @@ def format_failure_page(status, operation):
     return result
 
 
+def format_generic_success_page(heading, message):
+    """Format a generic success page (i.e. one which is not tied to a
+    specific project) with the given heading and message.
+
+    Parameters
+    ----------
+    heading : str
+        The heading to display.
+    message : str
+        The message to display.
+
+    Returns
+    -------
+    result : str
+        The HTML to display.
+    """
+    user = authutils.get_kerberos()
+    jenv = templateutils.get_jenv()
+    authlink = authutils.get_auth_url(True)
+    deauthlink = authutils.get_auth_url(False)
+    can_add = authutils.can_add(user)
+    result = (
+        jenv.get_template("results/newmemberformsuccess.html")
+        .render(
+            heading=heading,
+            message=message,
+            user=user,
+            authlink=authlink,
+            deauthlink=deauthlink,
+            can_add=can_add,
+        )
+        .encode("utf-8")
+    )
+    return result
+
+
 def edit_confirm_main(task, arguments):
     project_info = formutils.args_to_dict(arguments)
     project_id = arguments.get("project_id", "")

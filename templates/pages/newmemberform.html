@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>New Member Form</title>
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" type="text/css" href="templates/assets/style.css" />
+    </head>
+    <body>
+        <div id="content-block">
+            <h2>SIPB Project Database - New Member Form</h2>
+
+            {% include 'layout/navigationlinks.html' %}
+
+            <p>Welcome! Filling out this form is a great way to get matched with a project that fits your interests.</p>
+
+            {% if not user %}
+            <p><a href="{{ authlink }}">Sign in to fill out the new member form.</a></p>
+            {% else %}
+            <form action="performnewmemberform" method="POST">
+                <p>
+                    <label><b>What areas are you interested in?</b></label> (select all that apply)
+                </p>
+                <ul>
+                    {% for interest in interest_options %}
+                    <li>
+                        <input type="checkbox" id="interest_{{ loop.index }}" name="interests" value="{{ interest }}" />
+                        <label for="interest_{{ loop.index }}">{{ interest }}</label>
+                    </li>
+                    {% endfor %}
+                </ul>
+                <p>
+                    <label for="interests_other"><b>Other interests</b> (not listed above):</label><br />
+                    <input type="text" id="interests_other" name="interests_other" size="80" />
+                </p>
+                <p>
+                    <label><b>How would you describe your current technical experience level?</b></label
+                    ><br />
+                    <input type="radio" id="experience_none" name="experience_level" value="none" checked />
+                    <label for="experience_none">Little to none - I'm new to this</label><br />
+                    <input type="radio" id="experience_some" name="experience_level" value="some" />
+                    <label for="experience_some">Some - I've done some coursework or personal projects</label><br />
+                    <input type="radio" id="experience_experienced" name="experience_level" value="experienced" />
+                    <label for="experience_experienced">Experienced - I've worked on real-world projects before</label>
+                </p>
+                <p>
+                    <label for="experience_details"
+                        ><b>Tell us more about your background</b> (languages, tools, coursework, past projects, etc.; optional):</label
+                    ><br />
+                    <textarea id="experience_details" name="experience_details" rows="6" cols="80"></textarea>
+                </p>
+                <p>
+                    <label for="comments"><b>Anything else you'd like us to know?</b> (optional):</label><br />
+                    <textarea id="comments" name="comments" rows="6" cols="80"></textarea>
+                </p>
+                <p>
+                    <input type="submit" value="Submit" />
+                </p>
+            </form>
+            {% endif %}
+        </div>
+    </body>
+</html>

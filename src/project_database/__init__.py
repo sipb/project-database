@@ -9,16 +9,21 @@ from .routes import (
     confirmproject,
     editproject,
     faq,
+    newmemberform,
+    newmemberreview,
     performaddproject,
     performapproveproject,
     performconfirmproject,
     performeditproject,
+    performnewmemberform,
+    performrespondnewmember,
     performrollback,
     projecthistory,
     projectjson,
     projectlist,
     templateutils,
-    authdebug
+    authdebug,
+    respondnewmember,
 )
 from .services import sendreminders as sendreminders
 from .utils import templateutils
@@ -64,6 +69,33 @@ def route_editproject():
 @app.route("/faq")
 def route_faq():
     return Response(faq.view(), mimetype="text/html")
+
+
+@app.route("/newmemberform")
+def route_newmemberform():
+    return Response(newmemberform.view(), mimetype="text/html")
+
+
+@app.route("/performnewmemberform", methods=["POST"])
+def route_performnewmemberform():
+    return Response(performnewmemberform.view(request.values), mimetype="text/html")
+
+
+@app.route("/newmemberreview")
+def route_newmemberreview():
+    return Response(newmemberreview.view(), mimetype="text/html")
+
+
+@app.route("/respondnewmember")
+def route_respondnewmember():
+    return Response(respondnewmember.view(request.values), mimetype="text/html")
+
+
+@app.route("/performrespondnewmember", methods=["POST"])
+def route_performrespondnewmember():
+    return Response(
+        performrespondnewmember.view(request.values), mimetype="text/html"
+    )
 
 
 @app.route("/performaddproject", methods=["POST"])

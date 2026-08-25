@@ -16,6 +16,14 @@
         <button type="submit">Add Project</button>
     </form>
     {% endif %}
+    <form action="newmemberform" method="get">
+        <button type="submit">New Member Form</button>
+    </form>
+    {% if can_approve %}
+    <form action="newmemberreview" method="get">
+        <button type="submit">Review New Members</button>
+    </form>
+    {% endif %}
     <form action="faq" method="get">
         <button type="submit">FAQ</button>
     </form>

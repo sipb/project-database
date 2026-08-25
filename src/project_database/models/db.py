@@ -10,6 +10,8 @@ from .schema import (
     ContactEmailsHistory,
     Links,
     LinksHistory,
+    NewMemberSubmissions,
+    NewMemberSuggestedProjects,
     Projects,
     ProjectsHistory,
     Roles,
@@ -1493,6 +1495,173 @@ def rollback_project(project_id, revision_id, editor_kerberos):
         project_info, project_id, editor_kerberos, rollback_revision_id
     )
     session.commit()
+
+
+# New Member Form Operations
+
+
+def add_new_member_submission(submission_info, kerberos):
+    """Add a new member form submission to the database and commit the
+    change.
+
+    Parameters
+    ----------
+    submission_info : dict
+        The submission info extracted from the form. Shall have keys
+        'email', 'interests' (list of str), 'interests_other',
+        'experience_level', 'experience_details', and 'comments'.
+    kerberos : str
+        The kerberos of the new member who submitted the form.
+
+    Returns
+    -------
+    submission_id : int
+        The ID of the newly-created submission.
+    """
+    submission = NewMemberSubmissions()
+    submission.kerberos = kerberos
+    submission.email = submission_info["email"]
+    submission.interests = ", ".join(submission_info["interests"])
+    submission.interests_other = submission_info.get("interests_other") or None
+    submission.experience_level = submission_info["experience_level"]
+    submission.experience_details = submission_info.get("experience_details") or None
+    submission.comments = submission_info.get("comments") or None
+    submission.status = "pending"
+    session.add(submission)
+    try:
+        session.commit()
+    except Exception:
+        session.rollback()
+        raise
+
+    return submission.submission_id
+
+
+def get_suggested_projects_for_submission(submission_id):
+    """Get the projects suggested for a given new member form submission.
+
+    Parameters
+    ----------
+    submission_id : int or str
+        The submission ID to fetch suggestions for.
+
+    Returns
+    -------
+    suggested_projects : list of dict
+        The suggested projects, each with (at least) 'project_id' and 'name'
+        keys.
+    """
+    results = (
+        session.query(Projects)
+        .join(
+            NewMemberSuggestedProjects,
+            Projects.project_id == NewMemberSuggestedProjects.project_id,
+        )
+        .filter(NewMemberSuggestedProjects.submission_id == int(submission_id))
+        .order_by(Projects.name)
+        .all()
+    )
+    return list_dict_convert(results, True)
+
+
+def get_new_member_submission(submission_id):
+    """Get all info for a given new member form submission, including any
+    suggested projects.
+
+    Parameters
+    ----------
+    submission_id : int or str
+        The submission ID to fetch.
+
+    Returns
+    -------
+    submission_info : dict or None
+        The submission info, or None if no submission with the given ID
+        exists.
+    """
+    submission = (
+        session.query(NewMemberSubmissions)
+        .filter_by(submission_id=int(submission_id))
+        .first()
+    )
+    if submission is None:
+        return None
+
+    submission_info = get_dict(submission).copy()
+    submission_info.pop("_sa_instance_state", None)
+    submission_info["suggested_projects"] = get_suggested_projects_for_submission(
+        submission_id
+    )
+
+    return submission_info
+
+
+def get_all_new_member_submissions():
+    """Get all new member form submissions, newest first.
+
+    Returns
+    -------
+    submissions : list of dict
+        The submission info for each submission (without suggested
+        projects).
+    """
+    submissions = (
+        session.query(NewMemberSubmissions)
+        .order_by(NewMemberSubmissions.submitted_at.desc())
+        .all()
+    )
+    return list_dict_convert(submissions, True)
+
+
+def mark_new_member_submission_reviewed(
+    submission_id, reviewer_kerberos, reviewer_notes, suggested_project_ids
+):
+    """Mark a new member form submission as reviewed, recording the
+    reviewer's notes and suggested projects. Commits the change.
+
+    Parameters
+    ----------
+    submission_id : int or str
+        The submission ID to mark as reviewed.
+    reviewer_kerberos : str
+        The kerb of the approver who reviewed the submission.
+    reviewer_notes : str
+        The reviewer's personalized notes for the new member.
+    suggested_project_ids : list of int
+        The project IDs to suggest to the new member.
+
+    Returns
+    -------
+    submission_info : dict
+        The updated submission info, including the suggested projects.
+    """
+    submission_id = int(submission_id)
+    submission = (
+        session.query(NewMemberSubmissions)
+        .filter_by(submission_id=submission_id)
+        .first()
+    )
+    if submission is None:
+        raise ValueError(f"No new member submission with id {submission_id} exists!")
+
+    submission.status = "reviewed"
+    submission.reviewer = reviewer_kerberos
+    submission.reviewer_notes = reviewer_notes
+    submission.reviewed_at = get_now()
+
+    # Replace any previously-suggested projects with the new set:
+    session.query(NewMemberSuggestedProjects).filter_by(
+        submission_id=submission_id
+    ).delete()
+    for project_id in suggested_project_ids:
+        suggestion = NewMemberSuggestedProjects()
+        suggestion.submission_id = submission_id
+        suggestion.project_id = int(project_id)
+        session.add(suggestion)
+
+    session.commit()
+
+    return get_new_member_submission(submission_id)
 
 
 ######################################################################

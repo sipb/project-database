@@ -153,6 +153,45 @@ def index_dictify_list(str_list, key):
     return [{key: value, "index": index} for index, value in enumerate(str_list)]
 
 
+def new_member_form_to_dict(arguments):
+    """Reformat the arguments from CGI into a new member form submission
+    dict.
+
+    Parameters
+    ----------
+    arguments : werkzeug.datastructures.MultiDict
+        The combined query string and form data from the request.
+
+    Returns
+    -------
+    submission_info : dict
+        The new member form submission info dict.
+    """
+    return {
+        "interests": arguments.getlist("interests"),
+        "interests_other": arguments.get("interests_other", "").strip(),
+        "experience_level": arguments.get("experience_level", ""),
+        "experience_details": arguments.get("experience_details", "").strip(),
+        "comments": arguments.get("comments", "").strip(),
+    }
+
+
+def suggested_project_ids_from_arguments(arguments):
+    """Get the list of suggested project IDs from the arguments from CGI.
+
+    Parameters
+    ----------
+    arguments : werkzeug.datastructures.MultiDict
+        The combined query string and form data from the request.
+
+    Returns
+    -------
+    project_ids : list of int
+        The selected project IDs.
+    """
+    return [int(project_id) for project_id in arguments.getlist("suggested_projects")]
+
+
 def args_to_dict(arguments):
     """Reformat the arguments from CGI into a dict.
 

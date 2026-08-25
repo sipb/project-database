@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>Success</title>
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" type="text/css" href="templates/assets/style.css" />
+    </head>
+    <body>
+        <div id="content-block">
+            <h2>SIPB Project Database -- {{ heading }}</h2>
+
+            {% include 'layout/navigationlinks.html' %}
+
+            {% if message %}
+            <p>{{ message }}</p>
+            {% endif %}
+        </div>
+    </body>
+</html>

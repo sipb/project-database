@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>Review New Members</title>
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" type="text/css" href="templates/assets/style.css" />
+    </head>
+    <body>
+        <div id="content-block">
+            <h2>SIPB Project Database - Review New Members</h2>
+
+            {% include 'layout/navigationlinks.html' %} {% if not user %}
+            <p><a href="{{ authlink }}">Sign in to review new member form submissions.</a></p>
+            {% elif not can_approve %}
+            <p>You do not have access to review new member form submissions. Please contact {{ help_address }} for help.</p>
+            {% else %}
+            <p>Below are all of the new member form submissions, newest first.</p>
+            <table border="1">
+                <tr class="header">
+                    <td>Email</td>
+                    <td>Interests</td>
+                    <td>Experience</td>
+                    <td>Submitted</td>
+                    <td>Status</td>
+                    <td>Actions</td>
+                </tr>
+                {% for submission in submissions %}
+                <tr>
+                    <td>{{ submission.email|obfuscate_email }}</td>
+                    <td>{{ submission.interests }}{% if submission.interests_other %}, {{ submission.interests_other }}{% endif %}</td>
+                    <td>{{ submission.experience_level }}</td>
+                    <td>{{ submission.submitted_at }}</td>
+                    <td>{{ submission.status }} {% if submission.status == 'reviewed' %} (by {{ submission.reviewer }}) {% endif %}</td>
+                    <td>
+                        <a href="respondnewmember?submission_id={{ submission.submission_id }}">
+                            {% if submission.status == 'reviewed' %}view / edit response{% else %}respond{% endif %}
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6">No new member form submissions yet.</td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% endif %}
+        </div>
+    </body>
+</html>

@@ -14,6 +14,7 @@ APPROVERS_LIST = "sipb-projectdb-approvers@mit.edu"
 SERVICE_EMAIL = (
     "sipb-projectdb-bot@mit.edu"  # Email identifying as coming from this service
 )
+EMAIL_ENABLED = False
 
 ALL_PROJECTS_URL = f"{URL}/projectlist"
 AWAITING_APPROVAL_URL = f"{URL}/projectlist?filter_by=awaiting_approval"
@@ -23,6 +24,7 @@ BASE_EDIT_URL = (
 BASE_HISTORY_URL = (
     f"{URL}/projecthistory?project_id="  # Need to provide project id at the end
 )
+NEW_MEMBER_REVIEW_URL = f"{URL}/newmemberreview"
 
 ## Helper function
 
@@ -121,7 +123,7 @@ def format_project_info(project_info):
 
 
 def send(recipients, sender, subject, message):
-    """Send an unauthenticated email using MIT's SMTP server
+    """Send an unauthenticated email using MIT's SMTP server when enabled.
 
     Args:
         recipients (Sequence[str] | str): If one receipient, use a single string. Else use a list of strings.
@@ -129,6 +131,10 @@ def send(recipients, sender, subject, message):
         subject (str): Email subject
         message (str): Actual content of email
     """
+    if not EMAIL_ENABLED:
+        print(f"[EMAILING DISABLED] Tried sending email to {recipients}: \n {subject} \n {message}")
+        return
+
     msg = MIMEText(message)
     msg["Subject"] = subject
     msg["From"] = sender
@@ -320,6 +326,78 @@ def send_confirm_reminder_message(project_info, num_days_left):
         project_info
     )  # No need to spam approvers with reminders
     send(recipients, SERVICE_EMAIL, subject, msg)
+
+
+def send_new_member_notification_to_approvers(submission_info):
+    """Send a message to the approver mailing list notifying that a new
+    member has submitted the new member form.
+    """
+    current_time = datetime.now(tz=NYTZ).strftime("%H:%M:%S on %m/%d/%Y")
+    subject = "[Action Required] New member form submitted"
+    msg = """
+    Dear SIPB Project Approvers,
+
+    A new member ({kerberos}) has filled out the new member form and is waiting to
+    be matched with some suggested projects.
+
+    You can review their submission and respond here:
+    {url}
+
+    This email was generated as of {time}.
+
+    Sincerely,
+    SIPB ProjectDB service bot
+    """.format(
+        kerberos=submission_info["kerberos"],
+        url=NEW_MEMBER_REVIEW_URL,
+        time=current_time,
+    )
+
+    send(APPROVERS_LIST, SERVICE_EMAIL, subject, msg)
+
+
+def send_new_member_suggestions(
+    submission_info, suggested_projects, reviewer_kerberos, reviewer_notes
+):
+    """Send a message directly to a new member with the reviewer's suggested
+    projects and personalized notes.
+    """
+    current_time = datetime.now(tz=NYTZ).strftime("%H:%M:%S on %m/%d/%Y")
+    subject = "Your SIPB new member form has been reviewed!"
+
+    if len(suggested_projects) > 0:
+        projects_section = "Suggested project(s):\n" + "".join(
+            f"    - {project['name']}\n" for project in suggested_projects
+        )
+    else:
+        projects_section = "No specific projects were suggested at this time."
+
+    msg = """
+    Hi,
+
+    Thanks for filling out the SIPB new member form! {reviewer} has taken a
+    look at your responses and left the following note for you:
+
+    \"{notes}\"
+
+    {projects_section}
+
+    You can browse the full list of active projects here:
+    {url}
+
+    This email was generated as of {time}.
+
+    Sincerely,
+    SIPB ProjectDB service bot
+    """.format(
+        reviewer=reviewer_kerberos,
+        notes=reviewer_notes if reviewer_notes else "None",
+        projects_section=projects_section,
+        url=ALL_PROJECTS_URL,
+        time=current_time,
+    )
+
+    send(submission_info["email"], SERVICE_EMAIL, subject, msg)
 
 
 def send_deactivation_message(project_info):

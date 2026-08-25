@@ -1,3 +1,4 @@
+from .. import config
 from ..models import db, schema
 from . import authutils, strutils
 
@@ -843,6 +844,222 @@ def validate_revision_id_exists(project_id, revision_id):
         status_messages = [
             f'There are {len(project_info)} projects with project id "{project_id}" and revision id "{revision_id}"!'
         ]
+
+    return is_ok, status_messages
+
+
+def validate_new_member_form_permission():
+    """Check if the user has permission to submit the new member form (i.e.
+    is signed in with a valid MIT certificate).
+
+    Returns
+    -------
+    is_ok : bool
+        Whether or not the validation was passed.
+    status_messages : list of str
+        A list of status messages.
+    """
+    user = authutils.get_kerberos()
+    if user:
+        status_messages = []
+    else:
+        status_messages = ["User must be signed in to submit the new member form!"]
+    return bool(user), status_messages
+
+
+def validate_new_member_interests(interests, interests_other):
+    """Check if the new member's selected interests are valid.
+
+    Parameters
+    ----------
+    interests : list of str
+        The selected fixed interest tags.
+    interests_other : str
+        Free-text "other" interests.
+
+    Returns
+    -------
+    is_ok : bool
+        Whether or not the validation was passed.
+    status_messages : list of str
+        A list of status messages.
+    """
+    is_ok = True
+    status_messages = []
+
+    if not any(
+        interest in config.NEW_MEMBER_INTEREST_OPTIONS for interest in interests
+    ):
+        if len(interests_other) == 0:
+            is_ok = False
+            status_messages.append(
+                "Please select at least one interest, or describe your "
+                'interests in the "other" field!'
+            )
+
+    for interest in interests:
+        if interest not in config.NEW_MEMBER_INTEREST_OPTIONS:
+            is_ok = False
+            status_messages.append(f'"{interest}" is not a valid interest option!')
+
+    return is_ok, status_messages
+
+
+def validate_new_member_experience_level(experience_level):
+    """Check if the new member's selected experience level is valid.
+
+    Parameters
+    ----------
+    experience_level : str
+        The selected experience level.
+
+    Returns
+    -------
+    is_ok : bool
+        Whether or not the validation was passed.
+    status_messages : list of str
+        A list of status messages.
+    """
+    is_ok = experience_level in config.NEW_MEMBER_EXPERIENCE_LEVELS
+    if is_ok:
+        status_messages = []
+    else:
+        status_messages = [
+            f'"{experience_level}" is not a valid experience level!'
+        ]
+    return is_ok, status_messages
+
+
+def validate_new_member_form(submission_info):
+    """Validate that the given new member form submission is OK to add.
+
+    In particular, check that:
+    * The user is signed in.
+    * The submission_info is properly-formed.
+
+    Parameters
+    ----------
+    submission_info : dict
+        The submission info extracted from the form.
+
+    Returns
+    -------
+    is_ok : bool
+        Indicates whether or not the submission is OK to add.
+    status_messages : list of str
+        A list of status messages indicating the result of the validation.
+    """
+    is_ok = True
+    status_messages = []
+
+    permission_ok, permission_msgs = validate_new_member_form_permission()
+    is_ok &= permission_ok
+    status_messages.extend(permission_msgs)
+
+    interests_ok, interests_msgs = validate_new_member_interests(
+        submission_info["interests"], submission_info["interests_other"]
+    )
+    is_ok &= interests_ok
+    status_messages.extend(interests_msgs)
+
+    experience_ok, experience_msgs = validate_new_member_experience_level(
+        submission_info["experience_level"]
+    )
+    is_ok &= experience_ok
+    status_messages.extend(experience_msgs)
+
+    return is_ok, status_messages
+
+
+def validate_new_member_review_permission():
+    """Check if the user has permission to review new member form
+    submissions.
+
+    Returns
+    -------
+    is_ok : bool
+        Whether or not the validation was passed.
+    status_messages : list of str
+        A list of status messages.
+    """
+    user = authutils.get_kerberos()
+    is_ok = authutils.can_approve(user)
+    if is_ok:
+        status_messages = []
+    else:
+        status_messages = [
+            "User is not authorized to review new member form submissions!"
+        ]
+    return is_ok, status_messages
+
+
+def validate_new_member_submission_id(submission_id):
+    """Check if the given new member submission ID is valid and exists.
+
+    Parameters
+    ----------
+    submission_id : str
+        The submission ID to check. Assumed to be a string coming from a CGI
+        form.
+
+    Returns
+    -------
+    is_ok : bool
+        Whether or not the validation was passed.
+    status_messages : list of str
+        A list of status messages.
+    """
+    is_int, is_int_status = validate_id_is_int(submission_id)
+    if not is_int:
+        return False, is_int_status
+
+    submission_info = db.get_new_member_submission(submission_id)
+    if submission_info is None:
+        return False, [
+            f'There is no new member submission with id "{submission_id}"!'
+        ]
+
+    return True, []
+
+
+def validate_new_member_response(submission_id, suggested_project_ids):
+    """Validate that a response to a new member form submission is OK to
+    save.
+
+    In particular, check that:
+    * The user is signed-in and authorized to review new member submissions.
+    * The submission ID is valid and exists.
+    * All suggested project IDs refer to existing projects.
+
+    Parameters
+    ----------
+    submission_id : str
+        The submission ID being responded to.
+    suggested_project_ids : list of int
+        The project IDs being suggested to the new member.
+
+    Returns
+    -------
+    is_ok : bool
+        Indicates whether or not the response is OK to save.
+    status_messages : list of str
+        A list of status messages indicating the result of the validation.
+    """
+    is_ok = True
+    status_messages = []
+
+    permission_ok, permission_msgs = validate_new_member_review_permission()
+    is_ok &= permission_ok
+    status_messages.extend(permission_msgs)
+
+    submission_ok, submission_msgs = validate_new_member_submission_id(submission_id)
+    is_ok &= submission_ok
+    status_messages.extend(submission_msgs)
+
+    for project_id in suggested_project_ids:
+        project_ok, project_msgs = validate_project_id_exists(project_id)
+        is_ok &= project_ok
+        status_messages.extend(project_msgs)
 
     return is_ok, status_messages
 
