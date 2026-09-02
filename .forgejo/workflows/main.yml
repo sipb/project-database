@@ -1,0 +1,19 @@
+name: Build Docker image
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu
+    steps:
+      - name: Checkout
+        uses: https://github.com/actions/checkout@v7
+
+      - name: Build and deploy
+        uses: https://forgejo.mit.edu/SIPB/hyades-action@main
+        with:
+          package_token: ${{ secrets.PACKAGE_TOKEN }}
+          update_token: ${{ secrets.UPDATE_TOKEN }}
