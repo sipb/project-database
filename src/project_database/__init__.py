@@ -1,4 +1,4 @@
-from flask import Flask, Response, request, send_from_directory
+from flask import Flask, Response, redirect, request, send_from_directory
 
 from . import (
     addproject,
@@ -14,7 +14,6 @@ from . import (
     projecthistory,
     projectjson,
     projectlist,
-    sendreminders,
     templateutils,
 )
 
@@ -94,6 +93,11 @@ def route_projectlist():
 @app.route("/")
 def route_index():
     return route_projectlist()
+
+
+@app.route("/hlogin")
+def route_login():
+    return redirect("/")
 
 
 def main():

@@ -3,13 +3,9 @@
 # https://github.com/sipb/hwops/blob/master/web_scripts/main.py
 # https://github.com/sipb/hwops/blob/master/web_scripts/moira.py
 
-import os
-
 from flask import request
 
 from . import config, db, roster
-
-
 
 
 def get_kerberos():
@@ -35,7 +31,7 @@ def get_email():
     email : str
         The email for the user.
     """
-    email = request.environ.get("SSL_CLIENT_S_DN_Email")
+    email = request.headers.get("X-Forwarded-Email")
     if (
         (email is None)
         or (not email.lower().endswith("@mit.edu"))
@@ -46,40 +42,20 @@ def get_email():
         return email
 
 
-def get_base_url(do_authenticate):
-    """Get the base URL.
-
-    Parameters
-    ----------
-    do_authenticate : bool
-        Whether or not to add port 444 to trigger authentication.
-
-    Returns
-    -------
-    url : str
-        The base URL.
-    """
-    host = request.environ.get("HTTP_HOST").split(":")[0]
-    if do_authenticate:
-        return f"https://{host}:444"
-    else:
-        return f"https://{host}"
-
-
 def get_auth_url(do_authenticate):
     """Get the authentication URL.
 
     Parameters
     ----------
     do_authenticate : bool
-        Whether or not to add port 444 to trigger authentication.
+        If true, then the login URL, else the logout URL
 
     Returns
     -------
     url : str
         The authentication URL.
     """
-    return get_base_url(do_authenticate) + request.environ.get("REQUEST_URI")
+    return "/hlogin" if do_authenticate else "/hlogout"
 
 
 def is_sipb(user):
