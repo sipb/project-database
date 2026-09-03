@@ -45,7 +45,7 @@ def make_history_entry(x, author_kerberos, action, revision_id):
         The history row object.
     """
     x_history = CLASS_TO_HISTORY_CLASS_MAP[type(x)]()
-    for key in x.__table__.columns:
+    for key in x.__table__.columns.keys():  # noqa: SIM118
         # Skip 'id' to allow auto-increment:
         if key != "id":
             setattr(x_history, key, getattr(x, key))
@@ -123,7 +123,7 @@ def db_update_record(current_x, new_x, author_kerberos, revision_id):
         The revision ID to associate with the action.
     """
     changed = False
-    for field in current_x.__table__.columns:
+    for field in current_x.__table__.columns.keys():  # noqa: SIM118
         if (field != "id") and (getattr(current_x, field) != getattr(new_x, field)):
             setattr(current_x, field, getattr(new_x, field))
             changed = True
@@ -739,7 +739,7 @@ def form_row(model, project_id, entry):
     """
     result = model()
     result.project_id = int(project_id)
-    for key in result.__table__.columns:
+    for key in result.__table__.columns.keys():  # noqa: SIM118
         if (key != "id") and (key != "project_id") and (key in entry):
             setattr(result, key, entry[key])
     return result
