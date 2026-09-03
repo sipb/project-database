@@ -11,5 +11,6 @@ ADMIN_USERS = [
     "turino14",
     "nmorgan",
     "rgabriel",
+    "xy",
 ]
 APPROVER_USERS = []

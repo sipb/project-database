@@ -100,6 +100,11 @@ def route_login():
     return redirect("/")
 
 
+@app.route("/hlogout")
+def route_logout():
+    return redirect("/")
+
+
 def main():
     """Run the dev server"""
     # TODO: Run sendreminders every hour
