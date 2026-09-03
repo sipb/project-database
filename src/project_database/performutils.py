@@ -168,7 +168,7 @@ def format_success_page(project_id, operation, message=None):
     ]
     project_info = strutils.decode_utf_nested_dict_list(project_info)
     authlink = authutils.get_auth_url(True)
-    deauthlink = authutils.get_base_url(False) + "/projectlist.py"
+    deauthlink = authutils.get_auth_url(False)
     can_add = authutils.can_add(user)
     result = (
         jenv.get_template("performsuccess.html")
@@ -202,7 +202,7 @@ def format_failure_page(status, operation):
     jenv = templateutils.get_jenv()
     user = authutils.get_kerberos()
     authlink = authutils.get_auth_url(True)
-    deauthlink = authutils.get_base_url(False) + "/projectlist.py"
+    deauthlink = authutils.get_auth_url(False)
     can_add = authutils.can_add(user)
     status = strutils.decode_utf_nested_dict_list(status)
     result = (
