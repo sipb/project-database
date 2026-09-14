@@ -35,11 +35,11 @@ session = db.orm.sessionmaker(bind=sqlengine)()  # main object used for queries
 
 
 class HistoryMixin:
-    author = db.Column(db.String(50), nullable=False)
+    author = db.orm.mapped_column(db.String(50), nullable=False)
     # action can be 'create', 'update', 'delete', 'same'
-    action = db.Column(db.String(25), nullable=False)
-    revision_id = db.Column(db.Integer(), nullable=False)
-    timestamp = db.Column(db.TIMESTAMP, nullable=False, server_default=db.func.now())
+    action = db.orm.mapped_column(db.String(25), nullable=False)
+    revision_id = db.orm.mapped_column(db.Integer(), nullable=False)
+    timestamp = db.orm.mapped_column(db.TIMESTAMP, nullable=False, server_default=db.func.now())
 
     @sqlalchemy.orm.validates("author")
     def validate_author(self, key, author):
@@ -58,17 +58,17 @@ class ProjectsBase:
     # project_id and name must be defined in subclasses, as they have special
     # constraints which differ between the main table and the history table.
 
-    description = db.Column(db.Text(), nullable=False)
+    description = db.orm.mapped_column(db.Text(), nullable=False)
     # status can be "active" or "inactive"
-    status = db.Column(db.String(25), nullable=False)
+    status = db.orm.mapped_column(db.String(25), nullable=False)
     # approval can be "awaiting_approval" or "approved" or "rejected"
-    approval = db.Column(db.String(25), nullable=False)
+    approval = db.orm.mapped_column(db.String(25), nullable=False)
     # Kerb of user who registered the project:
-    creator = db.Column(db.String(50), nullable=False)
+    creator = db.orm.mapped_column(db.String(50), nullable=False)
     # Kerb of user who approved the project:
-    approver = db.Column(db.String(50), nullable=True)
+    approver = db.orm.mapped_column(db.String(50), nullable=True)
     # Comments from user who approved the project:
-    approver_comments = db.Column(db.Text(), nullable=True)
+    approver_comments = db.orm.mapped_column(db.Text(), nullable=True)
 
     @sqlalchemy.orm.validates("status")
     def validate_status(self, key, status):
@@ -105,39 +105,39 @@ class ProjectsBase:
 
 class Projects(SQLBase, ProjectsBase):
     __tablename__ = "projects"
-    project_id = db.Column(
+    project_id = db.orm.mapped_column(
         db.Integer(), nullable=False, primary_key=True, autoincrement=True
     )
-    name = db.Column(db.String(50), nullable=False, unique=True)
+    name = db.orm.mapped_column(db.String(50), nullable=False, unique=True)
 
 
 class ProjectsHistory(SQLBase, ProjectsBase, HistoryMixin):
     __tablename__ = "projectshistory"
-    id = db.Column(db.Integer(), nullable=False, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(50), nullable=False)
+    id = db.orm.mapped_column(db.Integer(), nullable=False, primary_key=True, autoincrement=True)
+    name = db.orm.mapped_column(db.String(50), nullable=False)
 
     # Foreign key constraint requires special handling.
     @sqlalchemy.ext.declarative.declared_attr
     def project_id(cls):
-        return db.Column(
+        return db.orm.mapped_column(
             db.Integer(), db.ForeignKey("projects.project_id"), nullable=False
         )
 
 
 class ContactEmailsBase:
-    id = db.Column(db.Integer(), nullable=False, primary_key=True, autoincrement=True)
+    id = db.orm.mapped_column(db.Integer(), nullable=False, primary_key=True, autoincrement=True)
     # type can be either "primary" or "secondary". By convention, there should
     # be exactly one primary contact for each project.
-    type = db.Column(db.String(25), nullable=False)
-    email = db.Column(db.String(50), nullable=False)
+    type = db.orm.mapped_column(db.String(25), nullable=False)
+    email = db.orm.mapped_column(db.String(50), nullable=False)
     # index sets the order which contacts are listed in. By convention, the one
     # primary contact should have index 0.
-    index = db.Column(db.Integer(), nullable=False)
+    index = db.orm.mapped_column(db.Integer(), nullable=False)
 
     # Foreign key constraint requires special handling.
     @sqlalchemy.ext.declarative.declared_attr
     def project_id(cls):
-        return db.Column(
+        return db.orm.mapped_column(
             db.Integer(), db.ForeignKey("projects.project_id"), nullable=False
         )
 
@@ -166,16 +166,16 @@ class RolesBase:
     id = sqlalchemy.Column(
         sqlalchemy.Integer(), nullable=False, primary_key=True, autoincrement=True
     )
-    role = db.Column(db.String(50), nullable=False)
-    description = db.Column(db.Text(), nullable=False)
-    prereq = db.Column(db.Text(), nullable=True)
+    role = db.orm.mapped_column(db.String(50), nullable=False)
+    description = db.orm.mapped_column(db.Text(), nullable=False)
+    prereq = db.orm.mapped_column(db.Text(), nullable=True)
     # index sets the order which roles are listed in:
-    index = db.Column(db.Integer(), nullable=False)
+    index = db.orm.mapped_column(db.Integer(), nullable=False)
 
     # Foreign key constraint requires special handling.
     @sqlalchemy.ext.declarative.declared_attr
     def project_id(cls):
-        return db.Column(
+        return db.orm.mapped_column(
             db.Integer(), db.ForeignKey("projects.project_id"), nullable=False
         )
 
@@ -195,16 +195,16 @@ class RolesHistory(SQLBase, RolesBase, HistoryMixin):
 
 
 class LinksBase:
-    id = db.Column(db.Integer(), nullable=False, primary_key=True, autoincrement=True)
-    link = db.Column(db.Text(), nullable=False)
+    id = db.orm.mapped_column(db.Integer(), nullable=False, primary_key=True, autoincrement=True)
+    link = db.orm.mapped_column(db.Text(), nullable=False)
     # index sets the order which links are listed in:
-    index = db.Column(db.Integer(), nullable=False)
-    anchortext = db.Column(db.Text(), nullable=True)
+    index = db.orm.mapped_column(db.Integer(), nullable=False)
+    anchortext = db.orm.mapped_column(db.Text(), nullable=True)
 
     # Foreign key constraint requires special handling.
     @sqlalchemy.ext.declarative.declared_attr
     def project_id(cls):
-        return db.Column(
+        return db.orm.mapped_column(
             db.Integer(), db.ForeignKey("projects.project_id"), nullable=False
         )
 
@@ -218,15 +218,15 @@ class LinksHistory(SQLBase, LinksBase, HistoryMixin):
 
 
 class CommChannelsBase:
-    id = db.Column(db.Integer(), nullable=False, primary_key=True, autoincrement=True)
-    commchannel = db.Column(db.Text(), nullable=False)
+    id = db.orm.mapped_column(db.Integer(), nullable=False, primary_key=True, autoincrement=True)
+    commchannel = db.orm.mapped_column(db.Text(), nullable=False)
     # index sets the order which comm channels are listed in:
-    index = db.Column(db.Integer(), nullable=False)
+    index = db.orm.mapped_column(db.Integer(), nullable=False)
 
     # Foreign key constraint requires special handling.
     @sqlalchemy.ext.declarative.declared_attr
     def project_id(cls):
-        return db.Column(
+        return db.orm.mapped_column(
             db.Integer(), db.ForeignKey("projects.project_id"), nullable=False
         )
 
@@ -246,27 +246,27 @@ class NewMemberSubmissions(SQLBase):
     # edited record that needs rollback support.
     __tablename__ = "newmembersubmissions"
 
-    submission_id = db.Column(
+    submission_id = db.orm.mapped_column(
         db.Integer(), nullable=False, primary_key=True, autoincrement=True
     )
     # Kerb of the new member who submitted the form:
-    kerberos = db.Column(db.String(50), nullable=False)
-    email = db.Column(db.String(50), nullable=False)
+    kerberos = db.orm.mapped_column(db.String(50), nullable=False)
+    email = db.orm.mapped_column(db.String(50), nullable=False)
     # Comma-separated list of selected interest tags (see
     # config.NEW_MEMBER_INTEREST_OPTIONS):
-    interests = db.Column(db.Text(), nullable=False)
-    interests_other = db.Column(db.Text(), nullable=True)
+    interests = db.orm.mapped_column(db.Text(), nullable=False)
+    interests_other = db.orm.mapped_column(db.Text(), nullable=True)
     # experience_level can be one of config.NEW_MEMBER_EXPERIENCE_LEVELS:
-    experience_level = db.Column(db.String(25), nullable=False)
-    experience_details = db.Column(db.Text(), nullable=True)
-    comments = db.Column(db.Text(), nullable=True)
+    experience_level = db.orm.mapped_column(db.String(25), nullable=False)
+    experience_details = db.orm.mapped_column(db.Text(), nullable=True)
+    comments = db.orm.mapped_column(db.Text(), nullable=True)
     # status can be "pending" or "reviewed":
-    status = db.Column(db.String(25), nullable=False, default="pending")
-    submitted_at = db.Column(db.TIMESTAMP, nullable=False, server_default=db.func.now())
+    status = db.orm.mapped_column(db.String(25), nullable=False, default="pending")
+    submitted_at = db.orm.mapped_column(db.TIMESTAMP, nullable=False, server_default=db.func.now())
     # Kerb of the approver who reviewed the submission:
-    reviewer = db.Column(db.String(50), nullable=True)
-    reviewer_notes = db.Column(db.Text(), nullable=True)
-    reviewed_at = db.Column(db.TIMESTAMP, nullable=True)
+    reviewer = db.orm.mapped_column(db.String(50), nullable=True)
+    reviewer_notes = db.orm.mapped_column(db.Text(), nullable=True)
+    reviewed_at = db.orm.mapped_column(db.TIMESTAMP, nullable=True)
 
     @sqlalchemy.orm.validates("status")
     def validate_status(self, key, status):
@@ -286,13 +286,13 @@ class NewMemberSubmissions(SQLBase):
 class NewMemberSuggestedProjects(SQLBase):
     __tablename__ = "newmembersuggestedprojects"
 
-    id = db.Column(db.Integer(), nullable=False, primary_key=True, autoincrement=True)
-    submission_id = db.Column(
+    id = db.orm.mapped_column(db.Integer(), nullable=False, primary_key=True, autoincrement=True)
+    submission_id = db.orm.mapped_column(
         db.Integer(),
         db.ForeignKey("newmembersubmissions.submission_id"),
         nullable=False,
     )
-    project_id = db.Column(
+    project_id = db.orm.mapped_column(
         db.Integer(), db.ForeignKey("projects.project_id"), nullable=False
     )
 

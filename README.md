@@ -5,17 +5,18 @@ Database for keeping track of project statuses.
 
 First clone the repo.
 
-Set up venv: `uv sync`
-
 Run dev server: `uv run project-database`
 
-Reformat: `ruff format`
+Reformat: `uv format`
 
-Run linter: `ruff check`
+Type checker: `uv check`
+
+Linter: `ruff check`
+
+Run tests (TODO figure out better command): `FLASK_DEBUG=0 PYTHONPATH=tests uv run python -m unittest test_authutils.Test_get_email -v`
 
 ## TODO
 
-- Petrock auth
 - Update docs
 - Better CSS
-- Rig up the tests again (and the DB tests)
+- Run tests in CI

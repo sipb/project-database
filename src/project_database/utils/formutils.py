@@ -92,15 +92,16 @@ def extract_roles(arguments):
     role_ids = get_role_ids(arguments)
     roles = []
     for index, role_id in enumerate(role_ids):
+        prereq = arguments.get(f"role_prereqs_{role_id}", "")
         roles.append(
             {
                 "role": arguments.get(f"role_name_{role_id}", ""),
                 "description": arguments.get(f"role_description_{role_id}", ""),
-                "prereq": arguments.get(f"role_prereqs_{role_id}", ""),
+                "prereq": prereq,
                 "index": index,
             }
         )
-        if len(roles[-1]["prereq"]) == 0:
+        if len(prereq) == 0:
             roles[-1]["prereq"] = None
     return roles
 
@@ -121,16 +122,17 @@ def extract_links(arguments):
     link_ids = get_link_ids(arguments)
     links = []
     for index, link_id in enumerate(link_ids):
+        anchortext = arguments.get(f"anchortext_{link_id}", "")
         links.append(
             {
                 "link": strutils.make_url_absolute(
                     arguments.get(f"link_{link_id}", "")
                 ),
-                "anchortext": arguments.get(f"anchortext_{link_id}", ""),
+                "anchortext": anchortext,
                 "index": index,
             }
         )
-        if len(links[-1]["anchortext"]) == 0:
+        if len(anchortext) == 0:
             links[-1]["anchortext"] = None
     return links
 
