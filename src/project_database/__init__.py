@@ -34,6 +34,7 @@ app.config["DEBUG"] = debug
 print("DEBUG =", debug)
 
 app.config["SECRET_KEY"] = os.environ.get("FLASK_SECRET_KEY")
+# this is only used for debugging
 if app.config["SECRET_KEY"] is None:
     app.config["SECRET_KEY"] = secrets.token_hex(32)
 
