@@ -5,7 +5,7 @@ import unittest
 
 import testutils
 
-from project_database import config
+from project_database import app, config
 from project_database.models import db
 from project_database.utils import authutils
 
@@ -95,6 +95,52 @@ class Test_get_auth_url(testutils.EnvironmentOverrideTestCase):
 
         host = authutils.get_auth_url(False)
         self.assertEqual(host, "https://test.foo.bar/baz.html")
+
+
+class Test_debug_authentication(unittest.TestCase):
+    def setUp(self):
+        self.original_debug = app.config["DEBUG"]
+        app.config["DEBUG"] = True
+
+    def tearDown(self):
+        app.config["DEBUG"] = self.original_debug
+
+    def test_login_sets_valid_debug_email(self):
+        with app.test_client() as client:
+            response = client.post(
+                "/authdebug", data={"debugemail": "Admin@MIT.EDU"}
+            )
+
+            self.assertEqual(response.status_code, 302)
+            with client.session_transaction() as current_session:
+                self.assertEqual(current_session["debug_email"], "admin@mit.edu")
+
+    def test_login_rejects_non_mit_email(self):
+        with app.test_client() as client:
+            response = client.post(
+                "/authdebug", data={"debugemail": "user@example.com"}
+            )
+
+            self.assertEqual(response.status_code, 400)
+
+    def test_logout_clears_debug_email(self):
+        with app.test_client() as client:
+            with client.session_transaction() as current_session:
+                current_session["debug_email"] = "user@mit.edu"
+
+            response = client.get("/authdebug?action=logout")
+
+            self.assertEqual(response.status_code, 302)
+            with client.session_transaction() as current_session:
+                self.assertNotIn("debug_email", current_session)
+
+    def test_debug_route_is_unavailable_when_disabled(self):
+        app.config["DEBUG"] = False
+
+        with app.test_client() as client:
+            response = client.get("/authdebug")
+
+        self.assertEqual(response.status_code, 404)
 
 
 class Test_is_sipb(unittest.TestCase):

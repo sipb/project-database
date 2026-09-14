@@ -1,4 +1,5 @@
 import os
+import secrets
 
 from flask import Flask, Response, abort, redirect, request, send_from_directory
 
@@ -21,8 +22,6 @@ from .routes import (
     projecthistory,
     projectjson,
     projectlist,
-    templateutils,
-    authdebug,
     respondnewmember,
 )
 from .services import sendreminders as sendreminders
@@ -30,14 +29,14 @@ from .utils import templateutils
 
 app = Flask(__name__)
 
-debug = os.environ.get("FLASK_DEBUG", "1") == "1"
+debug = os.environ.get("FLASK_DEBUG", "0") == "1"
 app.config["DEBUG"] = debug
 print("DEBUG =", debug)
 
 app.config["SECRET_KEY"] = os.environ.get("FLASK_SECRET_KEY")
 if app.config["SECRET_KEY"] is None:
     if debug:
-        app.config["SECRET_KEY"] = "dev-only-9KyhcON59Gl9HsoEC6"
+        app.config["SECRET_KEY"] = secrets.token_hex(32)
     else:
         raise RuntimeError("FLASK_SECRET_KEY must be set when debug is off.")
 
@@ -152,6 +151,10 @@ def route_authdebug():
     if request.method == "POST":
         email = (request.form.get("debugemail") or "").strip().lower()
         from flask import session
+
+        if email.count("@") != 1 or not email.endswith("@mit.edu"):
+            abort(400)
+
         session["debug_email"] = email
         return redirect("/projectlist")
     

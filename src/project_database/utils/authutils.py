@@ -63,8 +63,8 @@ def get_auth_url(do_authenticate):
         The authentication URL.
     """
     if current_app.debug:
-            base = request.host_url.rstrip("/")
-            return f"{base}/authdebug.py"
+        base = request.host_url.rstrip("/")
+        return f"{base}/authdebug"
     
     return "/hlogin" if do_authenticate else "/hlogout"
 

@@ -10,3 +10,5 @@ wheels/
 .venv
 
 main.db
+tests/data
+data

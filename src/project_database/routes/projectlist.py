@@ -1,12 +1,5 @@
-<<<<<<< HEAD:src/project_database/projectlist.py
-from . import authutils, db, strutils, templateutils
-||||||| parent of 1f1f2ac (Reorganize file structure):src/project_database/projectlist.py
-from . import authutils, db, embedding, strutils, templateutils
-=======
 from ..models import db
-from ..services import embedding
 from ..utils import authutils, strutils, templateutils
->>>>>>> 1f1f2ac (Reorganize file structure):src/project_database/routes/projectlist.py
 
 
 def format_project_list(project_list, filter_method, contact_email):
