@@ -887,15 +887,17 @@ def validate_new_member_interests(interests, interests_other):
     is_ok = True
     status_messages = []
 
-    if not any(
-        interest in config.NEW_MEMBER_INTEREST_OPTIONS for interest in interests
+    if (
+        not any(
+            interest in config.NEW_MEMBER_INTEREST_OPTIONS for interest in interests
+        )
+        and len(interests_other) == 0
     ):
-        if len(interests_other) == 0:
-            is_ok = False
-            status_messages.append(
-                "Please select at least one interest, or describe your "
-                'interests in the "other" field!'
-            )
+        is_ok = False
+        status_messages.append(
+            "Please select at least one interest, or describe your "
+            'interests in the "other" field!'
+        )
 
     for interest in interests:
         if interest not in config.NEW_MEMBER_INTEREST_OPTIONS:
@@ -924,9 +926,7 @@ def validate_new_member_experience_level(experience_level):
     if is_ok:
         status_messages = []
     else:
-        status_messages = [
-            f'"{experience_level}" is not a valid experience level!'
-        ]
+        status_messages = [f'"{experience_level}" is not a valid experience level!']
     return is_ok, status_messages
 
 
@@ -1015,9 +1015,7 @@ def validate_new_member_submission_id(submission_id):
 
     submission_info = db.get_new_member_submission(submission_id)
     if submission_info is None:
-        return False, [
-            f'There is no new member submission with id "{submission_id}"!'
-        ]
+        return False, [f'There is no new member submission with id "{submission_id}"!']
 
     return True, []
 

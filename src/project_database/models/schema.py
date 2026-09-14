@@ -19,7 +19,7 @@ sqlengine = db.create_engine(SQL_URL)
 SQLBase.metadata.bind = sqlengine
 session = db.orm.sessionmaker(bind=sqlengine)()  # main object used for queries
 
-# Implement schema 
+# Implement schema
 # SQLBase.metadata.create_all(sqlengine) # this is unnecessary?
 
 # Strategy: Every table has a version which stores the current state, and a

@@ -71,6 +71,7 @@ class Test_get_email(testutils.EnvironmentOverrideTestCase):
             email = authutils.get_email()
         self.assertIsNone(email)
 
+
 class Test_get_auth_url(testutils.EnvironmentOverrideTestCase):
     def test_with_auth(self):
         true_host = "test.foo.bar:123"
@@ -103,9 +104,7 @@ class Test_debug_authentication(unittest.TestCase):
 
     def test_login_sets_valid_debug_email(self):
         with app.test_client() as client:
-            response = client.post(
-                "/authdebug", data={"debugemail": "Admin@MIT.EDU"}
-            )
+            response = client.post("/authdebug", data={"debugemail": "Admin@MIT.EDU"})
 
             self.assertEqual(response.status_code, 302)
             with client.session_transaction() as current_session:

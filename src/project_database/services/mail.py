@@ -132,7 +132,9 @@ def send(recipients, sender, subject, message):
         message (str): Actual content of email
     """
     if not EMAIL_ENABLED:
-        print(f"[EMAILING DISABLED] Tried sending email to {recipients}: \n {subject} \n {message}")
+        print(
+            f"[EMAILING DISABLED] Tried sending email to {recipients}: \n {subject} \n {message}"
+        )
         return
 
     msg = MIMEText(message)

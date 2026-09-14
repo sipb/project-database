@@ -41,7 +41,7 @@ def get_email():
 
     if current_app.debug and not email:
         email = session.get("debug_email")
-    
+
     if (
         (email is None)
         or (not email.lower().endswith("@mit.edu"))
@@ -68,8 +68,9 @@ def get_auth_url(do_authenticate):
     if current_app.debug:
         base = request.host_url.rstrip("/")
         return f"{base}/authdebug"
-    
+
     return "/hlogin" if do_authenticate else "/hlogout"
+
 
 def is_sipb(user):
     if user:

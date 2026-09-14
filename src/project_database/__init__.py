@@ -38,6 +38,7 @@ app.config["SECRET_KEY"] = os.environ.get("FLASK_SECRET_KEY")
 if app.config["SECRET_KEY"] is None:
     app.config["SECRET_KEY"] = secrets.token_hex(32)
 
+
 @app.route("/templates/<path:filename>")
 def route_static_templates(filename):
     return send_from_directory(templateutils.TEMPLATES_DIR, filename)
@@ -90,9 +91,7 @@ def route_respondnewmember():
 
 @app.route("/performrespondnewmember", methods=["POST"])
 def route_performrespondnewmember():
-    return Response(
-        performrespondnewmember.view(request.values), mimetype="text/html"
-    )
+    return Response(performrespondnewmember.view(request.values), mimetype="text/html")
 
 
 @app.route("/performaddproject", methods=["POST"])
@@ -140,11 +139,12 @@ def route_projectlist():
 def route_index():
     return route_projectlist()
 
+
 @app.route("/authdebug", methods=["GET", "POST"])
 def route_authdebug():
     if not app.debug:
         abort(404)
-    
+
     action = request.values.get("action", "login")
     if request.method == "POST":
         email = (request.form.get("debugemail") or "").strip().lower()
@@ -155,12 +155,13 @@ def route_authdebug():
 
         session["debug_email"] = email
         return redirect("/projectlist")
-    
+
     if action == "logout":
         from flask import session
+
         session.pop("debug_email", None)
         return redirect("/projectlist")
-    
+
     return Response(authdebug.view(), mimetype="text/html")
 
 
