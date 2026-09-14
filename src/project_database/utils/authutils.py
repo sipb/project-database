@@ -34,7 +34,10 @@ def get_email():
     email : str
         The email for the user.
     """
-    email = request.environ.get("SSL_CLIENT_S_DN_Email")
+    if request.headers.get("X-Forwarded-Anonymous", "").lower() == "true":
+        email = None
+    else:
+        email = request.headers.get("X-Forwarded-Email")
 
     if current_app.debug and not email:
         email = session.get("debug_email")

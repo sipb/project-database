@@ -12,67 +12,63 @@ from project_database.utils import authutils
 
 class Test_get_kerberos(testutils.EnvironmentOverrideTestCase):
     def test_none(self):
-        try:
-            os.environ.pop("SSL_CLIENT_S_DN_Email")
-        except KeyError:
-            pass
-
-        kerberos = authutils.get_kerberos()
+        with app.test_request_context():
+            kerberos = authutils.get_kerberos()
         self.assertIsNone(kerberos)
 
     def test_base(self):
         true_kerberos = "project_test"
         email = true_kerberos + "@mit.edu"
-        os.environ["SSL_CLIENT_S_DN_Email"] = email
-
-        kerberos = authutils.get_kerberos()
+        with app.test_request_context(headers={"X-Forwarded-Email": email}):
+            kerberos = authutils.get_kerberos()
         self.assertEqual(kerberos, true_kerberos)
 
     def test_non_mit(self):
         email = "project_test@foo.bar"
-        os.environ["SSL_CLIENT_S_DN_Email"] = email
-
-        kerberos = authutils.get_kerberos()
+        with app.test_request_context(headers={"X-Forwarded-Email": email}):
+            kerberos = authutils.get_kerberos()
         self.assertIsNone(kerberos)
 
     def test_multiple_at(self):
         email = "bad@@mit.edu"
-        os.environ["SSL_CLIENT_S_DN_Email"] = email
-
-        kerberos = authutils.get_kerberos()
+        with app.test_request_context(headers={"X-Forwarded-Email": email}):
+            kerberos = authutils.get_kerberos()
         self.assertIsNone(kerberos)
 
 
 class Test_get_email(testutils.EnvironmentOverrideTestCase):
     def test_none(self):
-        try:
-            os.environ.pop("SSL_CLIENT_S_DN_Email")
-        except KeyError:
-            pass
+        with app.test_request_context():
+            email = authutils.get_email()
+        self.assertIsNone(email)
 
-        email = authutils.get_email()
+    def test_anonymous_forwarded_request(self):
+        with app.test_request_context(
+            headers={
+                "X-Forwarded-Anonymous": "true",
+                "X-Forwarded-Email": "user@mit.edu",
+            }
+        ):
+            email = authutils.get_email()
         self.assertIsNone(email)
 
     def test_base(self):
         true_kerberos = "project_test"
         true_email = true_kerberos + "@mit.edu"
-        os.environ["SSL_CLIENT_S_DN_Email"] = true_email
-
-        email = authutils.get_email()
+        with app.test_request_context(headers={"X-Forwarded-Email": true_email}):
+            email = authutils.get_email()
         self.assertEqual(email, true_email)
 
     def test_non_mit(self):
         true_email = "project_test@foo.bar"
-        os.environ["SSL_CLIENT_S_DN_Email"] = true_email
-
-        email = authutils.get_email()
+        with app.test_request_context(headers={"X-Forwarded-Email": true_email}):
+            email = authutils.get_email()
         self.assertIsNone(email)
 
     def test_multiple_at(self):
         true_email = "bad@@mit.edu"
-        os.environ["SSL_CLIENT_S_DN_Email"] = true_email
-
-        email = authutils.get_email()
+        with app.test_request_context(headers={"X-Forwarded-Email": true_email}):
+            email = authutils.get_email()
         self.assertIsNone(email)
 
 class Test_get_auth_url(testutils.EnvironmentOverrideTestCase):
