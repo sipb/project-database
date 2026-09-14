@@ -35,10 +35,7 @@ print("DEBUG =", debug)
 
 app.config["SECRET_KEY"] = os.environ.get("FLASK_SECRET_KEY")
 if app.config["SECRET_KEY"] is None:
-    if debug:
-        app.config["SECRET_KEY"] = secrets.token_hex(32)
-    else:
-        raise RuntimeError("FLASK_SECRET_KEY must be set when debug is off.")
+    app.config["SECRET_KEY"] = secrets.token_hex(32)
 
 @app.route("/templates/<path:filename>")
 def route_static_templates(filename):
