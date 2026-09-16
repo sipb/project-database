@@ -13,10 +13,4 @@ Type checker: `uv check`
 
 Linter: `ruff check`
 
-Run tests (TODO figure out better command): `FLASK_DEBUG=0 PYTHONPATH=tests uv run python -m unittest test_authutils.Test_get_email -v`
-
-## TODO
-
-- Update docs
-- Better CSS
-- Run tests in CI
+Run tests: `uv run -m unittest discover -s tests`

@@ -1,13 +1,52 @@
-# testutils MUST be imported first to set up test configuration and module
-# paths properly!
+# testutils MUST be imported first to set up test configuration properly!
 import os
 import unittest
 
 import testutils
 
-from project_database import config
+from project_database import app, config
 from project_database.models import db
 from project_database.utils import valutils
+
+
+def get_auth_headers(kerberos):
+    """Get headers for a test request which will authenticate the given user.
+
+    Parameters
+    ----------
+    kerberos : str
+        The kerberos of the user to authenticate, or None for no user.
+
+    Returns
+    -------
+    headers : dict
+        The headers to use for the test request.
+    """
+    if kerberos is None:
+        return {}
+    return {"X-Forwarded-Email": kerberos + "@mit.edu"}
+
+
+def validate_in_request(validate_fn, *args, kerberos=None, **kwargs):
+    """Run the given validation function within a test request context,
+    authenticating the given user (if any).
+
+    Parameters
+    ----------
+    validate_fn : callable
+        The validation function to run.
+    kerberos : str, optional
+        The kerberos of the user to authenticate. Default is None.
+
+    Returns
+    -------
+    is_ok : bool
+        Whether or not the validation was passed.
+    status_messages : list of str
+        The validation status messages.
+    """
+    with app.test_request_context(headers=get_auth_headers(kerberos)):
+        return validate_fn(*args, **kwargs)
 
 
 class Test_all_unique(unittest.TestCase):
@@ -32,26 +71,28 @@ class Test_all_unique(unittest.TestCase):
         self.assertFalse(result)
 
 
-class Test_validate_add_permission(testutils.EnvironmentOverrideTestCase):
+class Test_validate_add_permission(unittest.TestCase):
     def test_none(self):
-        os.environ.pop("SSL_CLIENT_S_DN_Email", None)
-        is_ok, status_messages = valutils.validate_add_permission()
+        is_ok, status_messages = validate_in_request(
+            valutils.validate_add_permission, kerberos=None
+        )
         self.assertFalse(is_ok)
         self.assertGreaterEqual(len(status_messages), 1)
 
     def test_member(self):
         # rif was memberized in 1991, and this test will need to be revised
         # should they be elected a keyholder.
-        os.environ["SSL_CLIENT_S_DN_Email"] = "rif" + "@mit.edu"
-        is_ok, status_messages = valutils.validate_add_permission()
+        is_ok, status_messages = validate_in_request(
+            valutils.validate_add_permission, kerberos="rif"
+        )
         self.assertTrue(is_ok)
         self.assertEqual(len(status_messages), 0)
 
     def test_nonmember(self):
-        os.environ["SSL_CLIENT_S_DN_Email"] = (
-            "this_is_definitely_not_a_valid_kerb@mit.edu"
+        is_ok, status_messages = validate_in_request(
+            valutils.validate_add_permission,
+            kerberos="this_is_definitely_not_a_valid_kerb",
         )
-        is_ok, status_messages = valutils.validate_add_permission()
         self.assertFalse(is_ok)
         self.assertGreaterEqual(len(status_messages), 1)
 
@@ -470,9 +511,8 @@ class Test_validate_project_info(testutils.DatabaseWipeTestCase):
         self.assertGreaterEqual(len(status_messages), 1)
 
 
-class Test_validate_add_project(testutils.EnvironmentOverrideDatabaseWipeTestCase):
+class Test_validate_add_project(testutils.DatabaseWipeTestCase):
     def test_valid(self):
-        os.environ["SSL_CLIENT_S_DN_Email"] = "rif" + "@mit.edu"
         project_info = {
             "name": "test3",
             "description": "some test description",
@@ -482,12 +522,13 @@ class Test_validate_add_project(testutils.EnvironmentOverrideDatabaseWipeTestCas
             "contacts": [{"email": "foo@mit.edu", "type": "primary", "index": 0}],
             "roles": [{"role": "foo", "description": "bar", "prereq": "", "index": 0}],
         }
-        is_ok, status_messages = valutils.validate_add_project(project_info)
+        is_ok, status_messages = validate_in_request(
+            valutils.validate_add_project, project_info, kerberos="rif"
+        )
         self.assertTrue(is_ok)
         self.assertEqual(len(status_messages), 0)
 
     def test_invalid(self):
-        os.environ.pop("SSL_CLIENT_S_DN_Email", None)
         project_info = {
             "name": "test3",
             "description": "some test description",
@@ -497,39 +538,43 @@ class Test_validate_add_project(testutils.EnvironmentOverrideDatabaseWipeTestCas
             "contacts": [{"email": "foo@mit.edu", "type": "primary", "index": 0}],
             "roles": [{"role": "foo", "description": "bar", "prereq": "", "index": 0}],
         }
-        is_ok, status_messages = valutils.validate_add_project(project_info)
+        is_ok, status_messages = validate_in_request(
+            valutils.validate_add_project, project_info, kerberos=None
+        )
         self.assertFalse(is_ok)
         self.assertGreaterEqual(len(status_messages), 1)
 
 
-class Test_validate_edit_permission(testutils.EnvironmentOverrideDatabaseWipeTestCase):
+class Test_validate_edit_permission(testutils.DatabaseWipeTestCase):
     def test_none(self):
-        os.environ.pop("SSL_CLIENT_S_DN_Email", None)
         project_id = db.get_project_id("test1")
-        is_ok, status_messages = valutils.validate_edit_permission(project_id)
+        is_ok, status_messages = validate_in_request(
+            valutils.validate_edit_permission, project_id, kerberos=None
+        )
         self.assertFalse(is_ok)
         self.assertGreaterEqual(len(status_messages), 1)
 
     def test_contact(self):
-        os.environ["SSL_CLIENT_S_DN_Email"] = "foo@mit.edu"
         project_id = db.get_project_id("test1")
-        is_ok, status_messages = valutils.validate_edit_permission(project_id)
+        is_ok, status_messages = validate_in_request(
+            valutils.validate_edit_permission, project_id, kerberos="foo"
+        )
         self.assertTrue(is_ok)
         self.assertEqual(len(status_messages), 0)
 
     def test_noncontact(self):
-        os.environ["SSL_CLIENT_S_DN_Email"] = (
-            "this_is_definitely_not_a_valid_kerb@mit.edu"
-        )
         project_id = db.get_project_id("test1")
-        is_ok, status_messages = valutils.validate_edit_permission(project_id)
+        is_ok, status_messages = validate_in_request(
+            valutils.validate_edit_permission,
+            project_id,
+            kerberos="this_is_definitely_not_a_valid_kerb",
+        )
         self.assertFalse(is_ok)
         self.assertGreaterEqual(len(status_messages), 1)
 
 
-class Test_validate_edit_project(testutils.EnvironmentOverrideDatabaseWipeTestCase):
+class Test_validate_edit_project(testutils.DatabaseWipeTestCase):
     def test_none(self):
-        os.environ.pop("SSL_CLIENT_S_DN_Email", None)
         project_info = {
             "name": "test3",
             "description": "some test description",
@@ -540,14 +585,13 @@ class Test_validate_edit_project(testutils.EnvironmentOverrideDatabaseWipeTestCa
             "roles": [{"role": "foo", "description": "bar", "prereq": "", "index": 0}],
         }
         project_id = db.get_project_id("test1")
-        is_ok, status_messages = valutils.validate_edit_project(
-            project_info, project_id
+        is_ok, status_messages = validate_in_request(
+            valutils.validate_edit_project, project_info, project_id, kerberos=None
         )
         self.assertFalse(is_ok)
         self.assertGreaterEqual(len(status_messages), 1)
 
     def test_valid_same_name(self):
-        os.environ["SSL_CLIENT_S_DN_Email"] = "foo@mit.edu"
         project_info = {
             "name": "test1",
             "description": "some test description",
@@ -558,14 +602,13 @@ class Test_validate_edit_project(testutils.EnvironmentOverrideDatabaseWipeTestCa
             "roles": [{"role": "foo", "description": "bar", "prereq": "", "index": 0}],
         }
         project_id = db.get_project_id("test1")
-        is_ok, status_messages = valutils.validate_edit_project(
-            project_info, project_id
+        is_ok, status_messages = validate_in_request(
+            valutils.validate_edit_project, project_info, project_id, kerberos="foo"
         )
         self.assertTrue(is_ok)
         self.assertEqual(len(status_messages), 0)
 
     def test_valid_new_name(self):
-        os.environ["SSL_CLIENT_S_DN_Email"] = "foo@mit.edu"
         project_info = {
             "name": "test3",
             "description": "some test description",
@@ -576,39 +619,42 @@ class Test_validate_edit_project(testutils.EnvironmentOverrideDatabaseWipeTestCa
             "roles": [{"role": "foo", "description": "bar", "prereq": "", "index": 0}],
         }
         project_id = db.get_project_id("test1")
-        is_ok, status_messages = valutils.validate_edit_project(
-            project_info, project_id
+        is_ok, status_messages = validate_in_request(
+            valutils.validate_edit_project, project_info, project_id, kerberos="foo"
         )
         self.assertTrue(is_ok)
         self.assertEqual(len(status_messages), 0)
 
 
-class Test_validate_approval_permission(testutils.EnvironmentOverrideTestCase):
+class Test_validate_approval_permission(unittest.TestCase):
     def test_none(self):
-        os.environ.pop("SSL_CLIENT_S_DN_Email", None)
-        is_ok, status_messages = valutils.validate_approval_permission()
+        is_ok, status_messages = validate_in_request(
+            valutils.validate_approval_permission, kerberos=None
+        )
         self.assertFalse(is_ok)
         self.assertGreaterEqual(len(status_messages), 1)
 
     def test_non_approver(self):
-        os.environ["SSL_CLIENT_S_DN_Email"] = (
-            "this_is_definitely_not_a_valid_kerb@mit.edu"
+        is_ok, status_messages = validate_in_request(
+            valutils.validate_approval_permission,
+            kerberos="this_is_definitely_not_a_valid_kerb",
         )
-        is_ok, status_messages = valutils.validate_approval_permission()
         self.assertFalse(is_ok)
         self.assertGreaterEqual(len(status_messages), 1)
 
     def test_admin(self):
         if len(config.ADMIN_USERS) > 0:
-            os.environ["SSL_CLIENT_S_DN_Email"] = config.ADMIN_USERS[0] + "@mit.edu"
-            is_ok, status_messages = valutils.validate_approval_permission()
+            is_ok, status_messages = validate_in_request(
+                valutils.validate_approval_permission, kerberos=config.ADMIN_USERS[0]
+            )
             self.assertTrue(is_ok)
             self.assertEqual(len(status_messages), 0)
 
     def test_approver(self):
         if len(config.APPROVER_USERS) > 0:
-            os.environ["SSL_CLIENT_S_DN_Email"] = config.APPROVER_USERS[0] + "@mit.edu"
-            is_ok, status_messages = valutils.validate_approval_permission()
+            is_ok, status_messages = validate_in_request(
+                valutils.validate_approval_permission, kerberos=config.APPROVER_USERS[0]
+            )
             self.assertTrue(is_ok)
             self.assertEqual(len(status_messages), 0)
 
@@ -649,10 +695,9 @@ class Test_validate_approval_comments(unittest.TestCase):
         self.assertGreaterEqual(len(status_messages), 1)
 
 
-class Test_validate_approve_project(testutils.EnvironmentOverrideDatabaseWipeTestCase):
+class Test_validate_approve_project(testutils.DatabaseWipeTestCase):
     def test_valid(self):
         if len(config.ADMIN_USERS) > 0:
-            os.environ["SSL_CLIENT_S_DN_Email"] = config.ADMIN_USERS[0] + "@mit.edu"
             project_info = {
                 "name": "test1",
                 "description": "some test description",
@@ -667,16 +712,18 @@ class Test_validate_approve_project(testutils.EnvironmentOverrideDatabaseWipeTes
             project_id = db.get_project_id(project_info["name"])
             approval_action = "accepted"
             approver_comments = ""
-            is_ok, status_messages = valutils.validate_approve_project(
-                project_info, project_id, approval_action, approver_comments
+            is_ok, status_messages = validate_in_request(
+                valutils.validate_approve_project,
+                project_info,
+                project_id,
+                approval_action,
+                approver_comments,
+                kerberos=config.ADMIN_USERS[0],
             )
             self.assertTrue(is_ok)
             self.assertEqual(len(status_messages), 0)
 
     def test_invalid(self):
-        os.environ["SSL_CLIENT_S_DN_Email"] = (
-            "this_is_definitely_not_a_valid_kerb@mit.edu"
-        )
         project_info = {
             "name": "test1",
             "description": "some test description",
@@ -689,8 +736,13 @@ class Test_validate_approve_project(testutils.EnvironmentOverrideDatabaseWipeTes
         project_id = db.get_project_id(project_info["name"])
         approval_action = "accepted"
         approver_comments = ""
-        is_ok, status_messages = valutils.validate_approve_project(
-            project_info, project_id, approval_action, approver_comments
+        is_ok, status_messages = validate_in_request(
+            valutils.validate_approve_project,
+            project_info,
+            project_id,
+            approval_action,
+            approver_comments,
+            kerberos="this_is_definitely_not_a_valid_kerb",
         )
         self.assertFalse(is_ok)
         self.assertGreaterEqual(len(status_messages), 1)

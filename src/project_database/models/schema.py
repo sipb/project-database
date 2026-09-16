@@ -5,7 +5,7 @@ import sqlalchemy.ext.declarative
 import sqlalchemy.orm
 
 MODE = os.environ.get("PROJECTS_DATABASE_MODE", "prod")
-SQL_URL = "sqlite:///data/test.db" if MODE == "test" else "sqlite:///data/main.db"
+SQL_URL = "sqlite://" if MODE == "test" else "sqlite:///data/main.db"
 
 
 ##############################################################
@@ -39,7 +39,9 @@ class HistoryMixin:
     # action can be 'create', 'update', 'delete', 'same'
     action = db.orm.mapped_column(db.String(25), nullable=False)
     revision_id = db.orm.mapped_column(db.Integer(), nullable=False)
-    timestamp = db.orm.mapped_column(db.TIMESTAMP, nullable=False, server_default=db.func.now())
+    timestamp = db.orm.mapped_column(
+        db.TIMESTAMP, nullable=False, server_default=db.func.now()
+    )
 
     @sqlalchemy.orm.validates("author")
     def validate_author(self, key, author):
@@ -113,7 +115,9 @@ class Projects(SQLBase, ProjectsBase):
 
 class ProjectsHistory(SQLBase, ProjectsBase, HistoryMixin):
     __tablename__ = "projectshistory"
-    id = db.orm.mapped_column(db.Integer(), nullable=False, primary_key=True, autoincrement=True)
+    id = db.orm.mapped_column(
+        db.Integer(), nullable=False, primary_key=True, autoincrement=True
+    )
     name = db.orm.mapped_column(db.String(50), nullable=False)
 
     # Foreign key constraint requires special handling.
@@ -125,7 +129,9 @@ class ProjectsHistory(SQLBase, ProjectsBase, HistoryMixin):
 
 
 class ContactEmailsBase:
-    id = db.orm.mapped_column(db.Integer(), nullable=False, primary_key=True, autoincrement=True)
+    id = db.orm.mapped_column(
+        db.Integer(), nullable=False, primary_key=True, autoincrement=True
+    )
     # type can be either "primary" or "secondary". By convention, there should
     # be exactly one primary contact for each project.
     type = db.orm.mapped_column(db.String(25), nullable=False)
@@ -195,7 +201,9 @@ class RolesHistory(SQLBase, RolesBase, HistoryMixin):
 
 
 class LinksBase:
-    id = db.orm.mapped_column(db.Integer(), nullable=False, primary_key=True, autoincrement=True)
+    id = db.orm.mapped_column(
+        db.Integer(), nullable=False, primary_key=True, autoincrement=True
+    )
     link = db.orm.mapped_column(db.Text(), nullable=False)
     # index sets the order which links are listed in:
     index = db.orm.mapped_column(db.Integer(), nullable=False)
@@ -218,7 +226,9 @@ class LinksHistory(SQLBase, LinksBase, HistoryMixin):
 
 
 class CommChannelsBase:
-    id = db.orm.mapped_column(db.Integer(), nullable=False, primary_key=True, autoincrement=True)
+    id = db.orm.mapped_column(
+        db.Integer(), nullable=False, primary_key=True, autoincrement=True
+    )
     commchannel = db.orm.mapped_column(db.Text(), nullable=False)
     # index sets the order which comm channels are listed in:
     index = db.orm.mapped_column(db.Integer(), nullable=False)
@@ -262,7 +272,9 @@ class NewMemberSubmissions(SQLBase):
     comments = db.orm.mapped_column(db.Text(), nullable=True)
     # status can be "pending" or "reviewed":
     status = db.orm.mapped_column(db.String(25), nullable=False, default="pending")
-    submitted_at = db.orm.mapped_column(db.TIMESTAMP, nullable=False, server_default=db.func.now())
+    submitted_at = db.orm.mapped_column(
+        db.TIMESTAMP, nullable=False, server_default=db.func.now()
+    )
     # Kerb of the approver who reviewed the submission:
     reviewer = db.orm.mapped_column(db.String(50), nullable=True)
     reviewer_notes = db.orm.mapped_column(db.Text(), nullable=True)
@@ -286,7 +298,9 @@ class NewMemberSubmissions(SQLBase):
 class NewMemberSuggestedProjects(SQLBase):
     __tablename__ = "newmembersuggestedprojects"
 
-    id = db.orm.mapped_column(db.Integer(), nullable=False, primary_key=True, autoincrement=True)
+    id = db.orm.mapped_column(
+        db.Integer(), nullable=False, primary_key=True, autoincrement=True
+    )
     submission_id = db.orm.mapped_column(
         db.Integer(),
         db.ForeignKey("newmembersubmissions.submission_id"),

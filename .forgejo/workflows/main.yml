@@ -12,6 +12,10 @@ jobs:
       - name: Checkout
         uses: https://github.com/actions/checkout@v7
 
+      - name: Run tests
+        run: |
+          uv run -m unittest discover -s tests
+
       - name: Build and deploy
         uses: https://forgejo.mit.edu/SIPB/hyades-action@main
         with:

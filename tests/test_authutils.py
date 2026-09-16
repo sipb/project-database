@@ -1,5 +1,4 @@
-# testutils MUST be imported first to set up test configuration and module
-# paths properly!
+# testutils MUST be imported first to set up test configuration properly!
 import os
 import unittest
 
@@ -10,7 +9,7 @@ from project_database.models import db
 from project_database.utils import authutils
 
 
-class Test_get_kerberos(testutils.EnvironmentOverrideTestCase):
+class Test_get_kerberos(unittest.TestCase):
     def test_none(self):
         with app.test_request_context():
             kerberos = authutils.get_kerberos()
@@ -36,7 +35,7 @@ class Test_get_kerberos(testutils.EnvironmentOverrideTestCase):
         self.assertIsNone(kerberos)
 
 
-class Test_get_email(testutils.EnvironmentOverrideTestCase):
+class Test_get_email(unittest.TestCase):
     def test_none(self):
         with app.test_request_context():
             email = authutils.get_email()
@@ -72,26 +71,16 @@ class Test_get_email(testutils.EnvironmentOverrideTestCase):
         self.assertIsNone(email)
 
 
-class Test_get_auth_url(testutils.EnvironmentOverrideTestCase):
+class Test_get_auth_url(unittest.TestCase):
     def test_with_auth(self):
-        true_host = "test.foo.bar:123"
-        os.environ["HTTP_HOST"] = true_host
-
-        true_uri = "/baz.html"
-        os.environ["REQUEST_URI"] = true_uri
-
-        host = authutils.get_auth_url(True)
-        self.assertEqual(host, "https://test.foo.bar:444/baz.html")
+        with app.test_request_context():
+            url = authutils.get_auth_url(True)
+        self.assertEqual(url, "/hlogin")
 
     def test_without_auth(self):
-        true_host = "test.foo.bar:123"
-        os.environ["HTTP_HOST"] = true_host
-
-        true_uri = "/baz.html"
-        os.environ["REQUEST_URI"] = true_uri
-
-        host = authutils.get_auth_url(False)
-        self.assertEqual(host, "https://test.foo.bar/baz.html")
+        with app.test_request_context():
+            url = authutils.get_auth_url(False)
+        self.assertEqual(url, "/hlogout")
 
 
 class Test_debug_authentication(unittest.TestCase):
@@ -218,7 +207,7 @@ class Test_is_approver(unittest.TestCase):
             self.assertTrue(result)
 
 
-class Test_can_edit(testutils.EnvironmentOverrideTestCase):
+class Test_can_edit(testutils.DatabaseEmptyTestCase):
     def test_none(self):
         result = authutils.can_edit(None, -1)
         self.assertFalse(result)
@@ -234,77 +223,71 @@ class Test_can_edit(testutils.EnvironmentOverrideTestCase):
             self.assertTrue(result)
 
     def test_creator(self):
-        with testutils.DatabaseWiper():
-            kerberos = "this_is_definitely_not_a_valid_kerb"
-            email = kerberos + "@mit.edu"
-            os.environ["SSL_CLIENT_S_DN_Email"] = email
-            project_id = db.add_project(
-                {
-                    "name": "test",
-                    "description": "some test description",
-                    "status": "active",
-                    "links": [],
-                    "comm_channels": [],
-                    "contacts": [
-                        {"email": "foo@mit.edu", "type": "primary", "index": 0}
-                    ],
-                    "roles": [],
-                },
-                kerberos,
-            )
+        kerberos = "this_is_definitely_not_a_valid_kerb"
+        email = kerberos + "@mit.edu"
+        project_id = db.add_project(
+            {
+                "name": "test",
+                "description": "some test description",
+                "status": "active",
+                "links": [],
+                "comm_channels": [],
+                "contacts": [
+                    {"email": "foo@mit.edu", "type": "primary", "index": 0}
+                ],
+                "roles": [],
+            },
+            kerberos,
+        )
 
-            result = authutils.can_edit(kerberos, project_id)
+        result = authutils.can_edit(kerberos, project_id)
 
         self.assertTrue(result)
 
     def test_contact(self):
-        with testutils.DatabaseWiper():
-            kerberos = "this_is_definitely_not_a_valid_kerb"
-            email = kerberos + "@mit.edu"
-            os.environ["SSL_CLIENT_S_DN_Email"] = email
-            project_id = db.add_project(
-                {
-                    "name": "test",
-                    "description": "some test description",
-                    "status": "active",
-                    "links": [],
-                    "comm_channels": [],
-                    "contacts": [{"email": email, "type": "primary", "index": 0}],
-                    "roles": [],
-                },
-                "creator",
-            )
+        kerberos = "this_is_definitely_not_a_valid_kerb"
+        email = kerberos + "@mit.edu"
+        project_id = db.add_project(
+            {
+                "name": "test",
+                "description": "some test description",
+                "status": "active",
+                "links": [],
+                "comm_channels": [],
+                "contacts": [{"email": email, "type": "primary", "index": 0}],
+                "roles": [],
+            },
+            "creator",
+        )
 
-            result = authutils.can_edit(kerberos, project_id)
+        result = authutils.can_edit(kerberos, project_id)
 
         self.assertTrue(result)
 
     def test_non_contact(self):
-        with testutils.DatabaseWiper():
-            kerberos = "this_is_definitely_not_a_valid_kerb"
-            email = kerberos + "@mit.edu"
-            os.environ["SSL_CLIENT_S_DN_Email"] = email
-            project_id = db.add_project(
-                {
-                    "name": "test",
-                    "description": "some test description",
-                    "status": "active",
-                    "links": [],
-                    "comm_channels": [],
-                    "contacts": [
-                        {"email": "foo@mit.edu", "type": "primary", "index": 0}
-                    ],
-                    "roles": [],
-                },
-                "creator",
-            )
+        kerberos = "this_is_definitely_not_a_valid_kerb"
+        email = kerberos + "@mit.edu"
+        project_id = db.add_project(
+            {
+                "name": "test",
+                "description": "some test description",
+                "status": "active",
+                "links": [],
+                "comm_channels": [],
+                "contacts": [
+                    {"email": "foo@mit.edu", "type": "primary", "index": 0}
+                ],
+                "roles": [],
+            },
+            "creator",
+        )
 
-            result = authutils.can_edit(kerberos, project_id)
+        result = authutils.can_edit(kerberos, project_id)
 
         self.assertFalse(result)
 
 
-class Test_requires_approval(testutils.EnvironmentOverrideTestCase):
+class Test_requires_approval(unittest.TestCase):
     def test_none(self):
         result = authutils.requires_approval(None)
         self.assertTrue(result)
@@ -328,7 +311,7 @@ class Test_requires_approval(testutils.EnvironmentOverrideTestCase):
         self.assertTrue(result)
 
 
-class Test_can_approve(testutils.EnvironmentOverrideTestCase):
+class Test_can_approve(unittest.TestCase):
     def test_none(self):
         result = authutils.can_approve(None)
         self.assertFalse(result)
@@ -349,7 +332,7 @@ class Test_can_approve(testutils.EnvironmentOverrideTestCase):
 
 
 class Test_enrich_project_list_with_permissions(
-    testutils.EnvironmentOverrideDatabaseWipeTestCase
+    testutils.DatabaseWipeTestCase
 ):
     def test_none(self):
         project_list = authutils.enrich_project_list_with_permissions(

@@ -447,7 +447,11 @@ def get_project_id(name):
     """Get the ID of a project with `name`, if it exists
     Otherwise returns None
     """
-    return session.query(Projects.project_id).filter_by(name=name).scalar()
+    return (
+        session.query(Projects.project_id)
+        .filter(sa.func.lower(Projects.name) == sa.func.lower(name))
+        .scalar()
+    )
 
 
 def get_project_name(project_id):
@@ -1662,95 +1666,3 @@ def mark_new_member_submission_reviewed(
     session.commit()
 
     return get_new_member_submission(submission_id)
-
-
-######################################################################
-# Testing Code
-######################################################################
-
-# TODO make this an actual unit test
-
-# Example usage
-# project = {
-#         "name":"SIPB Minecraft",
-#         "status":"active",
-#         "description":"Virtual MIT in a Minecraft server!"
-#         }
-# add_project(project)
-
-# print(get_all_projects())
-# pj1 = {
-#     'name':'test1',
-#     'status':'active',
-#     'description':'that is all folks'
-# }
-# print(add_project_metadata(pj1))
-# print(get_project_id('test1'))
-# print(get_all_projects())
-
-# contacts1 =[
-#     {
-#         'type':'primary',
-#         'email':'you-fools@mit.edu',
-#     },
-#     {
-#         'type':'secondary',
-#         'email':'ec-discuss-never@mit.edu'
-#     }
-# ]
-# project_id = get_project_id('test')
-# update_project_contacts(project_id,contacts1)
-
-# project_id = get_project_id('test1')
-# print(get_contacts(project_id))
-
-# roles1 = [
-#     {
-#         'role':'Support Tech',
-#         'description':'get familiar with MIT\'s and SIPB\'s computing infrastructure by helping answer user questions and approve user requests.'
-#         # missing prereq
-#     },
-#     {
-#         'role':'Support Tech',
-#         'description':"help design, implement, test, and review SIPB's cluster management software.",
-#         'prereq':'previous programming experience in any statically typed language, knowledge of Python and Go or ability to independently learn them, 6.033-level understanding of computer systems, experience with Git, experience with Linux'
-#     }
-# ]
-# #print(add_project_roles('test1',roles1))
-
-# links1 = [
-#     {'link':'https://sipb.mit.edu/'},
-#     {'link':'https://hwops.mit.edu/'}
-# ]
-# print(update_project_links(1,links1))
-
-# comms1 = [
-#     {'commchannel':'sipb-hwops@mit.edu'},
-# ]
-# #print(add_project_comms('test1',comms1))
-
-
-# print("Done")
-
-# project_mod = {
-#         "name":"SIPB Takes Over the World",
-#         "status":"active",
-#         "description":"April Fools"
-# }
-
-# print(update_metadata(1, project_mod))
-
-# update_project1 = {
-# 'name': 'myproject',
-# 'description': 'something something something',
-# 'status': 'active',
-# 'links': [{'link':'http://link.com'}],
-# 'comm_channels': [{'commchannel':'sipb-hwops@mit.edu'}],
-# 'contacts': [{'email': 'markchil@mit.edu', 'type': 'primary'}],
-# 'roles': [{'role': 'support tech', 'description': 'do stuff', 'prereq': None}]
-# }
-
-# print(update_project(update_project1,3,'huydai'))
-
-# reject_project(dict(),1,'huydai','it is bad')
-# approve_project(dict(),3,'huydai','it is good')
