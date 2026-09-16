@@ -23,6 +23,9 @@ COPY . /app
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked
 
+# Run tests
+RUN uv run --no-sync -m unittest discover -s tests
+
 
 # Then, use a final image without uv
 FROM docker.io/python:3.14-slim-trixie
@@ -50,5 +53,5 @@ USER nonroot
 # Use `/app` as the working directory
 WORKDIR /app
 
-# Run the FastAPI application by default
+# Run the application by default
 CMD ["gunicorn", "project_database:app", "--bind", "0.0.0.0:5000", "--workers", "4"]
