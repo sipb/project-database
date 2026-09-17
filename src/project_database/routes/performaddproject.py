@@ -24,7 +24,7 @@ def view(arguments):
             )
             assert project_id != -1
             project_info["project_id"] = project_id
-        except Exception:
+        except Exception:  # noqa: BLE001
             is_ok = False
             status = ""
             status += "add_project failed with the following exception:\n"

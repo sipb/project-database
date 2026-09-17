@@ -26,7 +26,7 @@ def view(arguments):
                 reviewer_notes,
                 suggested_project_ids,
             )
-        except Exception:
+        except Exception:  # noqa: BLE001
             is_ok = False
             status = ""
             status += (

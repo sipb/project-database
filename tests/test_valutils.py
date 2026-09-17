@@ -1,5 +1,4 @@
 # testutils MUST be imported first to set up test configuration properly!
-import os
 import unittest
 
 import testutils

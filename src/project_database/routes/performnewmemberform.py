@@ -19,7 +19,7 @@ def view(arguments):
         try:
             submission_id = db.add_new_member_submission(submission_info, kerberos)
             submission_info["submission_id"] = submission_id
-        except Exception:
+        except Exception:  # noqa: BLE001
             is_ok = False
             status = ""
             status += "add_new_member_submission failed with the following exception:\n"

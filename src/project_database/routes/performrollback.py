@@ -23,7 +23,7 @@ def view(arguments):
 
         try:
             db.rollback_project(project_id, revision_id, editor_kerberos)
-        except Exception:
+        except Exception:  # noqa: BLE001
             is_ok = False
             status = ""
             status += "rollback_project failed with the following exception:\n"

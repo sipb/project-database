@@ -1,5 +1,4 @@
 # testutils MUST be imported first to set up test configuration properly!
-import os
 import unittest
 
 import testutils
@@ -224,7 +223,6 @@ class Test_can_edit(testutils.DatabaseEmptyTestCase):
 
     def test_creator(self):
         kerberos = "this_is_definitely_not_a_valid_kerb"
-        email = kerberos + "@mit.edu"
         project_id = db.add_project(
             {
                 "name": "test",
@@ -232,9 +230,7 @@ class Test_can_edit(testutils.DatabaseEmptyTestCase):
                 "status": "active",
                 "links": [],
                 "comm_channels": [],
-                "contacts": [
-                    {"email": "foo@mit.edu", "type": "primary", "index": 0}
-                ],
+                "contacts": [{"email": "foo@mit.edu", "type": "primary", "index": 0}],
                 "roles": [],
             },
             kerberos,
@@ -266,7 +262,6 @@ class Test_can_edit(testutils.DatabaseEmptyTestCase):
 
     def test_non_contact(self):
         kerberos = "this_is_definitely_not_a_valid_kerb"
-        email = kerberos + "@mit.edu"
         project_id = db.add_project(
             {
                 "name": "test",
@@ -274,9 +269,7 @@ class Test_can_edit(testutils.DatabaseEmptyTestCase):
                 "status": "active",
                 "links": [],
                 "comm_channels": [],
-                "contacts": [
-                    {"email": "foo@mit.edu", "type": "primary", "index": 0}
-                ],
+                "contacts": [{"email": "foo@mit.edu", "type": "primary", "index": 0}],
                 "roles": [],
             },
             "creator",
@@ -331,9 +324,7 @@ class Test_can_approve(unittest.TestCase):
         self.assertFalse(result)
 
 
-class Test_enrich_project_list_with_permissions(
-    testutils.DatabaseWipeTestCase
-):
+class Test_enrich_project_list_with_permissions(testutils.DatabaseWipeTestCase):
     def test_none(self):
         project_list = authutils.enrich_project_list_with_permissions(
             None, self.project_info_list

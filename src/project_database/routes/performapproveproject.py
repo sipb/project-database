@@ -21,7 +21,7 @@ def view(arguments):
         try:
             db.update_project(project_info, project_id, authutils.get_kerberos())
             project_info["project_id"] = project_id
-        except Exception:
+        except Exception:  # noqa: BLE001
             is_ok = False
             status = ""
             status += "update_project failed with the following exception:\n"
@@ -44,7 +44,7 @@ def view(arguments):
 
         try:
             action(project_info, project_id, approver_kerberos, approver_comments)
-        except Exception:
+        except Exception:  # noqa: BLE001
             is_ok = False
             status = ""
             status += f"{action_name} failed with the following exception:\n"

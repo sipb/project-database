@@ -277,7 +277,7 @@ def edit_confirm_main(task, arguments):
         try:
             db.update_project(project_info, project_id, editor_kerberos)
             project_info["project_id"] = project_id
-        except Exception:
+        except Exception:  # noqa: BLE001
             is_ok = False
             status = ""
             status += "update_project failed with the following exception:\n"

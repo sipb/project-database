@@ -1,10 +1,8 @@
 # testutils MUST be imported first to set up test configuration properly!
-import unittest
 
 import testutils
 
 from project_database.models import db, schema
-
 
 PROJECT_INFO = {
     "name": "SIPB Minecraft",
@@ -75,7 +73,9 @@ UPDATE_PROJECT_INFO = {
     "links": [{"link": "http://link.com", "index": 0}],
     "comm_channels": [{"commchannel": "sipb-hwops@mit.edu", "index": 0}],
     "contacts": [{"email": "markchil@mit.edu", "type": "primary", "index": 0}],
-    "roles": [{"role": "support tech", "description": "do stuff", "prereq": None, "index": 0}],
+    "roles": [
+        {"role": "support tech", "description": "do stuff", "prereq": None, "index": 0}
+    ],
 }
 
 
@@ -172,9 +172,7 @@ class Test_update_project_contacts(testutils.DatabaseEmptyTestCase):
         db.update_project_contacts(project_id, CONTACTS, "editor", 1)
         schema.session.commit()
 
-        self.assertEqual(
-            strip_internal_fields(db.get_contacts(project_id)), CONTACTS
-        )
+        self.assertEqual(strip_internal_fields(db.get_contacts(project_id)), CONTACTS)
 
 
 class Test_add_project_roles(testutils.DatabaseEmptyTestCase):
@@ -198,7 +196,9 @@ class Test_update_project_links(testutils.DatabaseEmptyTestCase):
         expected_links = [link.copy() for link in LINKS]
         for link in expected_links:
             link["anchortext"] = None
-        self.assertEqual(strip_internal_fields(db.get_links(project_id)), expected_links)
+        self.assertEqual(
+            strip_internal_fields(db.get_links(project_id)), expected_links
+        )
 
 
 class Test_add_project_comms(testutils.DatabaseEmptyTestCase):
@@ -234,9 +234,7 @@ class Test_update_project(testutils.DatabaseEmptyTestCase):
 
         project_info = db.get_all_info_for_project(project_id)
         self.assertEqual(project_info["name"], "myproject")
-        self.assertEqual(
-            project_info["description"], "something something something"
-        )
+        self.assertEqual(project_info["description"], "something something something")
         self.assertEqual(
             strip_internal_fields(project_info["contacts"]),
             [{"email": "markchil@mit.edu", "type": "primary", "index": 0}],
