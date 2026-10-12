@@ -161,7 +161,11 @@
                         </td>
                         {% if can_edit %}
                         <td>
-                            <a href="performrollback?project_id={{ project_id }}&revision_id={{ revision.revision_id }}">roll back to here</a>
+                            <form action="performrollback" method="post">
+                                <input type="hidden" name="project_id" value="{{ project_id }}">
+                                <input type="hidden" name="revision_id" value="{{ revision.revision_id }}">
+                                <button type="submit">roll back to here</button>
+                            </form>
                         </td>
                         {% endif %}
                     </tr>

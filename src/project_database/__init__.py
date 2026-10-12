@@ -114,7 +114,7 @@ def route_performeditproject():
     return Response(performeditproject.view(request.values), mimetype="text/html")
 
 
-@app.route("/performrollback")
+@app.route("/performrollback", methods=["POST"])
 def route_performrollback():
     return Response(performrollback.view(request.values), mimetype="text/html")
 

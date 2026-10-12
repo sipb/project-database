@@ -10,6 +10,8 @@ def view(arguments):
     revision_id = arguments.get("revision_id", "")
     editor_kerberos = authutils.get_kerberos()
     is_ok, status_messages = valutils.validate_revision_id(project_id, revision_id)
+    if is_ok:
+        is_ok, status_messages = valutils.validate_edit_permission(project_id)
 
     if is_ok:
         current_approval_status = db.get_project_approval_status(project_id)
